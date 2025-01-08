@@ -10,6 +10,7 @@ const MHTML_FSM = {
 
 const QUOTED_PRINTABLE_ENCODING = "quoted-printable";
 const CONTENT_TYPE_HEADER = "Content-Type";
+const BASE64_ENCODING = "base64";
 
 const mhtmlToHtml = {
     parse: mhtml => {
@@ -306,5 +307,5 @@ function replaceStyleSheetUrls(resources, base, asset) {
 }
 
 function getResourceURI(asset) {
-    return `data:${asset.contentType};base64,${asset.transferEncoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
+    return `data:${asset.contentType};${BASE64_ENCODING},${asset.transferEncoding === BASE64_ENCODING ? asset.data : encodeBase64(asset.data)}`;
 }
