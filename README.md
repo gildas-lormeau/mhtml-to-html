@@ -22,5 +22,5 @@ chmod +x mhtml-to-html
 ## Usage 
 
 ``` sh
-./mhtml-to-html <input> [output]
+mhtml-to-html <input> [output]
 ```
