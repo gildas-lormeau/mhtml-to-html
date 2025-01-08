@@ -34,6 +34,7 @@ function replaceReferences(media, base, asset) {
 function convertAssetToDataURI(asset) {
     switch (asset.encoding) {
         case "quoted-printable":
+            return `data:${asset.mediaType};base64,${encodeBase64(new TextEncoder().encode(asset.data))}`;
         case "base64":
             return `data:${asset.mediaType};base64,${asset.data}`;
         default:
