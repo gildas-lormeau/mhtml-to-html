@@ -211,7 +211,7 @@ const mhtmlToHtml = {
         }
     },
     convert: mhtml => {
-        let base, img;
+        let base;
         let href, src, title;
         if (mhtml instanceof Uint8Array) {
             mhtml = mhtmlToHtml.parse(mhtml);
@@ -276,27 +276,38 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "IMG":
-                        img = null;
                         if (media[src] && media[src].mediaType.startsWith("image/")) {
                             try {
-                                img = convertAssetToDataURI(media[src]);
+                                child.setAttribute("src", convertAssetToDataURI(media[src]));
                             } catch (error) {
                                 console.warn(error);
                             }
-                            if (img !== null) {
-                                child.setAttribute("src", img);
+                        }
+                        break;
+                    case "AUDIO":
+                        if (media[src] && media[src].mediaType.startsWith("audio/")) {
+                            try {
+                                child.setAttribute("src", convertAssetToDataURI(media[src]));
+                            } catch (error) {
+                                console.warn(error);
+                            }
+                        }
+                        break;
+                    case "VIDEO":
+                        if (media[src].mediaType.startsWith("video/")) {
+                            try {
+                                child.setAttribute("src", convertAssetToDataURI(media[src]));
+                            } catch (error) {
+                                console.warn(error);
                             }
                         }
                         break;
                     case "SOURCE":
-                        if (media[src] && media[src].mediaType.startsWith("image/")) {
+                        if (media[src] && media[src].mediaType.startsWith("image/") || media[src].mediaType.startsWith("video/") || media[src].mediaType.startsWith("audio/")) {
                             try {
-                                img = convertAssetToDataURI(media[src]);
+                                child.setAttribute("src", convertAssetToDataURI(media[src]));
                             } catch (error) {
                                 console.warn(error);
-                            }
-                            if (img !== null) {
-                                child.setAttribute("src", img);
                             }
                         }
                         break;
