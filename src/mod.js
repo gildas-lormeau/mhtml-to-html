@@ -11,7 +11,7 @@ const MHTML_FSM = {
 const mhtmlToHtml = {
     parse: mhtml => {
         const headers = {};
-        const media = {};
+        const resources = {};
         const frames = {};
         let asset, transferEncoding, index, boundary, headerKey;
         let content = {};
@@ -61,8 +61,8 @@ const mhtmlToHtml = {
                     if (typeof contentId !== "undefined") {
                         frames[contentId] = asset;
                     }
-                    if (typeof url !== "undefined" && !media[url]) {
-                        media[url] = asset;
+                    if (typeof url !== "undefined" && !resources[url]) {
+                        resources[url] = asset;
                     }
                     trim();
                     content = {};
@@ -100,11 +100,7 @@ const mhtmlToHtml = {
                 state = (indexMhtml >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
             }
         }
-        return {
-            frames: frames,
-            media: media,
-            index: index
-        };
+        return { frames, resources, index };
 
         function trim() {
             while ((mhtml[indexMhtml] === 0x20 || mhtml[indexMhtml] === 0x0A || mhtml[indexMhtml] === 0x0D) && indexMhtml++ < mhtml.length - 1);
@@ -136,9 +132,10 @@ const mhtmlToHtml = {
             }
         }
     },
-    convert: ({ frames, media, index }) => {
-        const url = media[index].url || media[index].id;
-        const dom = parseDOM(media[index].data);
+    convert: ({ frames, resources, index }) => {
+        let resource = resources[index];
+        const url = resource.url || resource.id;
+        const dom = parseDOM(resource.data);
         const documentElement = dom.document;
         const nodes = [documentElement];
         let href, src, title;
@@ -151,7 +148,7 @@ const mhtmlToHtml = {
                     title = child.getAttribute("title");
                     const style = child.getAttribute("style");
                     if (style) {
-                        child.setAttribute("style", replaceStyleSheetUrls(media, index, style));
+                        child.setAttribute("style", replaceStyleSheetUrls(resources, index, style));
                     }
                 }
                 if (child.removeAttribute) {
@@ -162,7 +159,8 @@ const mhtmlToHtml = {
                         child.remove();
                         break;
                     case "LINK":
-                        if (media[href] && media[href].contentType.startsWith("text/css")) {
+                        resource = resources[href];
+                        if (resource && resource.contentType.startsWith("text/css")) {
                             if (title) {
                                 child.remove();
                             } else {
@@ -172,8 +170,8 @@ const mhtmlToHtml = {
                                 if (mediaAttribute) {
                                     styleElement.setAttribute("media", mediaAttribute);
                                 }
-                                media[href].data = replaceStyleSheetUrls(media, href, media[href].data);
-                                styleElement.appendChild(documentElement.createTextNode(media[href].data));
+                                resource.data = replaceStyleSheetUrls(resources, href, resource.data);
+                                styleElement.appendChild(documentElement.createTextNode(resource.data));
                                 childNode.replaceChild(styleElement, child);
                             }
                         }
@@ -188,41 +186,44 @@ const mhtmlToHtml = {
                             if (mediaAttribute) {
                                 styleElement.setAttribute("media", mediaAttribute);
                             }
-                            styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(media, index, child.textContent)));
+                            styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
                             childNode.replaceChild(styleElement, child);
                         }
                         break;
                     case "IMG":
-                        if (media[src] && media[src].contentType.startsWith("image/")) {
+                        resource = resources[src];
+                        if (resource && resource.contentType.startsWith("image/")) {
                             try {
-                                child.setAttribute("src", getMediaDataURI(media[src]));
+                                child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
                                 console.warn(error);
                             }
                         }
                         break;
                     case "AUDIO":
-                        if (media[src] && media[src].contentType.startsWith("audio/")) {
+                        resource = resources[src];
+                        if (resource && resource.contentType.startsWith("audio/")) {
                             try {
-                                child.setAttribute("src", getMediaDataURI(media[src]));
+                                child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
                                 console.warn(error);
                             }
                         }
                         break;
                     case "VIDEO":
-                        if (media[src].contentType.startsWith("video/")) {
+                        if (resource.contentType.startsWith("video/")) {
                             try {
-                                child.setAttribute("src", getMediaDataURI(media[src]));
+                                child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
                                 console.warn(error);
                             }
                         }
                         break;
                     case "SOURCE":
-                        if (media[src] && media[src].contentType.startsWith("image/") || media[src].contentType.startsWith("video/") || media[src].contentType.startsWith("audio/")) {
+                        resource = resources[src];
+                        if (resource && resource.contentType.startsWith("image/") || resource.contentType.startsWith("video/") || resource.contentType.startsWith("audio/")) {
                             try {
-                                child.setAttribute("src", getMediaDataURI(media[src]));
+                                child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
                                 console.warn(error);
                             }
@@ -235,7 +236,7 @@ const mhtmlToHtml = {
                             const frame = frames[id];
                             if (frame && (frame.contentType.startsWith("text/html") || frame.contentType.startsWith("application/xhtml+xml"))) {
                                 const iframe = mhtmlToHtml.convert({
-                                    media: Object.assign({}, media, { [id]: frame }),
+                                    resources: Object.assign({}, resources, { [id]: frame }),
                                     frames: frames,
                                     index: id
                                 });
@@ -272,7 +273,7 @@ const mhtmlToHtml = {
 
 export default mhtmlToHtml;
 
-function replaceStyleSheetUrls(media, base, asset) {
+function replaceStyleSheetUrls(resources, base, asset) {
     let ast;
     try {
         ast = cssTree.parse(asset);
@@ -285,12 +286,13 @@ function replaceStyleSheetUrls(media, base, asset) {
             if (node.type === "Url") {
                 const path = node.value;
                 const url = new URL(removeQuotes(path), base).href;
-                if (media[url]) {
-                    if (media[url].contentType.startsWith("text/css")) {
-                        media[url].data = replaceStyleSheetUrls(media, url, media[url].data);
+                const resource = resources[url];
+                if (resource) {
+                    if (resource.contentType.startsWith("text/css")) {
+                        resource.data = replaceStyleSheetUrls(resources, url, resource.data);
                     }
                     try {
-                        node.value = getMediaDataURI(media[url]);
+                        node.value = getResourceURI(resource);
                     } catch (error) {
                         console.warn(error);
                     }
@@ -301,6 +303,6 @@ function replaceStyleSheetUrls(media, base, asset) {
     }
 }
 
-function getMediaDataURI(asset) {
+function getResourceURI(asset) {
     return `data:${asset.contentType};base64,${asset.transferEncoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
 }
