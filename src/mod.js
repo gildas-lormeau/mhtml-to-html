@@ -1,4 +1,4 @@
-import { decodeQuotedPrintable, encodeBase64, parseDOM } from "./util.js";
+import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes } from "./util.js";
 
 function replaceReferences(media, base, asset) {
     const CSS_URL_RULE = "url(";
