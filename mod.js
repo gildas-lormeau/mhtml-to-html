@@ -10,7 +10,10 @@ function main() {
         Deno.exit(1);
     } else {
         const input = positionals[0];
-        const output = positionals[1] || input.replace(/\.[^.]+$/, ".html");
+        let output = positionals[1] || input.replace(/\.[^.]+$/, ".html");
+        if (!positionals[1] && !output.endsWith(".html")) {
+            output += ".html";
+        }
         const data = Deno.readTextFileSync(input);
         const mhtml = mhtmlToHtml.parse(new TextEncoder().encode(data));
         const doc = mhtmlToHtml.convert(mhtml);
