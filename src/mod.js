@@ -7,37 +7,6 @@ const MHTML_FSM = {
     MHTML_END: 3
 };
 
-function replaceReferences(media, base, asset) {
-    const CSS_URL_RULE = "url(";
-    let reference, i;
-    for (i = 0; (i = asset.indexOf(CSS_URL_RULE, i)) > 0; i += reference.length) {
-        i += CSS_URL_RULE.length;
-        reference = asset.substring(i, asset.indexOf(")", i));
-        let mediaUrl;
-        try {
-            mediaUrl = new URL(removeQuotes(reference), base).href;
-        } catch (error) {
-            console.warn(error);
-        }
-        if (media[mediaUrl]) {
-            if (media[mediaUrl].mediaType.startsWith("text/css")) {
-                media[mediaUrl].data = replaceReferences(media, mediaUrl, media[mediaUrl].data);
-            }
-            try {
-                const embeddedAsset = JSON.stringify(convertAssetToDataURI(media[mediaUrl]));
-                asset = `${asset.substring(0, i)}${embeddedAsset}${asset.substring(i + reference.length)}`;
-            } catch (error) {
-                console.warn(error);
-            }
-        }
-    }
-    return asset;
-}
-
-function convertAssetToDataURI(asset) {
-    return `data:${asset.mediaType};base64,${asset.encoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
-}
-
 const mhtmlToHtml = {
     parse: mhtml => {
         const headers = {};
@@ -307,3 +276,34 @@ const mhtmlToHtml = {
 };
 
 export default mhtmlToHtml;
+
+function replaceReferences(media, base, asset) {
+    const CSS_URL_RULE = "url(";
+    let reference, i;
+    for (i = 0; (i = asset.indexOf(CSS_URL_RULE, i)) > 0; i += reference.length) {
+        i += CSS_URL_RULE.length;
+        reference = asset.substring(i, asset.indexOf(")", i));
+        let mediaUrl;
+        try {
+            mediaUrl = new URL(removeQuotes(reference), base).href;
+        } catch (error) {
+            console.warn(error);
+        }
+        if (media[mediaUrl]) {
+            if (media[mediaUrl].mediaType.startsWith("text/css")) {
+                media[mediaUrl].data = replaceReferences(media, mediaUrl, media[mediaUrl].data);
+            }
+            try {
+                const embeddedAsset = JSON.stringify(convertAssetToDataURI(media[mediaUrl]));
+                asset = `${asset.substring(0, i)}${embeddedAsset}${asset.substring(i + reference.length)}`;
+            } catch (error) {
+                console.warn(error);
+            }
+        }
+    }
+    return asset;
+}
+
+function convertAssetToDataURI(asset) {
+    return `data:${asset.mediaType};base64,${asset.encoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
+}
