@@ -122,13 +122,9 @@ const mhtmlToHtml = {
                         const charserMetaElement = documentElement.querySelector("meta[charset]");
                         if (charserMetaElement) {
                             htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                            if (htmlCharset !== UTF8_CHARSET) {
-                                if (htmlCharset === charset) {
-                                    charserMetaElement.remove();
-                                } else {
-                                    charset = htmlCharset;
-                                    asset.data = decodeString(asset.data, charset);
-                                }
+                            if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                                charset = htmlCharset;
+                                asset.data = decodeString(asset.data, charset);
                             } else {
                                 charserMetaElement.remove();
                             }
@@ -139,13 +135,9 @@ const mhtmlToHtml = {
                             const metaCharsetMatch = metaContent.match(/charset=([^;]+)/);
                             if (metaCharsetMatch) {
                                 const htmlCharset = removeQuotes(metaCharsetMatch[1].toLowerCase());
-                                if (htmlCharset !== UTF8_CHARSET) {
-                                    if (htmlCharset === charset) {
-                                        metaElement.remove();
-                                    } else {
-                                        charset = htmlCharset;
-                                        asset.data = decodeString(asset.data, charset);
-                                    }
+                                if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                                    charset = htmlCharset;
+                                    asset.data = decodeString(asset.data, charset);
                                 } else {
                                     metaElement.remove();
                                 }
