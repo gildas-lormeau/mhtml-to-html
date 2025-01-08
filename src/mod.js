@@ -8,7 +8,7 @@ function replaceReferences(media, base, asset) {
         reference = asset.substring(i, asset.indexOf(")", i));
         let mediaUrl;
         try {
-            mediaUrl = new URL(reference.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim(), base).href;
+            mediaUrl = new URL(removeQuotes(reference), base).href;
         } catch (_) {
             console.warn(error);
         }
@@ -70,7 +70,7 @@ const mhtmlToHtml = {
                         const contentTypeParams = headers["Content-Type"].split(";");
                         contentTypeParams.shift();
                         const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
-                        boundary = boundaryParam.substring("boundary=".length).replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim();
+                        boundary = removeQuotes(boundaryParam.substring("boundary=".length));
                         trim();
                         while (!next.includes(boundary)) {
                             // TODO: store content before first boundary
@@ -137,7 +137,7 @@ const mhtmlToHtml = {
                         let charset;
                         const charsetMatch = asset.mediaType.match(/charset=([^;]+)/);
                         if (charsetMatch) {
-                            charset = charsetMatch[1].replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim();
+                            charset = removeQuotes(charsetMatch[1]);
                         }
                         try {
                             asset.data = new TextDecoder(charset).decode(asset.data);

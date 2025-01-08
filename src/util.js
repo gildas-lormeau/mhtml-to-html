@@ -49,4 +49,8 @@ function serializeDocType(doctype) {
     return `<!DOCTYPE ${doctype.name}${(doctype.publicId ? ` PUBLIC "${doctype.publicId}"` : "")}${(doctype.systemId ? ` "${doctype.systemId}"` : "")}>`;
 }
 
-export { decodeQuotedPrintable, encodeBase64, parseDOM };
+function removeQuotes(value) {
+    return value.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim();
+}
+
+export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes };
