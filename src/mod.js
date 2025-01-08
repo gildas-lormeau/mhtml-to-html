@@ -134,13 +134,7 @@ const mhtmlToHtml = {
             }
         }
     },
-    convert: mhtml => {
-        if (mhtml instanceof Uint8Array) {
-            mhtml = mhtmlToHtml.parse(mhtml);
-        }
-        const frames = mhtml.frames;
-        const media = mhtml.media;
-        const index = mhtml.index;
+    convert: ({ frames, media, index }) => {
         const url = media[index].url || media[index].id;
         const dom = parseDOM(media[index].data);
         const documentElement = dom.document;

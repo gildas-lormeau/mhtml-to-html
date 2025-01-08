@@ -11,7 +11,8 @@ function main() {
         const input = positionals[0];
         const output = positionals[1] || input.replace(/\.[^.]+$/, ".html");
         const data = Deno.readTextFileSync(input);
-        const doc = mhtmlToHtml.convert(new TextEncoder().encode(data));
+        const mhtml = mhtmlToHtml.parse(new TextEncoder().encode(data));
+        const doc = mhtmlToHtml.convert(mhtml);
         Deno.writeTextFileSync(output, doc.serialize());
     }
 }
