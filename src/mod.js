@@ -30,7 +30,6 @@ const mhtmlToHtml = {
                     boundary = removeQuotes(boundaryParam.substring("boundary=".length));
                     trim();
                     while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
-                        // TODO: store content before first boundary
                         next = getLine();
                         nextString = decodeString(next);
                     }
