@@ -99,15 +99,56 @@ const mhtmlToHtml = {
                         try {
                             if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
                                 const charsetNode = ast.children.first;
-                                const cssCharset = charsetNode.prelude.children.first.value;
-                                if (cssCharset !== charset && cssCharset !== "utf-8") {
-                                    charset = cssCharset;
-                                    asset.data = decodeString(asset.data, cssCharset);
+                                const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
+                                if (cssCharset !== "utf-8") {
+                                    if (cssCharset === charset) {
+                                        ast.children.shift();
+                                    } else {
+                                        charset = cssCharset;
+                                        asset.data = decodeString(asset.data, cssCharset);
+                                    }
                                 }
                             }
                         } catch (error) {
                             // eslint-disable-next-line no-console
                             console.warn(error);
+                        }
+                    }
+                    if (asset.contentType === "text/html" || asset.contentType === "application/xhtml+xml") {
+                        const dom = parseDOM(asset.data);
+                        const documentElement = dom.document;
+                        let htmlCharset;
+                        const charserMetaElement = documentElement.querySelector("meta[charset]");
+                        if (charserMetaElement) {
+                            htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
+                            if (htmlCharset !== "utf-8") {
+                                if (htmlCharset === charset) {
+                                    charserMetaElement.remove();
+                                } else {
+                                    charset = htmlCharset;
+                                    asset.data = decodeString(asset.data, charset);
+                                }
+                            } else {
+                                charserMetaElement.remove();
+                            }
+                        }
+                        const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
+                        if (metaElement) {
+                            const metaContent = metaElement.getAttribute("content");
+                            const metaCharsetMatch = metaContent.match(/charset=([^;]+)/);
+                            if (metaCharsetMatch) {
+                                const htmlCharset = removeQuotes(metaCharsetMatch[1].toLowerCase());
+                                if (htmlCharset !== "utf-8") {
+                                    if (htmlCharset === charset) {
+                                        metaElement.remove();
+                                    } else {
+                                        charset = htmlCharset;
+                                        asset.data = decodeString(asset.data, charset);
+                                    }
+                                } else {
+                                    metaElement.remove();
+                                }
+                            }
                         }
                     }
                 } catch (error) {
