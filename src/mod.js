@@ -8,6 +8,9 @@ const MHTML_FSM = {
     MHTML_END: 3
 };
 
+const QUOTED_PRINTABLE_ENCODING = "quoted-printable";
+const CONTENT_TYPE_HEADER = "Content-Type";
+
 const mhtmlToHtml = {
     parse: mhtml => {
         const headers = {};
@@ -24,7 +27,7 @@ const mhtmlToHtml = {
                 if (nextString && nextString != "\n") {
                     splitHeaders(nextString, headers);
                 } else {
-                    const contentTypeParams = headers["Content-Type"].split(";");
+                    const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
                     contentTypeParams.shift();
                     const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
                     boundary = removeQuotes(boundaryParam.substring("boundary=".length));
@@ -44,10 +47,10 @@ const mhtmlToHtml = {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
-                    const contentType = content["Content-Type"];
+                    const contentType = content[CONTENT_TYPE_HEADER];
                     const contentId = content["Content-ID"];
                     const url = content["Content-Location"];
-                    if (typeof index === "undefined") {
+                    if (index === undefined) {
                         index = url;
                     }
                     asset = {
@@ -57,10 +60,10 @@ const mhtmlToHtml = {
                         id: index,
                         url
                     };
-                    if (typeof contentId !== "undefined") {
+                    if (contentId !== undefined) {
                         frames[contentId] = asset;
                     }
-                    if (typeof url !== "undefined" && !resources[url]) {
+                    if (url !== undefined && !resources[url]) {
                         resources[url] = asset;
                     }
                     trim();
@@ -71,7 +74,7 @@ const mhtmlToHtml = {
                 let next = getLine(transferEncoding);
                 let nextString = decodeString(next);
                 while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
-                    if (asset.transferEncoding === "quoted-printable" && asset.data.length) {
+                    if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING && asset.data.length) {
                         if (asset.data[asset.data.length - 1] === 0x3D) {
                             asset.data = asset.data.slice(0, asset.data.length - 1);
                         }
@@ -89,7 +92,7 @@ const mhtmlToHtml = {
                 try {
                     asset.data = decodeString(asset.data, charset);
                 } catch (error) {
-                    if (asset.transferEncoding === "quoted-printable") {
+                    if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
                         console.warn(error);
                         asset.data = decodeString(asset.data);
                     } else {
@@ -118,7 +121,7 @@ const mhtmlToHtml = {
                     line = line.slice(0, line.length - 1);
                 }
             } while ((line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D) && indexMhtml < mhtml.length - 1);
-            return transferEncoding === "quoted-printable" ? new Uint8Array(decodeQuotedPrintable(line)) : line;
+            return transferEncoding === QUOTED_PRINTABLE_ENCODING ? new Uint8Array(decodeQuotedPrintable(line)) : line;
         }
 
         function splitHeaders(line, obj) {
@@ -165,9 +168,9 @@ const mhtmlToHtml = {
                             } else {
                                 const styleElement = documentElement.createElement("style");
                                 styleElement.type = "text/css";
-                                const mediaAttribute = child.getAttribute("media");
-                                if (mediaAttribute) {
-                                    styleElement.setAttribute("media", mediaAttribute);
+                                const media = child.getAttribute("media");
+                                if (media) {
+                                    styleElement.setAttribute("media", media);
                                 }
                                 resource.data = replaceStyleSheetUrls(resources, href, resource.data);
                                 styleElement.appendChild(documentElement.createTextNode(resource.data));
@@ -181,9 +184,9 @@ const mhtmlToHtml = {
                         } else {
                             const styleElement = documentElement.createElement("style");
                             styleElement.type = "text/css";
-                            const mediaAttribute = child.getAttribute("media");
-                            if (mediaAttribute) {
-                                styleElement.setAttribute("media", mediaAttribute);
+                            const media = child.getAttribute("media");
+                            if (media) {
+                                styleElement.setAttribute("media", media);
                             }
                             styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
                             childNode.replaceChild(styleElement, child);
