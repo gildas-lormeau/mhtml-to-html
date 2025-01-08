@@ -240,7 +240,7 @@ const mhtmlToHtml = {
                             if (mediaAttribute) {
                                 style.setAttribute("media", mediaAttribute);
                             }
-                            style.appendChild(documentElement.createTextNode(replaceReferences(media, index, child.innerHTML)));
+                            style.appendChild(documentElement.createTextNode(replaceReferences(media, index, child.textContent)));
                             childNode.replaceChild(style, child);
                         }
                         break;
