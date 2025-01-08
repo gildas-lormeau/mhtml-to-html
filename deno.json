@@ -1,0 +1,8 @@
+{
+  "name": "@mhtml-to-html/mhtml-to-html",
+  "version": "1.0.0",
+  "description": "mhtml-to-html",
+  "exports": {
+    ".": "./src/mod.js"
+  }
+}
