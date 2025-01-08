@@ -211,7 +211,6 @@ const mhtmlToHtml = {
         }
     },
     convert: mhtml => {
-        let base;
         let href, src, title;
         if (mhtml instanceof Uint8Array) {
             mhtml = mhtmlToHtml.parse(mhtml);
@@ -239,10 +238,8 @@ const mhtmlToHtml = {
                     child.removeAttribute("integrity");
                 }
                 switch (child.tagName) {
-                    case "HEAD":
-                        base = documentElement.createElement("base");
-                        base.setAttribute("target", "_parent");
-                        child.insertBefore(base, child.firstChild);
+                    case "BASE":
+                        base.remove();
                         break;
                     case "LINK":
                         if (media[href] && media[href].mediaType.startsWith("text/css")) {
@@ -333,6 +330,14 @@ const mhtmlToHtml = {
                 }
                 nodes.push(child);
             });
+        }
+        const base = documentElement.createElement("base");
+        base.setAttribute("target", "_parent");
+        base.setAttribute("href", url);
+        if (documentElement.head.firstChild) {
+            documentElement.head.insertBefore(base, documentElement.head.firstChild);
+        } else {
+            documentElement.head.appendChild(base);
         }
         return dom;
     }
