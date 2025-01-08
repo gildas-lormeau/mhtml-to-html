@@ -30,7 +30,7 @@ const mhtmlToHtml = {
                     const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
                     contentTypeParams.shift();
                     const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
-                    boundary = removeQuotes(boundaryParam.substring("boundary=".length));
+                    boundary = removeQuotes(boundaryParam.substring(9));
                     trim();
                     while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
                         next = getLine();
