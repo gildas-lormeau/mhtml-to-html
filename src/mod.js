@@ -103,7 +103,7 @@ const mhtmlToHtml = {
                         if (typeof id !== "undefined") {
                             frames[id] = asset;
                         }
-                        if (typeof location !== "undefined" && typeof media[location] === "undefined") {
+                        if (typeof location !== "undefined" && !media[location]) {
                             media[location] = asset;
                         }
                         trim();
@@ -248,7 +248,7 @@ const mhtmlToHtml = {
                         child.insertBefore(base, child.firstChild);
                         break;
                     case "LINK":
-                        if (typeof media[href] !== "undefined" && media[href].mediaType.startsWith("text/css")) {
+                        if (media[href] && media[href].mediaType.startsWith("text/css")) {
                             if (title) {
                                 child.remove();
                             } else {
@@ -280,7 +280,7 @@ const mhtmlToHtml = {
                         break;
                     case "IMG":
                         img = null;
-                        if (typeof media[src] !== "undefined" && media[src].mediaType.startsWith("image/")) {
+                        if (media[src] && media[src].mediaType.startsWith("image/")) {
                             try {
                                 img = convertAssetToDataURI(media[src]);
                             } catch (error) {
@@ -292,7 +292,7 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "SOURCE":
-                        if (typeof media[src] !== "undefined" && media[src].mediaType.startsWith("image/")) {
+                        if (media[src] && media[src].mediaType.startsWith("image/")) {
                             try {
                                 img = convertAssetToDataURI(media[src]);
                             } catch (error) {
