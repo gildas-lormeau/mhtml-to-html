@@ -32,11 +32,7 @@ function replaceReferences(media, base, asset) {
 }
 
 function convertAssetToDataURI(asset) {
-    if (asset.encoding === "base64") {
-        return `data:${asset.mediaType};base64,${asset.data}`;
-    } else {
-        return `data:${asset.mediaType};base64,${encodeBase64(asset.data)}`;
-    }
+    return `data:${asset.mediaType};base64,${asset.encoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
 }
 
 const mhtmlToHtml = {
