@@ -256,6 +256,7 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "A":
+                    case "AREA":
                         if (href && !href.startsWith("#") && !href.match(/^[^:]+:/)) {
                             try {
                                 child.setAttribute("href", new URL(href, url).href);
