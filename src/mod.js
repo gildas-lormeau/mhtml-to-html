@@ -80,7 +80,6 @@ function convertAssetToDataURI(asset) {
 
 const mhtmlToHtml = {
     parse: mhtml => {
-        const parseDOM = defaultDOMParser;
         const MHTML_FSM = {
             MHTML_HEADERS: 0,
             MTHML_CONTENT: 1,
