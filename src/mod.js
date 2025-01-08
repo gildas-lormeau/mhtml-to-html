@@ -293,6 +293,15 @@ const mhtmlToHtml = {
                             }
                         }
                         break;
+                    case "A":
+                        if (href && !href.startsWith("#") && !href.match(/^[^:]+:/)) {
+                            try {
+                                child.setAttribute("href", new URL(href, url).href);
+                            } catch (_) {
+                                // ignored
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
