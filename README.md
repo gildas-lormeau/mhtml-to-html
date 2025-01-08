@@ -11,7 +11,7 @@ Deno library for converting MHTML to single HTML files
 - Clone the repository
 
 ```sh
-git clone https://github.com/gildas-lormeau/mhtml-to-html
+git clone https://github.com/gildas-lormeau/mhtml-to-html.git
 ```
 
 - Make `mhtml-to-html` executable (Linux, Unix)
