@@ -167,29 +167,19 @@ const mhtmlToHtml = {
             while (mhtml[i] !== 0x0A && i++ < mhtml.length - 1);
             i++; l++;
             let line = mhtml.slice(j, i);
+            do {
+                if (line[line.length - 1] === 0x0A) {
+                    line = line.slice(0, line.length - 1);
+                }
+                if (line[line.length - 1] === 0x0D) {
+                    line = line.slice(0, line.length - 1);
+                }
+            } while (line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D);
             if (encoding === "quoted-printable") {
-                do {
-                    if (line[line.length - 1] === 0x0A) {
-                        line = line.slice(0, line.length - 1);
-                    }
-                    if (line[line.length - 1] === 0x0D) {
-                        line = line.slice(0, line.length - 1);
-                    }
-                } while (line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D);
                 return decodeQuotedPrintable(line);
-            }
-            if (encoding === "base64") {
-                do {
-                    if (line[line.length - 1] === 0x0A) {
-                        line = line.slice(0, line.length - 1);
-                    }
-                    if (line[line.length - 1] === 0x0D) {
-                        line = line.slice(0, line.length - 1);
-                    }
-                } while (line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D);
+            } else {
                 return line;
             }
-            return line;
         }
 
         function getLineString() {
