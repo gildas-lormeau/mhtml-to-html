@@ -12,7 +12,7 @@ const mhtmlToHtml = {
         const headers = {};
         const media = {};
         const frames = {};
-        let asset, encoding, index, boundary, headerKey;
+        let asset, transferEncoding, index, boundary, headerKey;
         let content = {};
         let state = MHTML_FSM.MHTML_HEADERS;
         let indexMhtml = 0;
@@ -43,7 +43,7 @@ const mhtmlToHtml = {
                 if (nextString != 0 && nextString != "\n") {
                     splitHeaders(nextString, content);
                 } else {
-                    encoding = content["Content-Transfer-Encoding"];
+                    transferEncoding = content["Content-Transfer-Encoding"];
                     const mediaType = content["Content-Type"];
                     const id = content["Content-ID"];
                     const url = content["Content-Location"];
@@ -51,7 +51,7 @@ const mhtmlToHtml = {
                         index = url;
                     }
                     asset = {
-                        encoding,
+                        transferEncoding,
                         mediaType,
                         data: [],
                         id: index,
@@ -68,7 +68,7 @@ const mhtmlToHtml = {
                     state = MHTML_FSM.MHTML_DATA;
                 }
             } else if (state == MHTML_FSM.MHTML_DATA) {
-                let next = getLine(encoding);
+                let next = getLine(transferEncoding);
                 let nextString = decodeString(next);
                 while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
                     if (asset.encoding === "quoted-printable" && asset.data.length) {
@@ -77,7 +77,7 @@ const mhtmlToHtml = {
                         }
                     }
                     asset.data.splice(asset.data.length, 0, ...next);
-                    next = getLine(encoding);
+                    next = getLine(transferEncoding);
                     nextString = decodeString(next);
                 }
                 asset.data = new Uint8Array(asset.data);
