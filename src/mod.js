@@ -1,4 +1,5 @@
 import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString } from "./util.js";
+import * as cssTree from "./lib/csstree.esm.js";
 
 const MHTML_FSM = {
     MHTML_HEADERS: 0,
@@ -150,7 +151,7 @@ const mhtmlToHtml = {
                     title = child.getAttribute("title");
                     const style = child.getAttribute("style");
                     if (style) {
-                        child.setAttribute("style", replaceReferences(media, index, style));
+                        child.setAttribute("style", replaceStyleSheetUrls(media, index, style));
                     }
                 }
                 if (child.removeAttribute) {
@@ -171,7 +172,7 @@ const mhtmlToHtml = {
                                 if (mediaAttribute) {
                                     styleElement.setAttribute("media", mediaAttribute);
                                 }
-                                media[href].data = replaceReferences(media, href, media[href].data);
+                                media[href].data = replaceStyleSheetUrls(media, href, media[href].data);
                                 styleElement.appendChild(documentElement.createTextNode(media[href].data));
                                 childNode.replaceChild(styleElement, child);
                             }
@@ -187,7 +188,7 @@ const mhtmlToHtml = {
                             if (mediaAttribute) {
                                 styleElement.setAttribute("media", mediaAttribute);
                             }
-                            styleElement.appendChild(documentElement.createTextNode(replaceReferences(media, index, child.textContent)));
+                            styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(media, index, child.textContent)));
                             childNode.replaceChild(styleElement, child);
                         }
                         break;
@@ -271,31 +272,33 @@ const mhtmlToHtml = {
 
 export default mhtmlToHtml;
 
-function replaceReferences(media, base, asset) {
-    const CSS_URL_RULE = "url(";
-    let reference, i;
-    for (i = 0; (i = asset.indexOf(CSS_URL_RULE, i)) > 0; i += reference.length) {
-        i += CSS_URL_RULE.length;
-        reference = asset.substring(i, asset.indexOf(")", i));
-        let mediaUrl;
-        try {
-            mediaUrl = new URL(removeQuotes(reference), base).href;
-        } catch (error) {
-            console.warn(error);
-        }
-        if (media[mediaUrl]) {
-            if (media[mediaUrl].mediaType.startsWith("text/css")) {
-                media[mediaUrl].data = replaceReferences(media, mediaUrl, media[mediaUrl].data);
-            }
-            try {
-                const embeddedAsset = JSON.stringify(getMediaDataURI(media[mediaUrl]));
-                asset = `${asset.substring(0, i)}${embeddedAsset}${asset.substring(i + reference.length)}`;
-            } catch (error) {
-                console.warn(error);
-            }
-        }
+function replaceStyleSheetUrls(media, base, asset) {
+    let ast;
+    try {
+        ast = cssTree.parse(asset);
+    } catch (error) {
+        console.warn(error);
+        return asset;
     }
-    return asset;
+    if (ast) {
+        cssTree.walk(ast, node => {
+            if (node.type === "Url") {
+                const path = node.value;
+                const url = new URL(removeQuotes(path), base).href;
+                if (media[url]) {
+                    if (media[url].mediaType.startsWith("text/css")) {
+                        media[url].data = replaceStyleSheetUrls(media, url, media[url].data);
+                    }
+                    try {
+                        node.value = getMediaDataURI(media[url]);
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                }
+            }
+        });
+        return cssTree.generate(ast);
+    }
 }
 
 function getMediaDataURI(asset) {
