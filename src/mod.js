@@ -259,7 +259,6 @@ const mhtmlToHtml = {
             });
         }
         const baseElement = documentElement.createElement("base");
-        baseElement.setAttribute("target", "_parent");
         baseElement.setAttribute("href", url);
         if (documentElement.head.firstChild) {
             documentElement.head.insertBefore(baseElement, documentElement.head.firstChild);
