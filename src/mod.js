@@ -122,24 +122,19 @@ const mhtmlToHtml = {
                         nextString = decodeString(next);
                     }
                     asset.data = new Uint8Array(asset.data);
-                    if (asset.encoding === "base64") {
-                        try {
-                            asset.data = decodeString(asset.data);
-                        } catch (error) {
-                            console.warn(error);
-                        }
+                    let charset;
+                    const charsetMatch = asset.mediaType.match(/charset=([^;]+)/);
+                    if (charsetMatch) {
+                        charset = removeQuotes(charsetMatch[1]);
                     }
-                    if (asset.encoding === "quoted-printable") {
-                        let charset;
-                        const charsetMatch = asset.mediaType.match(/charset=([^;]+)/);
-                        if (charsetMatch) {
-                            charset = removeQuotes(charsetMatch[1]);
-                        }
-                        try {
-                            asset.data = decodeString(asset.data, charset);
-                        } catch (error) {
+                    try {
+                        asset.data = decodeString(asset.data, charset);
+                    } catch (error) {
+                        if (asset.encoding === "quoted-printable") {
                             console.warn(error);
                             asset.data = decodeString(asset.data);
+                        } else {
+                            throw error;
                         }
                     }
                     state = (i >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
