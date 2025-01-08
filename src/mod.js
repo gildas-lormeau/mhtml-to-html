@@ -17,11 +17,7 @@ function replaceReferences(media, base, asset) {
                 media[mediaUrl].data = replaceReferences(media, mediaUrl, media[mediaUrl].data);
             }
             try {
-                const embeddedAsset = JSON.stringify(`data:${media[mediaUrl].mediaType};base64,${(
-                    media[mediaUrl].encoding === "base64" ?
-                        media[mediaUrl].data :
-                        encodeBase64(media[mediaUrl].data)
-                )}`);
+                const embeddedAsset = JSON.stringify(convertAssetToDataURI(media[mediaUrl]));
                 asset = `${asset.substring(0, i)}${embeddedAsset}${asset.substring(i + reference.length)}`;
             } catch (error) {
                 console.warn(error);
