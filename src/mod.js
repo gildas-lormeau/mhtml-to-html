@@ -59,8 +59,8 @@ function replaceReferences(media, base, asset) {
                         Base64.encode(media[path].data)
                 )}"`;
                 asset = `${asset.substring(0, i)}${embeddedAsset}${asset.substring(i + reference.length)}`;
-            } catch (e) {
-                console.warn(e);
+            } catch (error) {
+                console.warn(error);
             }
         }
     }
@@ -151,14 +151,9 @@ const mhtmlToHtml = {
                     }
                     try {
                         asset.data = Base64.decode(asset.data);
-                    } catch (_) {
-                        // ignored
+                    } catch (error) {
+                        console.warn(error);
                     }
-                    /*
-                    if (typeof index !== "undefined") {
-                        return parseDOM(asset.data);
-                    }
-                    */
                     state = (i >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
                     break;
                 }
@@ -268,8 +263,8 @@ const mhtmlToHtml = {
                         if (typeof media[src] !== "undefined" && media[src].type.includes("image")) {
                             try {
                                 img = convertAssetToDataURI(media[src]);
-                            } catch (e) {
-                                console.warn(e);
+                            } catch (error) {
+                                console.warn(error);
                             }
                             if (img !== null) {
                                 child.setAttribute("src", img);
@@ -280,8 +275,8 @@ const mhtmlToHtml = {
                         if (typeof media[src] !== "undefined" && media[src].type.includes("image")) {
                             try {
                                 img = convertAssetToDataURI(media[src]);
-                            } catch (e) {
-                                console.warn(e);
+                            } catch (error) {
+                                console.warn(error);
                             }
                             if (img !== null) {
                                 child.setAttribute("src", img);
