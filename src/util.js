@@ -53,4 +53,8 @@ function removeQuotes(value) {
     return value.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").trim();
 }
 
-export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes };
+function decodeString(array, charset) {
+    return new TextDecoder(charset).decode(array);
+}
+
+export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString };
