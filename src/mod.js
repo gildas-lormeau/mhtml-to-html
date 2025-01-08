@@ -9,7 +9,7 @@ function replaceReferences(media, base, asset) {
         let mediaUrl;
         try {
             mediaUrl = new URL(removeQuotes(reference), base).href;
-        } catch (_) {
+        } catch (error) {
             console.warn(error);
         }
         if (media[mediaUrl]) {
