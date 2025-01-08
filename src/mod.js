@@ -20,7 +20,7 @@ const mhtmlToHtml = {
             if (state == MHTML_FSM.MHTML_HEADERS) {
                 let next = getLine();
                 let nextString = decodeString(next);
-                if (nextString != "\n") {
+                if (nextString && nextString != "\n") {
                     splitHeaders(nextString, headers);
                 } else {
                     const contentTypeParams = headers["Content-Type"].split(";");
@@ -40,7 +40,7 @@ const mhtmlToHtml = {
             } else if (state == MHTML_FSM.MTHML_CONTENT) {
                 const next = getLine();
                 const nextString = decodeString(next);
-                if (nextString != "\n") {
+                if (nextString && nextString != "\n") {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
@@ -71,7 +71,7 @@ const mhtmlToHtml = {
                 let next = getLine(transferEncoding);
                 let nextString = decodeString(next);
                 while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
-                    if (asset.encoding === "quoted-printable" && asset.data.length) {
+                    if (asset.transferEncoding === "quoted-printable" && asset.data.length) {
                         if (asset.data[asset.data.length - 1] === 0x3D) {
                             asset.data = asset.data.slice(0, asset.data.length - 1);
                         }
@@ -89,7 +89,7 @@ const mhtmlToHtml = {
                 try {
                     asset.data = decodeString(asset.data, charset);
                 } catch (error) {
-                    if (asset.encoding === "quoted-printable") {
+                    if (asset.transferEncoding === "quoted-printable") {
                         console.warn(error);
                         asset.data = decodeString(asset.data);
                     } else {
@@ -109,7 +109,7 @@ const mhtmlToHtml = {
             while ((mhtml[indexMhtml] === 0x20 || mhtml[indexMhtml] === 0x0A || mhtml[indexMhtml] === 0x0D) && indexMhtml++ < mhtml.length - 1);
         }
 
-        function getLine(encoding) {
+        function getLine(transferEncoding) {
             const j = indexMhtml;
             while (mhtml[indexMhtml] !== 0x0A && indexMhtml++ < mhtml.length - 1);
             indexMhtml++;
@@ -122,7 +122,7 @@ const mhtmlToHtml = {
                     line = line.slice(0, line.length - 1);
                 }
             } while ((line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D) && indexMhtml < mhtml.length - 1);
-            return encoding === "quoted-printable" ? new Uint8Array(decodeQuotedPrintable(line)) : line;
+            return transferEncoding === "quoted-printable" ? new Uint8Array(decodeQuotedPrintable(line)) : line;
         }
 
         function splitHeaders(line, obj) {
@@ -300,5 +300,5 @@ function replaceReferences(media, base, asset) {
 }
 
 function convertAssetToDataURI(asset) {
-    return `data:${asset.mediaType};base64,${asset.encoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
+    return `data:${asset.mediaType};base64,${asset.transferEncoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
 }
