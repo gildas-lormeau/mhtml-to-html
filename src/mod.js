@@ -45,21 +45,21 @@ const mhtmlToHtml = {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
-                    const mediaType = content["Content-Type"];
-                    const id = content["Content-ID"];
+                    const contentType = content["Content-Type"];
+                    const contentId = content["Content-ID"];
                     const url = content["Content-Location"];
                     if (typeof index === "undefined") {
                         index = url;
                     }
                     asset = {
                         transferEncoding,
-                        mediaType,
+                        contentType,
                         data: [],
                         id: index,
                         url
                     };
-                    if (typeof id !== "undefined") {
-                        frames[id] = asset;
+                    if (typeof contentId !== "undefined") {
+                        frames[contentId] = asset;
                     }
                     if (typeof url !== "undefined" && !media[url]) {
                         media[url] = asset;
@@ -83,7 +83,7 @@ const mhtmlToHtml = {
                 }
                 asset.data = new Uint8Array(asset.data);
                 let charset;
-                const charsetMatch = asset.mediaType.match(/charset=([^;]+)/);
+                const charsetMatch = asset.contentType.match(/charset=([^;]+)/);
                 if (charsetMatch) {
                     charset = removeQuotes(charsetMatch[1]);
                 }
@@ -162,7 +162,7 @@ const mhtmlToHtml = {
                         child.remove();
                         break;
                     case "LINK":
-                        if (media[href] && media[href].mediaType.startsWith("text/css")) {
+                        if (media[href] && media[href].contentType.startsWith("text/css")) {
                             if (title) {
                                 child.remove();
                             } else {
@@ -193,7 +193,7 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "IMG":
-                        if (media[src] && media[src].mediaType.startsWith("image/")) {
+                        if (media[src] && media[src].contentType.startsWith("image/")) {
                             try {
                                 child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
@@ -202,7 +202,7 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "AUDIO":
-                        if (media[src] && media[src].mediaType.startsWith("audio/")) {
+                        if (media[src] && media[src].contentType.startsWith("audio/")) {
                             try {
                                 child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
@@ -211,7 +211,7 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "VIDEO":
-                        if (media[src].mediaType.startsWith("video/")) {
+                        if (media[src].contentType.startsWith("video/")) {
                             try {
                                 child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
@@ -220,7 +220,7 @@ const mhtmlToHtml = {
                         }
                         break;
                     case "SOURCE":
-                        if (media[src] && media[src].mediaType.startsWith("image/") || media[src].mediaType.startsWith("video/") || media[src].mediaType.startsWith("audio/")) {
+                        if (media[src] && media[src].contentType.startsWith("image/") || media[src].contentType.startsWith("video/") || media[src].contentType.startsWith("audio/")) {
                             try {
                                 child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
@@ -233,7 +233,7 @@ const mhtmlToHtml = {
                         if (src) {
                             const id = `<${src.split("cid:")[1]}>`;
                             const frame = frames[id];
-                            if (frame && (frame.mediaType.startsWith("text/html") || frame.mediaType.startsWith("application/xhtml+xml"))) {
+                            if (frame && (frame.contentType.startsWith("text/html") || frame.contentType.startsWith("application/xhtml+xml"))) {
                                 const iframe = mhtmlToHtml.convert({
                                     media: Object.assign({}, media, { [id]: frame }),
                                     frames: frames,
@@ -286,7 +286,7 @@ function replaceStyleSheetUrls(media, base, asset) {
                 const path = node.value;
                 const url = new URL(removeQuotes(path), base).href;
                 if (media[url]) {
-                    if (media[url].mediaType.startsWith("text/css")) {
+                    if (media[url].contentType.startsWith("text/css")) {
                         media[url].data = replaceStyleSheetUrls(media, url, media[url].data);
                     }
                     try {
@@ -302,5 +302,5 @@ function replaceStyleSheetUrls(media, base, asset) {
 }
 
 function getMediaDataURI(asset) {
-    return `data:${asset.mediaType};base64,${asset.transferEncoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
+    return `data:${asset.contentType};base64,${asset.transferEncoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
 }
