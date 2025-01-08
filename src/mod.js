@@ -1,3 +1,5 @@
+/* global URL */
+
 import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString } from "./util.js";
 import * as cssTree from "./lib/csstree.esm.js";
 
@@ -94,6 +96,7 @@ const mhtmlToHtml = {
                     asset.data = decodeString(asset.data, charset);
                 } catch (error) {
                     if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
+                        // eslint-disable-next-line no-console
                         console.warn(error);
                         asset.data = decodeString(asset.data);
                     } else {
@@ -199,6 +202,7 @@ const mhtmlToHtml = {
                             try {
                                 child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
+                                // eslint-disable-next-line no-console
                                 console.warn(error);
                             }
                         }
@@ -209,6 +213,7 @@ const mhtmlToHtml = {
                             try {
                                 child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
+                                // eslint-disable-next-line no-console
                                 console.warn(error);
                             }
                         }
@@ -218,6 +223,7 @@ const mhtmlToHtml = {
                             try {
                                 child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
+                                // eslint-disable-next-line no-console
                                 console.warn(error);
                             }
                         }
@@ -228,6 +234,7 @@ const mhtmlToHtml = {
                             try {
                                 child.setAttribute("src", getResourceURI(resource));
                             } catch (error) {
+                                // eslint-disable-next-line no-console
                                 console.warn(error);
                             }
                         }
@@ -281,6 +288,7 @@ function replaceStyleSheetUrls(resources, base, asset) {
     try {
         ast = cssTree.parse(asset);
     } catch (error) {
+        // eslint-disable-next-line no-console
         console.warn(error);
         return asset;
     }
@@ -297,6 +305,7 @@ function replaceStyleSheetUrls(resources, base, asset) {
                     try {
                         node.value = getResourceURI(resource);
                     } catch (error) {
+                        // eslint-disable-next-line no-console
                         console.warn(error);
                     }
                 }

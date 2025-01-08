@@ -1,10 +1,11 @@
-/* global Deno */
+/* global Deno, TextEncoder */
 
 import mhtmlToHtml from "./src/mod.js";
 
 function main() {
     const positionals = Deno.args;
     if (positionals.length < 1) {
+        // eslint-disable-next-line no-console
         console.log("Usage: mhtml-to-html <input> [output]");
         Deno.exit(1);
     } else {

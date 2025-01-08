@@ -1,3 +1,4 @@
+/* global TextDecoder, btoa */
 
 import { DOMParser } from "jsr:@b-fuze/deno-dom";
 
