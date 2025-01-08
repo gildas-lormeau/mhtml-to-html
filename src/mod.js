@@ -214,15 +214,15 @@ const mhtmlToHtml = {
                             if (title) {
                                 child.remove();
                             } else {
-                                const style = documentElement.createElement("style");
-                                style.type = "text/css";
+                                const styleElement = documentElement.createElement("style");
+                                styleElement.type = "text/css";
                                 const mediaAttribute = child.getAttribute("media");
                                 if (mediaAttribute) {
-                                    style.setAttribute("media", mediaAttribute);
+                                    styleElement.setAttribute("media", mediaAttribute);
                                 }
                                 media[href].data = replaceReferences(media, href, media[href].data);
-                                style.appendChild(documentElement.createTextNode(media[href].data));
-                                childNode.replaceChild(style, child);
+                                styleElement.appendChild(documentElement.createTextNode(media[href].data));
+                                childNode.replaceChild(styleElement, child);
                             }
                         }
                         break;
@@ -230,14 +230,14 @@ const mhtmlToHtml = {
                         if (title) {
                             child.remove();
                         } else {
-                            const style = documentElement.createElement("style");
-                            style.type = "text/css";
+                            const styleElement = documentElement.createElement("style");
+                            styleElement.type = "text/css";
                             const mediaAttribute = child.getAttribute("media");
                             if (mediaAttribute) {
-                                style.setAttribute("media", mediaAttribute);
+                                styleElement.setAttribute("media", mediaAttribute);
                             }
-                            style.appendChild(documentElement.createTextNode(replaceReferences(media, index, child.textContent)));
-                            childNode.replaceChild(style, child);
+                            styleElement.appendChild(documentElement.createTextNode(replaceReferences(media, index, child.textContent)));
+                            childNode.replaceChild(styleElement, child);
                         }
                         break;
                     case "IMG":
@@ -308,13 +308,13 @@ const mhtmlToHtml = {
                 nodes.push(child);
             });
         }
-        const base = documentElement.createElement("base");
-        base.setAttribute("target", "_parent");
-        base.setAttribute("href", url);
+        const baseElement = documentElement.createElement("base");
+        baseElement.setAttribute("target", "_parent");
+        baseElement.setAttribute("href", url);
         if (documentElement.head.firstChild) {
-            documentElement.head.insertBefore(base, documentElement.head.firstChild);
+            documentElement.head.insertBefore(baseElement, documentElement.head.firstChild);
         } else {
-            documentElement.head.appendChild(base);
+            documentElement.head.appendChild(baseElement);
         }
         return dom;
     }
