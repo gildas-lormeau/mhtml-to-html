@@ -194,7 +194,7 @@ const mhtmlToHtml = {
                     case "IMG":
                         if (media[src] && media[src].mediaType.startsWith("image/")) {
                             try {
-                                child.setAttribute("src", convertAssetToDataURI(media[src]));
+                                child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
                                 console.warn(error);
                             }
@@ -203,7 +203,7 @@ const mhtmlToHtml = {
                     case "AUDIO":
                         if (media[src] && media[src].mediaType.startsWith("audio/")) {
                             try {
-                                child.setAttribute("src", convertAssetToDataURI(media[src]));
+                                child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
                                 console.warn(error);
                             }
@@ -212,7 +212,7 @@ const mhtmlToHtml = {
                     case "VIDEO":
                         if (media[src].mediaType.startsWith("video/")) {
                             try {
-                                child.setAttribute("src", convertAssetToDataURI(media[src]));
+                                child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
                                 console.warn(error);
                             }
@@ -221,7 +221,7 @@ const mhtmlToHtml = {
                     case "SOURCE":
                         if (media[src] && media[src].mediaType.startsWith("image/") || media[src].mediaType.startsWith("video/") || media[src].mediaType.startsWith("audio/")) {
                             try {
-                                child.setAttribute("src", convertAssetToDataURI(media[src]));
+                                child.setAttribute("src", getMediaDataURI(media[src]));
                             } catch (error) {
                                 console.warn(error);
                             }
@@ -289,7 +289,7 @@ function replaceReferences(media, base, asset) {
                 media[mediaUrl].data = replaceReferences(media, mediaUrl, media[mediaUrl].data);
             }
             try {
-                const embeddedAsset = JSON.stringify(convertAssetToDataURI(media[mediaUrl]));
+                const embeddedAsset = JSON.stringify(getMediaDataURI(media[mediaUrl]));
                 asset = `${asset.substring(0, i)}${embeddedAsset}${asset.substring(i + reference.length)}`;
             } catch (error) {
                 console.warn(error);
@@ -299,6 +299,6 @@ function replaceReferences(media, base, asset) {
     return asset;
 }
 
-function convertAssetToDataURI(asset) {
+function getMediaDataURI(asset) {
     return `data:${asset.mediaType};base64,${asset.transferEncoding === "base64" ? asset.data : encodeBase64(asset.data)}`;
 }
