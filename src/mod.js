@@ -1,5 +1,12 @@
 import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString } from "./util.js";
 
+const MHTML_FSM = {
+    MHTML_HEADERS: 0,
+    MTHML_CONTENT: 1,
+    MHTML_DATA: 2,
+    MHTML_END: 3
+};
+
 function replaceReferences(media, base, asset) {
     const CSS_URL_RULE = "url(";
     let reference, i;
@@ -33,109 +40,93 @@ function convertAssetToDataURI(asset) {
 
 const mhtmlToHtml = {
     parse: mhtml => {
-        const MHTML_FSM = {
-            MHTML_HEADERS: 0,
-            MTHML_CONTENT: 1,
-            MHTML_DATA: 2,
-            MHTML_END: 3
-        };
-        let asset, content;
-        let location, encoding;
-        let state, key, next, nextString, index, i, l;
-        let boundary;
         const headers = {};
-        content = {};
         const media = {};
         const frames = {};
-        state = MHTML_FSM.MHTML_HEADERS;
-        i = l = 0;
+        let asset, encoding, next, index, boundary, key;
+        let content = {};
+        let state = MHTML_FSM.MHTML_HEADERS;
+        let indexMhtml = 0;
         while (state != MHTML_FSM.MHTML_END) {
-            switch (state) {
-                case MHTML_FSM.MHTML_HEADERS: {
-                    next = getLine();
-                    let nextString = decodeString(next);
-                    if (nextString != 0 && nextString != "\n") {
-                        splitHeaders(nextString, headers);
-                    } else {
-                        const contentTypeParams = headers["Content-Type"].split(";");
-                        contentTypeParams.shift();
-                        const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
-                        boundary = removeQuotes(boundaryParam.substring("boundary=".length));
-                        trim();
-                        while (!nextString.includes(boundary)) {
-                            // TODO: store content before first boundary
-                            next = getLine();
-                            nextString = decodeString(next);
-                        }
-                        content = {};
-                        state = MHTML_FSM.MTHML_CONTENT;
-                    }
-                    break;
-                }
-                case MHTML_FSM.MTHML_CONTENT: {
-                    next = getLine();
-                    const nextString = decodeString(next);
-                    if (nextString != 0 && nextString != "\n") {
-                        splitHeaders(nextString, content);
-                    } else {
-                        encoding = content["Content-Transfer-Encoding"];
-                        const mediaType = content["Content-Type"];
-                        const id = content["Content-ID"];
-                        location = content["Content-Location"];
-                        if (typeof index === "undefined") {
-                            index = location;
-                        }
-                        asset = {
-                            encoding,
-                            mediaType,
-                            data: [],
-                            id: index,
-                            url: location
-                        };
-                        if (typeof id !== "undefined") {
-                            frames[id] = asset;
-                        }
-                        if (typeof location !== "undefined" && !media[location]) {
-                            media[location] = asset;
-                        }
-                        trim();
-                        content = {};
-                        state = MHTML_FSM.MHTML_DATA;
-                    }
-                    break;
-                }
-                case MHTML_FSM.MHTML_DATA: {
-                    next = getLine(encoding);
-                    nextString = decodeString(next);
-                    while (!nextString.includes(boundary)) {
-                        if (asset.encoding === "quoted-printable" && asset.data.length) {
-                            if (asset.data[asset.data.length - 1] === 0x3D) {
-                                asset.data = asset.data.slice(0, asset.data.length - 1);
-                            }
-                        }
-                        asset.data.splice(asset.data.length, 0, ...next);
-                        next = getLine(encoding);
+            if (state == MHTML_FSM.MHTML_HEADERS) {
+                next = getLine();
+                let nextString = decodeString(next);
+                if (nextString != 0 && nextString != "\n") {
+                    splitHeaders(nextString, headers);
+                } else {
+                    const contentTypeParams = headers["Content-Type"].split(";");
+                    contentTypeParams.shift();
+                    const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
+                    boundary = removeQuotes(boundaryParam.substring("boundary=".length));
+                    trim();
+                    while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
+                        // TODO: store content before first boundary
+                        next = getLine();
                         nextString = decodeString(next);
                     }
-                    asset.data = new Uint8Array(asset.data);
-                    let charset;
-                    const charsetMatch = asset.mediaType.match(/charset=([^;]+)/);
-                    if (charsetMatch) {
-                        charset = removeQuotes(charsetMatch[1]);
+                    content = {};
+                    state = MHTML_FSM.MTHML_CONTENT;
+                }
+            } else if (state == MHTML_FSM.MTHML_CONTENT) {
+                next = getLine();
+                const nextString = decodeString(next);
+                if (nextString != 0 && nextString != "\n") {
+                    splitHeaders(nextString, content);
+                } else {
+                    encoding = content["Content-Transfer-Encoding"];
+                    const mediaType = content["Content-Type"];
+                    const id = content["Content-ID"];
+                    const location = content["Content-Location"];
+                    if (typeof index === "undefined") {
+                        index = location;
                     }
-                    try {
-                        asset.data = decodeString(asset.data, charset);
-                    } catch (error) {
-                        if (asset.encoding === "quoted-printable") {
-                            console.warn(error);
-                            asset.data = decodeString(asset.data);
-                        } else {
-                            throw error;
+                    asset = {
+                        encoding,
+                        mediaType,
+                        data: [],
+                        id: index,
+                        url: location
+                    };
+                    if (typeof id !== "undefined") {
+                        frames[id] = asset;
+                    }
+                    if (typeof location !== "undefined" && !media[location]) {
+                        media[location] = asset;
+                    }
+                    trim();
+                    content = {};
+                    state = MHTML_FSM.MHTML_DATA;
+                }
+            } else if (state == MHTML_FSM.MHTML_DATA) {
+                next = getLine(encoding);
+                let nextString = decodeString(next);
+                while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
+                    if (asset.encoding === "quoted-printable" && asset.data.length) {
+                        if (asset.data[asset.data.length - 1] === 0x3D) {
+                            asset.data = asset.data.slice(0, asset.data.length - 1);
                         }
                     }
-                    state = (i >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
-                    break;
+                    asset.data.splice(asset.data.length, 0, ...next);
+                    next = getLine(encoding);
+                    nextString = decodeString(next);
                 }
+                asset.data = new Uint8Array(asset.data);
+                let charset;
+                const charsetMatch = asset.mediaType.match(/charset=([^;]+)/);
+                if (charsetMatch) {
+                    charset = removeQuotes(charsetMatch[1]);
+                }
+                try {
+                    asset.data = decodeString(asset.data, charset);
+                } catch (error) {
+                    if (asset.encoding === "quoted-printable") {
+                        console.warn(error);
+                        asset.data = decodeString(asset.data);
+                    } else {
+                        throw error;
+                    }
+                }
+                state = (indexMhtml >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
             }
         }
         return {
@@ -145,18 +136,14 @@ const mhtmlToHtml = {
         };
 
         function trim() {
-            while (i < mhtml.length - 1 && (mhtml[i] === 0x20 || mhtml[i] === 0x0A || mhtml[i] === 0x0D)) {
-                if (mhtml[++i] == 0x0A) {
-                    l++;
-                }
-            }
+            while ((mhtml[indexMhtml] === 0x20 || mhtml[indexMhtml] === 0x0A || mhtml[indexMhtml] === 0x0D) && indexMhtml++ < mhtml.length - 1);
         }
 
         function getLine(encoding) {
-            const j = i;
-            while (mhtml[i] !== 0x0A && i++ < mhtml.length - 1);
-            i++; l++;
-            let line = mhtml.slice(j, i);
+            const j = indexMhtml;
+            while (mhtml[indexMhtml] !== 0x0A && indexMhtml++ < mhtml.length - 1);
+            indexMhtml++;
+            let line = mhtml.slice(j, indexMhtml);
             do {
                 if (line[line.length - 1] === 0x0A) {
                     line = line.slice(0, line.length - 1);
@@ -164,7 +151,7 @@ const mhtmlToHtml = {
                 if (line[line.length - 1] === 0x0D) {
                     line = line.slice(0, line.length - 1);
                 }
-            } while (line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D);
+            } while ((line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D) && indexMhtml < mhtml.length - 1);
             return encoding === "quoted-printable" ? new Uint8Array(decodeQuotedPrintable(line)) : line;
         }
 
