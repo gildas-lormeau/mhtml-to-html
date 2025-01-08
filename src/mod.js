@@ -147,7 +147,8 @@ const mhtmlToHtml = {
                             encoding,
                             mediaType,
                             data: [],
-                            id
+                            id: index,
+                            url: location
                         };
                         if (typeof id !== "undefined") {
                             frames[id] = asset;
@@ -266,10 +267,13 @@ const mhtmlToHtml = {
         const parseDOM = defaultDOMParser;
         let base, img;
         let href, src, title;
-        mhtml = mhtmlToHtml.parse(mhtml);
+        if (mhtml instanceof Uint8Array) {
+            mhtml = mhtmlToHtml.parse(mhtml);
+        }
         const frames = mhtml.frames;
         const media = mhtml.media;
         const index = mhtml.index;
+        const url = media[index].url || media[index].id;
         const dom = parseDOM(media[index].data);
         const documentElem = dom.window.document;
         const nodes = [documentElem];
@@ -277,8 +281,8 @@ const mhtmlToHtml = {
             const childNode = nodes.shift();
             childNode.childNodes.forEach(child => {
                 if (child.getAttribute) {
-                    href = new URL(child.getAttribute("href"), index).href;
-                    src = new URL(child.getAttribute("src"), index).href;
+                    href = new URL(child.getAttribute("href"), url).href;
+                    src = new URL(child.getAttribute("src"), url).href;
                     title = child.getAttribute("title");
                     const style = child.getAttribute("style");
                     if (style) {
@@ -359,10 +363,10 @@ const mhtmlToHtml = {
                                     media: Object.assign({}, media, { [id]: frame }),
                                     frames: frames,
                                     index: id,
+                                    location: frame.location
                                 });
-                                child.src = `data:text/html;charset=utf-8,${encodeURIComponent(
-                                    iframe.window.document.documentElement.outerHTML
-                                )}`;
+                                child.removeAttribute("src");
+                                child.setAttribute("srcdoc", iframe.serialize());
                             }
                         }
                         break;
