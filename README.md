@@ -1,6 +1,6 @@
 # MHTML-TO-HTML
 
-Deno library for converting MHTML to single HTML files
+Deno library for converting MHTML files to single HTML files
 
 ## Install
 
