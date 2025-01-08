@@ -6,6 +6,8 @@ Deno library for converting MHTML to single HTML files
 
 - Install Deno, see https://deno.com
 
+- Install Git, see https://git-scm.com
+
 - Clone the repository
 
 ```sh
