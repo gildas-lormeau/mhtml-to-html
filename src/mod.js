@@ -211,7 +211,7 @@ const mhtmlToHtml = {
                 }
                 switch (child.tagName) {
                     case "BASE":
-                        base.remove();
+                        child.remove();
                         break;
                     case "LINK":
                         if (media[href] && media[href].mediaType.startsWith("text/css")) {
