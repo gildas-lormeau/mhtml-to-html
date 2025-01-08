@@ -12,13 +12,13 @@ const mhtmlToHtml = {
         const headers = {};
         const media = {};
         const frames = {};
-        let asset, encoding, next, index, boundary, key;
+        let asset, encoding, index, boundary, headerKey;
         let content = {};
         let state = MHTML_FSM.MHTML_HEADERS;
         let indexMhtml = 0;
         while (state != MHTML_FSM.MHTML_END) {
             if (state == MHTML_FSM.MHTML_HEADERS) {
-                next = getLine();
+                let next = getLine();
                 let nextString = decodeString(next);
                 if (nextString != 0 && nextString != "\n") {
                     splitHeaders(nextString, headers);
@@ -34,10 +34,11 @@ const mhtmlToHtml = {
                         nextString = decodeString(next);
                     }
                     content = {};
+                    headerKey = null;
                     state = MHTML_FSM.MTHML_CONTENT;
                 }
             } else if (state == MHTML_FSM.MTHML_CONTENT) {
-                next = getLine();
+                const next = getLine();
                 const nextString = decodeString(next);
                 if (nextString != 0 && nextString != "\n") {
                     splitHeaders(nextString, content);
@@ -67,7 +68,7 @@ const mhtmlToHtml = {
                     state = MHTML_FSM.MHTML_DATA;
                 }
             } else if (state == MHTML_FSM.MHTML_DATA) {
-                next = getLine(encoding);
+                let next = getLine(encoding);
                 let nextString = decodeString(next);
                 while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
                     if (asset.encoding === "quoted-printable" && asset.data.length) {
@@ -127,10 +128,10 @@ const mhtmlToHtml = {
         function splitHeaders(line, obj) {
             const m = line.indexOf(":");
             if (m > -1) {
-                key = line.substring(0, m).trim();
-                obj[key] = line.substring(m + 1, line.length).trim();
+                headerKey = line.substring(0, m).trim();
+                obj[headerKey] = line.substring(m + 1, line.length).trim();
             } else {
-                obj[key] += line.trim();
+                obj[headerKey] += line.trim();
             }
         }
     },
