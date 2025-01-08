@@ -6,10 +6,6 @@ function decodeQuotedPrintable(array) {
     const result = [];
     for (let i = 0; i < array.length; i++) {
         if (array[i] === 0x3D) {
-            if (array[i + 1] === 0x0D || array[i + 1] === 0x0A) {
-                i++;
-                continue;
-            }
             if (isHex(array, i + 1) && isHex(array, i + 2)) {
                 const hex = parseInt(String.fromCharCode(array[i + 1], array[i + 2]), 16);
                 result.push(hex);
