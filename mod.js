@@ -1,4 +1,5 @@
 /* global Deno */
+
 import mhtmlToHtml from "./src/mod.js";
 
 function main() {
