@@ -21,11 +21,11 @@ const mhtmlToHtml = {
         let content = {};
         let state = MHTML_FSM.MHTML_HEADERS;
         let indexMhtml = 0;
-        while (state != MHTML_FSM.MHTML_END) {
-            if (state == MHTML_FSM.MHTML_HEADERS) {
+        while (state !== MHTML_FSM.MHTML_END) {
+            if (state === MHTML_FSM.MHTML_HEADERS) {
                 let next = getLine();
                 let nextString = decodeString(next);
-                if (nextString && nextString != "\n") {
+                if (nextString && nextString !== "\n") {
                     splitHeaders(nextString, headers);
                 } else {
                     const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
@@ -41,10 +41,10 @@ const mhtmlToHtml = {
                     headerKey = null;
                     state = MHTML_FSM.MTHML_CONTENT;
                 }
-            } else if (state == MHTML_FSM.MTHML_CONTENT) {
+            } else if (state === MHTML_FSM.MTHML_CONTENT) {
                 const next = getLine();
                 const nextString = decodeString(next);
-                if (nextString && nextString != "\n") {
+                if (nextString && nextString !== "\n") {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
@@ -71,7 +71,7 @@ const mhtmlToHtml = {
                     content = {};
                     state = MHTML_FSM.MHTML_DATA;
                 }
-            } else if (state == MHTML_FSM.MHTML_DATA) {
+            } else if (state === MHTML_FSM.MHTML_DATA) {
                 let next = getLine(transferEncoding);
                 let nextString = decodeString(next);
                 while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
