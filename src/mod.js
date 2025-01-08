@@ -76,22 +76,22 @@ const mhtmlToHtml = {
                     encoding = content["Content-Transfer-Encoding"];
                     const mediaType = content["Content-Type"];
                     const id = content["Content-ID"];
-                    const location = content["Content-Location"];
+                    const url = content["Content-Location"];
                     if (typeof index === "undefined") {
-                        index = location;
+                        index = url;
                     }
                     asset = {
                         encoding,
                         mediaType,
                         data: [],
                         id: index,
-                        url: location
+                        url
                     };
                     if (typeof id !== "undefined") {
                         frames[id] = asset;
                     }
-                    if (typeof location !== "undefined" && !media[location]) {
-                        media[location] = asset;
+                    if (typeof url !== "undefined" && !media[url]) {
+                        media[url] = asset;
                     }
                     trim();
                     content = {};
@@ -272,8 +272,7 @@ const mhtmlToHtml = {
                                 const iframe = mhtmlToHtml.convert({
                                     media: Object.assign({}, media, { [id]: frame }),
                                     frames: frames,
-                                    index: id,
-                                    location: frame.location
+                                    index: id
                                 });
                                 child.removeAttribute("src");
                                 child.setAttribute("srcdoc", iframe.serialize());
