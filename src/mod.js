@@ -13,6 +13,7 @@ const MHTML_FSM = {
 const QUOTED_PRINTABLE_ENCODING = "quoted-printable";
 const CONTENT_TYPE_HEADER = "Content-Type";
 const BASE64_ENCODING = "base64";
+const UTF8_CHARSET = "utf-8";
 
 const mhtmlToHtml = {
     parse: mhtml => {
@@ -100,7 +101,7 @@ const mhtmlToHtml = {
                             if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
                                 const charsetNode = ast.children.first;
                                 const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
-                                if (cssCharset !== "utf-8") {
+                                if (cssCharset !== UTF8_CHARSET) {
                                     if (cssCharset === charset) {
                                         ast.children.shift();
                                     } else {
@@ -121,7 +122,7 @@ const mhtmlToHtml = {
                         const charserMetaElement = documentElement.querySelector("meta[charset]");
                         if (charserMetaElement) {
                             htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                            if (htmlCharset !== "utf-8") {
+                            if (htmlCharset !== UTF8_CHARSET) {
                                 if (htmlCharset === charset) {
                                     charserMetaElement.remove();
                                 } else {
@@ -138,7 +139,7 @@ const mhtmlToHtml = {
                             const metaCharsetMatch = metaContent.match(/charset=([^;]+)/);
                             if (metaCharsetMatch) {
                                 const htmlCharset = removeQuotes(metaCharsetMatch[1].toLowerCase());
-                                if (htmlCharset !== "utf-8") {
+                                if (htmlCharset !== UTF8_CHARSET) {
                                     if (htmlCharset === charset) {
                                         metaElement.remove();
                                     } else {
