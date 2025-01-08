@@ -166,7 +166,6 @@ const mhtmlToHtml = {
         }
     },
     convert: mhtml => {
-        let href, src, title;
         if (mhtml instanceof Uint8Array) {
             mhtml = mhtmlToHtml.parse(mhtml);
         }
@@ -177,6 +176,7 @@ const mhtmlToHtml = {
         const dom = parseDOM(media[index].data);
         const documentElement = dom.document;
         const nodes = [documentElement];
+        let href, src, title;
         while (nodes.length) {
             const childNode = nodes.shift();
             childNode.childNodes.forEach(child => {
