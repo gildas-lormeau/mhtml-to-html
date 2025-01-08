@@ -87,7 +87,7 @@ const mhtmlToHtml = {
             MHTML_END: 3
         };
         let asset, content;
-        let location, encoding, type, mediaType, id;
+        let location, encoding;
         let state, key, next, index, i, l;
         let boundary;
         const headers = {};
@@ -103,10 +103,15 @@ const mhtmlToHtml = {
                     if (next != 0 && next != "\n") {
                         splitHeaders(next, headers);
                     } else {
-                        const matches = headers["Content-Type"].match(/boundary=([^;]*)/m);
-                        boundary = matches[1].replace(/\"/g, "");
+                        const contentTypeParams = headers["Content-Type"].split(";");
+                        contentTypeParams.shift();
+                        const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
+                        boundary = boundaryParam.substring("boundary=".length).replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1");
                         trim();
-                        next = getLine();
+                        while (!next.includes(boundary)) {
+                            // TODO: store content before first boundary
+                            next = getLine();
+                        }
                         content = {};
                         state = MHTML_FSM.MTHML_CONTENT;
                     }
@@ -117,16 +122,24 @@ const mhtmlToHtml = {
                     if (next != 0 && next != "\n") {
                         splitHeaders(next, content);
                     } else {
+                        let charset = "utf-8";
                         encoding = content["Content-Transfer-Encoding"];
-                        [type, mediaType] = content["Content-Type"].split(";").map((s) => s.toLowerCase().trim());
-                        id = content["Content-ID"];
+                        let [type, mediaTypeParams] = content["Content-Type"].split(";").map((s) => s.toLowerCase().trim());
+                        if (mediaTypeParams) {
+                            mediaTypeParams = mediaTypeParams.split(";").map(param => param.split("=").map(s => s.trim()));
+                            charset = mediaTypeParams.find(param => param[0] === "charset");
+                            if (charset) {
+                                charset = charset[1].replace(/^"(.*?)"$/, "$1").replace(/^'(.*?)'$/, "$1");
+                            }
+                        }
+                        const id = content["Content-ID"];
                         location = content["Content-Location"];
                         if (typeof index === "undefined") {
                             index = location;
                         }
                         asset = {
                             encoding: encoding,
-                            mediaType: mediaType,
+                            charset,
                             type: type,
                             data: "",
                             id: id
@@ -149,10 +162,12 @@ const mhtmlToHtml = {
                         asset.data += next;
                         next = getLine(encoding);
                     }
-                    try {
-                        asset.data = Base64.decode(asset.data);
-                    } catch (error) {
-                        console.warn(error);
+                    if (asset.encoding === "base64") {
+                        try {
+                            asset.data = Base64.decode(asset.data);
+                        } catch (error) {
+                            console.warn(error);
+                        }
                     }
                     state = (i >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
                     break;
