@@ -300,11 +300,12 @@ const mhtmlToHtml = {
                             }
                         }
                         break;
+                    case "FRAME":
                     case "IFRAME":
                         if (src) {
                             const id = `<${src.split("cid:")[1]}>`;
                             const frame = frames[id];
-                            if (frame && frame.mediaType.startsWith("text/html")) {
+                            if (frame && (frame.mediaType.startsWith("text/html") || frame.mediaType.startsWith("application/xhtml+xml"))) {
                                 const iframe = mhtmlToHtml.convert({
                                     media: Object.assign({}, media, { [id]: frame }),
                                     frames: frames,
