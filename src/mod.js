@@ -20,7 +20,7 @@ const mhtmlToHtml = {
             if (state == MHTML_FSM.MHTML_HEADERS) {
                 let next = getLine();
                 let nextString = decodeString(next);
-                if (nextString != 0 && nextString != "\n") {
+                if (nextString != "\n") {
                     splitHeaders(nextString, headers);
                 } else {
                     const contentTypeParams = headers["Content-Type"].split(";");
@@ -40,7 +40,7 @@ const mhtmlToHtml = {
             } else if (state == MHTML_FSM.MTHML_CONTENT) {
                 const next = getLine();
                 const nextString = decodeString(next);
-                if (nextString != 0 && nextString != "\n") {
+                if (nextString != "\n") {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
