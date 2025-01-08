@@ -94,6 +94,22 @@ const mhtmlToHtml = {
                 }
                 try {
                     asset.data = decodeString(asset.data, charset);
+                    if (asset.contentType === "text/css") {
+                        const ast = cssTree.parse(asset.data);
+                        try {
+                            if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
+                                const charsetNode = ast.children.first;
+                                const cssCharset = charsetNode.prelude.children.first.value;
+                                if (cssCharset !== charset && cssCharset !== "utf-8") {
+                                    charset = cssCharset;
+                                    asset.data = decodeString(asset.data, cssCharset);
+                                }
+                            }
+                        } catch (error) {
+                            // eslint-disable-next-line no-console
+                            console.warn(error);
+                        }
+                    }
                 } catch (error) {
                     if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
                         // eslint-disable-next-line no-console
