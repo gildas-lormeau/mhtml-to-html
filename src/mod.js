@@ -181,11 +181,14 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     const nodes = [documentElement];
     let href, src, title;
     let baseElement = documentElement.querySelector("base");
-    if (baseElement && baseElement.getAttribute("href")) {
-        try {
-            base = new URL(baseElement.getAttribute("href"), base).href;
-        } catch (_) {
-            // ignored
+    if (baseElement) {
+        const href = baseElement.getAttribute("href");
+        if (href) {
+            try {
+                base = new URL(baseElement.getAttribute("href"), base).href;
+            } catch (_) {
+                // ignored
+            }
         }
     }
     while (nodes.length) {
