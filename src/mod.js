@@ -20,7 +20,7 @@ function parse(mhtml) {
     const headers = {};
     const resources = {};
     const frames = {};
-    let asset, transferEncoding, index, boundary, headerKey;
+    let resource, transferEncoding, index, boundary, headerKey;
     let content = {};
     let state = MHTML_FSM.MHTML_HEADERS;
     let indexMhtml = 0;
@@ -56,7 +56,7 @@ function parse(mhtml) {
                 if (index === undefined) {
                     index = url;
                 }
-                asset = {
+                resource = {
                     transferEncoding,
                     contentType,
                     data: [],
@@ -64,10 +64,10 @@ function parse(mhtml) {
                     url
                 };
                 if (contentId !== undefined) {
-                    frames[contentId] = asset;
+                    frames[contentId] = resource;
                 }
                 if (url !== undefined && !resources[url]) {
-                    resources[url] = asset;
+                    resources[url] = resource;
                 }
                 content = {};
                 state = MHTML_FSM.MHTML_DATA;
@@ -76,21 +76,21 @@ function parse(mhtml) {
             let next = getLine(transferEncoding);
             let nextString = decodeString(next);
             while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
-                if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING && asset.data.length) {
-                    if (asset.data[asset.data.length - 3] === 0x3D) {
-                        asset.data = asset.data.slice(0, asset.data.length - 3);
+                if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING && resource.data.length) {
+                    if (resource.data[resource.data.length - 3] === 0x3D) {
+                        resource.data = resource.data.slice(0, resource.data.length - 3);
                     }
                 }
-                asset.data.splice(asset.data.length, 0, ...next);
+                resource.data.splice(resource.data.length, 0, ...next);
                 next = getLine(transferEncoding);
                 nextString = decodeString(next);
             }
-            asset.data = asset.rawData = new Uint8Array(asset.data);
-            let charset = getCharset(asset.contentType);
+            resource.data = resource.rawData = new Uint8Array(resource.data);
+            let charset = getCharset(resource.contentType);
             try {
-                asset.data = decodeString(asset.data, charset);
-                if (asset.contentType === "text/css") {
-                    const ast = cssTree.parse(asset.data);
+                resource.data = decodeString(resource.data, charset);
+                if (resource.contentType === "text/css") {
+                    const ast = cssTree.parse(resource.data);
                     try {
                         if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
                             const charsetNode = ast.children.first;
@@ -100,7 +100,7 @@ function parse(mhtml) {
                                     ast.children.shift();
                                 } else {
                                     charset = cssCharset;
-                                    asset.data = decodeString(asset.data, cssCharset);
+                                    resource.data = decodeString(resource.data, cssCharset);
                                 }
                             }
                         }
@@ -109,8 +109,8 @@ function parse(mhtml) {
                         console.warn(error);
                     }
                 }
-                if (asset.contentType === "text/html" || asset.contentType === "application/xhtml+xml") {
-                    const dom = parseDOM(asset.data);
+                if (resource.contentType === "text/html" || resource.contentType === "application/xhtml+xml") {
+                    const dom = parseDOM(resource.data);
                     const documentElement = dom.document;
                     const charserMetaElement = documentElement.querySelector("meta[charset]");
                     if (charserMetaElement) {
@@ -118,20 +118,20 @@ function parse(mhtml) {
                         if (charset && htmlCharset && htmlCharset !== charset) {
                             charset = htmlCharset;
                             charserMetaElement.remove();
-                            asset.data = decodeString(asset.data, charset);
+                            resource.data = decodeString(resource.data, charset);
                         } else {
                             charserMetaElement.remove();
                         }
                     }
                     const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
                     if (metaElement) {
-                        asset.contentType = metaElement.getAttribute("content");
-                        const htmlCharset = getCharset(asset.contentType.toLowerCase());
+                        resource.contentType = metaElement.getAttribute("content");
+                        const htmlCharset = getCharset(resource.contentType.toLowerCase());
                         if (charset && htmlCharset) {
                             if (htmlCharset !== charset) {
-                                metaElement.setAttribute("content", asset.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`));
+                                metaElement.setAttribute("content", resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`));
                                 charset = htmlCharset;
-                                asset.data = decodeString(asset.rawData, charset);
+                                resource.data = decodeString(resource.rawData, charset);
                             } else {
                                 metaElement.remove();
                             }
@@ -139,10 +139,10 @@ function parse(mhtml) {
                     }
                 }
             } catch (error) {
-                if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
+                if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
                     // eslint-disable-next-line no-console
                     console.warn(error);
-                    asset.data = decodeString(asset.rawData);
+                    resource.data = decodeString(resource.rawData);
                 } else {
                     throw error;
                 }
@@ -316,14 +316,14 @@ function convert({ frames, resources, index }) {
 
 export { parse, convert };
 
-function replaceStyleSheetUrls(resources, base, asset) {
+function replaceStyleSheetUrls(resources, base, resource) {
     let ast;
     try {
-        ast = cssTree.parse(asset);
+        ast = cssTree.parse(resource);
     } catch (error) {
         // eslint-disable-next-line no-console
         console.warn(error);
-        return asset;
+        return resource;
     }
     if (ast) {
         cssTree.walk(ast, node => {
