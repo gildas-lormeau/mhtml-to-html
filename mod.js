@@ -1,9 +1,10 @@
 /* global Deno, TextEncoder */
 
 import mhtmlToHtml from "./src/mod.js";
-const { parse, convert } = mhtmlToHtml;
 import { isGlob } from "jsr:@std/path";
 import { expandGlob } from "jsr:@std/fs";
+
+const { parse, convert } = mhtmlToHtml;
 
 async function main() {
     const positionals = Deno.args;
