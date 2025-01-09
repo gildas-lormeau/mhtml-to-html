@@ -175,29 +175,37 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
 
 function convert({ frames, resources, index }, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     let resource = resources[index];
-    const id = resource.id;
+    let base = resource.id;
     const dom = parseDOM(resource.data, DOMParser);
     const documentElement = dom.document;
     const nodes = [documentElement];
     let href, src, title;
+    let baseElement = documentElement.querySelector("base");
+    if (baseElement && baseElement.getAttribute("href")) {
+        try {
+            base = new URL(baseElement.getAttribute("href"), base).href;
+        } catch (_) {
+            // ignored
+        }
+    }
     while (nodes.length) {
         const childNode = nodes.shift();
         childNode.childNodes.forEach(child => {
             if (child.getAttribute) {
                 try {
-                    href = new URL(child.getAttribute("href"), id).href;
+                    href = new URL(child.getAttribute("href"), base).href;
                 } catch (_) {
                     href = child.getAttribute("href");
                 }
                 try {
-                    src = new URL(child.getAttribute("src"), id).href;
+                    src = new URL(child.getAttribute("src"), base).href;
                 } catch (_) {
                     src = child.getAttribute("src");
                 }
                 title = child.getAttribute("title");
                 const style = child.getAttribute("style");
                 if (style) {
-                    child.setAttribute("style", replaceStyleSheetUrls(resources, id, style, { context: "declarationList" }));
+                    child.setAttribute("style", replaceStyleSheetUrls(resources, base, style, { context: "declarationList" }));
                 }
             }
             if (child.removeAttribute) {
@@ -306,7 +314,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                 case "AREA":
                     if (href && !href.startsWith("#") && !href.match(/^[^:]+:/)) {
                         try {
-                            child.setAttribute("href", new URL(href, id).href);
+                            child.setAttribute("href", new URL(href, base).href);
                         } catch (_) {
                             // ignored
                         }
@@ -318,9 +326,9 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
             nodes.push(child);
         });
     }
-    const baseElement = documentElement.createElement("base");
+    baseElement = documentElement.createElement("base");
     try {
-        baseElement.setAttribute("href", new URL(id).href);
+        baseElement.setAttribute("href", new URL(base).href);
     } catch (_) {
         // ignored
     }
