@@ -185,8 +185,16 @@ function convert({ frames, resources, index }) {
         const childNode = nodes.shift();
         childNode.childNodes.forEach(child => {
             if (child.getAttribute) {
-                href = new URL(child.getAttribute("href"), url).href;
-                src = new URL(child.getAttribute("src"), url).href;
+                try {
+                    href = new URL(child.getAttribute("href"), url).href;
+                } catch (_) {
+                    href = child.getAttribute("href");
+                }
+                try {
+                    src = new URL(child.getAttribute("src"), url).href;
+                } catch (_) {
+                    src = child.getAttribute("src");
+                }
                 title = child.getAttribute("title");
                 const style = child.getAttribute("style");
                 if (style) {
@@ -308,7 +316,11 @@ function convert({ frames, resources, index }) {
         });
     }
     const baseElement = documentElement.createElement("base");
-    baseElement.setAttribute("href", url);
+    try {
+        baseElement.setAttribute("href", new URL(url).href);
+    } catch (_) {
+        // ignored
+    }
     if (documentElement.head.firstChild) {
         documentElement.head.insertBefore(baseElement, documentElement.head.firstChild);
     } else {
