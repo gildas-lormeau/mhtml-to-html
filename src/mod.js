@@ -114,10 +114,9 @@ const mhtmlToHtml = {
                     if (asset.contentType === "text/html" || asset.contentType === "application/xhtml+xml") {
                         const dom = parseDOM(asset.data);
                         const documentElement = dom.document;
-                        let htmlCharset;
                         const charserMetaElement = documentElement.querySelector("meta[charset]");
                         if (charserMetaElement) {
-                            htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
+                            const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                             if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                                 charset = htmlCharset;
                                 asset.data = decodeString(asset.data, charset);
