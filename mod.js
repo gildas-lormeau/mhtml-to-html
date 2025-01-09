@@ -29,10 +29,14 @@ function process(input, output) {
     if (!output.endsWith(".html")) {
         output += ".html";
     }
-    const data = Deno.readTextFileSync(input);
-    const mhtml = parse(new TextEncoder().encode(data));
-    const doc = convert(mhtml);
-    Deno.writeTextFileSync(output, doc.serialize());
+    try {
+        const data = Deno.readTextFileSync(input);
+        const mhtml = parse(new TextEncoder().encode(data), config);
+        const doc = convert(mhtml, config);
+        Deno.writeTextFileSync(output, doc.serialize());
+    } catch (error) {
+        console.error(`Error processing ${input}: ${error.message}`);
+    }
 }
 
 export { parse, convert, main };
