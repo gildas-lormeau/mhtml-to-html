@@ -28,7 +28,7 @@ const mhtmlToHtml = {
             if (state === MHTML_FSM.MHTML_HEADERS) {
                 let next = getLine();
                 let nextString = decodeString(next);
-                if (nextString && nextString !== "\n") {
+                if (nextString !== "\r\n") {
                     splitHeaders(nextString, headers);
                 } else {
                     const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
@@ -47,7 +47,7 @@ const mhtmlToHtml = {
             } else if (state === MHTML_FSM.MTHML_CONTENT) {
                 const next = getLine();
                 const nextString = decodeString(next);
-                if (nextString && nextString !== "\n") {
+                if (nextString !== "\r\n") {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
@@ -79,8 +79,8 @@ const mhtmlToHtml = {
                 let nextString = decodeString(next);
                 while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
                     if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING && asset.data.length) {
-                        if (asset.data[asset.data.length - 1] === 0x3D) {
-                            asset.data = asset.data.slice(0, asset.data.length - 1);
+                        if (asset.data[asset.data.length - 3] === 0x3D) {
+                            asset.data = asset.data.slice(0, asset.data.length - 3);
                         }
                     }
                     asset.data.splice(asset.data.length, 0, ...next);
@@ -162,15 +162,7 @@ const mhtmlToHtml = {
             const j = indexMhtml;
             while (mhtml[indexMhtml] !== 0x0A && indexMhtml++ < mhtml.length - 1);
             indexMhtml++;
-            let line = mhtml.slice(j, indexMhtml);
-            do {
-                if (line[line.length - 1] === 0x0A) {
-                    line = line.slice(0, line.length - 1);
-                }
-                if (line[line.length - 1] === 0x0D) {
-                    line = line.slice(0, line.length - 1);
-                }
-            } while ((line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D) && indexMhtml < mhtml.length - 1);
+            const line = mhtml.slice(j, indexMhtml);
             return transferEncoding === QUOTED_PRINTABLE_ENCODING ? decodeQuotedPrintable(line) : line;
         }
 
