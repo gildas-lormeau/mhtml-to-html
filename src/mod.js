@@ -85,68 +85,58 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             }
             resource.data = resource.rawData = new Uint8Array(resource.data);
             let charset = getCharset(resource.contentType);
-            try {
-                resource.data = decodeString(resource.data, charset);
-                if (resource.contentType.startsWith("text/css")) {
-                    const ast = cssTree.parse(resource.data);
-                    try {
-                        if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
-                            const charsetNode = ast.children.first;
-                            const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
-                            if (cssCharset !== UTF8_CHARSET) {
-                                if (cssCharset === charset) {
-                                    ast.children.shift();
-                                } else {
-                                    charset = cssCharset;
-                                    resource.data = decodeString(resource.data, cssCharset);
-                                }
+            resource.data = decodeString(resource.data, charset);
+            if (resource.contentType.startsWith("text/css")) {
+                const ast = cssTree.parse(resource.data);
+                try {
+                    if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
+                        const charsetNode = ast.children.first;
+                        const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
+                        if (cssCharset !== UTF8_CHARSET) {
+                            if (cssCharset === charset) {
+                                ast.children.shift();
+                            } else {
+                                charset = cssCharset;
+                                resource.data = decodeString(resource.data, cssCharset);
                             }
                         }
-                    } catch (error) {
-                        // eslint-disable-next-line no-console
-                        console.warn(error);
                     }
-                }
-                if (resource.contentType.startsWith("text/html") || resource.contentType.startsWith("application/xhtml+xml")) {
-                    const dom = parseDOM(resource.data, DOMParser);
-                    const documentElement = dom.document;
-                    const charserMetaElement = documentElement.querySelector("meta[charset]");
-                    if (charserMetaElement) {
-                        const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                        if (htmlCharset && htmlCharset !== charset) {
-                            resource.data = decodeString(resource.data, charset);
-                            const dom = parseDOM(resource.data, DOMParser);
-                            const charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
-                            charserMetaElement.remove();
-                            resource.data = dom.serialize();
-                        } else {
-                            charserMetaElement.remove();
-                            resource.data = dom.serialize();
-                        }
-                    }
-                    const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
-                    if (metaElement) {
-                        resource.contentType = metaElement.getAttribute("content");
-                        const htmlCharset = getCharset(resource.contentType);
-                        if (htmlCharset) {
-                            if (htmlCharset !== charset) {
-                                resource.data = decodeString(resource.rawData, htmlCharset);
-                            }
-                            const dom = parseDOM(resource.data, DOMParser);
-                            const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
-                            resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
-                            metaElement.setAttribute("content", resource.contentType);
-                            resource.data = dom.serialize();
-                        }
-                    }
-                }
-            } catch (error) {
-                if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
+                } catch (error) {
                     // eslint-disable-next-line no-console
                     console.warn(error);
-                    resource.data = decodeString(resource.rawData);
-                } else {
-                    throw error;
+                }
+            }
+            if (resource.contentType.startsWith("text/html") || resource.contentType.startsWith("application/xhtml+xml")) {
+                const dom = parseDOM(resource.data, DOMParser);
+                const documentElement = dom.document;
+                const charserMetaElement = documentElement.querySelector("meta[charset]");
+                if (charserMetaElement) {
+                    const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
+                    if (htmlCharset && htmlCharset !== charset) {
+                        resource.data = decodeString(resource.data, charset);
+                        const dom = parseDOM(resource.data, DOMParser);
+                        const charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
+                        charserMetaElement.remove();
+                        resource.data = dom.serialize();
+                    } else {
+                        charserMetaElement.remove();
+                        resource.data = dom.serialize();
+                    }
+                }
+                const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
+                if (metaElement) {
+                    resource.contentType = metaElement.getAttribute("content");
+                    const htmlCharset = getCharset(resource.contentType);
+                    if (htmlCharset) {
+                        if (htmlCharset !== charset) {
+                            resource.data = decodeString(resource.rawData, htmlCharset);
+                        }
+                        const dom = parseDOM(resource.data, DOMParser);
+                        const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
+                        resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
+                        metaElement.setAttribute("content", resource.contentType);
+                        resource.data = dom.serialize();
+                    }
                 }
             }
             state = (indexMhtml >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
@@ -179,7 +169,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             data: [],
             id
         };
-        if (index === undefined) {
+        if (index === undefined && (contentType.startsWith("text/html") || contentType.startsWith("application/xhtml+xml"))) {
             index = id;
         }
         if (contentId !== undefined) {
