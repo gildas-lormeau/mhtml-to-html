@@ -14,6 +14,7 @@ const QUOTED_PRINTABLE_ENCODING = "quoted-printable";
 const CONTENT_TYPE_HEADER = "Content-Type";
 const BASE64_ENCODING = "base64";
 const UTF8_CHARSET = "utf-8";
+const CRLF = "\r\n";
 
 const mhtmlToHtml = {
     parse: mhtml => {
@@ -28,7 +29,7 @@ const mhtmlToHtml = {
             if (state === MHTML_FSM.MHTML_HEADERS) {
                 let next = getLine();
                 let nextString = decodeString(next);
-                if (nextString !== "\r\n") {
+                if (nextString !== CRLF) {
                     splitHeaders(nextString, headers);
                 } else {
                     const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
@@ -46,7 +47,7 @@ const mhtmlToHtml = {
             } else if (state === MHTML_FSM.MTHML_CONTENT) {
                 const next = getLine();
                 const nextString = decodeString(next);
-                if (nextString !== "\r\n") {
+                if (nextString !== CRLF) {
                     splitHeaders(nextString, content);
                 } else {
                     transferEncoding = content["Content-Transfer-Encoding"];
