@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* global Deno, TextEncoder */
 
 import { parse, convert } from "./src/mod.js";
@@ -7,8 +8,10 @@ import { expandGlob } from "jsr:@std/fs";
 async function main() {
     const positionals = Deno.args;
     if (positionals.length < 1) {
-        // eslint-disable-next-line no-console
         console.log("Usage: mhtml-to-html <input> [output]");
+        console.log(" input: The input MHTML file, wildcards are supported");
+        console.log(" output: The output HTML file, if not specified, the input file will be used with the extension changed to .html");
+        console.log("");
         Deno.exit(1);
     } else {
         if (isGlob(positionals[0])) {
