@@ -132,8 +132,8 @@ const mhtmlToHtml = {
                             const htmlCharset = getCharset(contentType.toLowerCase());
                             if (htmlCharset) {
                                 if (htmlCharset !== charset) {
-                                    charset = htmlCharset;
                                     metaElement.content = metaElement.content.replace("=" + charset, "=" + htmlCharset);
+                                    charset = htmlCharset;
                                     asset.data = decodeString(asset.data, charset);
                                 } else {
                                     metaElement.remove();
