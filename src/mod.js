@@ -119,6 +119,7 @@ const mhtmlToHtml = {
                             const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                             if (htmlCharset && htmlCharset !== charset) {
                                 charset = htmlCharset;
+                                charserMetaElement.remove();
                                 asset.data = decodeString(asset.data, charset);
                             } else {
                                 charserMetaElement.remove();
@@ -132,6 +133,7 @@ const mhtmlToHtml = {
                             if (htmlCharset) {
                                 if (htmlCharset !== charset) {
                                     charset = htmlCharset;
+                                    metaElement.content = metaElement.content.replace("=" + charset, "=" + htmlCharset);
                                     asset.data = decodeString(asset.data, charset);
                                 } else {
                                     metaElement.remove();
