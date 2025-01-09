@@ -78,7 +78,7 @@ function parse(mhtml) {
             while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
                 if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING && resource.data.length) {
                     if (resource.data[resource.data.length - 3] === 0x3D) {
-                        resource.data = resource.data.slice(0, resource.data.length - 3);
+                        resource.data.splice(resource.data.length - 3, 3);
                     }
                 }
                 resource.data.splice(resource.data.length, 0, ...next);
