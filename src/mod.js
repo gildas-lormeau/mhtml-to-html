@@ -35,7 +35,6 @@ const mhtmlToHtml = {
                     contentTypeParams.shift();
                     const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
                     boundary = removeQuotes(boundaryParam.substring(9));
-                    trim();
                     while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
                         next = getLine();
                         nextString = decodeString(next);
@@ -70,7 +69,6 @@ const mhtmlToHtml = {
                     if (url !== undefined && !resources[url]) {
                         resources[url] = asset;
                     }
-                    trim();
                     content = {};
                     state = MHTML_FSM.MHTML_DATA;
                 }
@@ -153,10 +151,6 @@ const mhtmlToHtml = {
             }
         }
         return { frames, resources, index };
-
-        function trim() {
-            while ((mhtml[indexMhtml] === 0x20 || mhtml[indexMhtml] === 0x0A || mhtml[indexMhtml] === 0x0D) && indexMhtml++ < mhtml.length - 1);
-        }
 
         function getLine(transferEncoding) {
             const j = indexMhtml;
