@@ -1,12 +1,11 @@
 /* eslint-disable no-console */
-/* global Deno, TextEncoder */
+/* global globalThis, Deno, TextEncoder */
 
 import { parse, convert } from "./src/mod.js";
 import { isGlob } from "jsr:@std/path";
 import { expandGlob } from "jsr:@std/fs";
-import { DOMParser } from "jsr:@b-fuze/deno-dom";
 
-async function main() {
+async function main(config = { DOMParser: globalThis.DOMParser }) {
     const positionals = Deno.args;
     if (positionals.length < 1 || positionals.includes("-h") || positionals.includes("--help")) {
         console.log("Usage: mhtml-to-html <input> [output]");
@@ -17,16 +16,15 @@ async function main() {
     } else {
         if (isGlob(positionals[0])) {
             for await (const file of expandGlob(positionals[0])) {
-                process(file.path);
+                process(file.path, null, config);
             }
         } else {
-            process(positionals[0], positionals[1]);
+            process(positionals[0], positionals[1], config);
         }
     }
 }
 
-function process(input, output) {
-    const config = { DOMParser };
+function process(input, output, config = { DOMParser: globalThis.DOMParser }) {
     output = output || input.replace(/\.[^.]+$/, ".html");
     if (!output.endsWith(".html")) {
         output += ".html";
@@ -41,4 +39,4 @@ function process(input, output) {
     }
 }
 
-export { parse, convert, main };
+export { parse, convert, process, main };
