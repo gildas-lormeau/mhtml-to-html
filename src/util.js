@@ -55,7 +55,7 @@ function decodeString(array, charset) {
 function getCharset(contentType) {
     const charsetMatch = contentType.match(/charset=([^;]+)/);
     if (charsetMatch) {
-        return removeQuotes(charsetMatch[1]);
+        return removeQuotes(charsetMatch[1]).toLowerCase();
     }
 }
 
