@@ -132,7 +132,7 @@ const mhtmlToHtml = {
                             const htmlCharset = getCharset(contentType.toLowerCase());
                             if (htmlCharset) {
                                 if (htmlCharset !== charset) {
-                                    metaElement.content = metaElement.content.replace("=" + htmlCharset, `=${UTF8_CHARSET}`);
+                                    metaElement.content = metaElement.content.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
                                     charset = htmlCharset;
                                     asset.data = decodeString(asset.data, charset);
                                 } else {
