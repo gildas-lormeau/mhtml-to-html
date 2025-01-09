@@ -109,21 +109,18 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             if (resource.contentType.startsWith("text/html") || resource.contentType.startsWith("application/xhtml+xml")) {
                 const dom = parseDOM(resource.data, DOMParser);
                 const documentElement = dom.document;
-                const charserMetaElement = documentElement.querySelector("meta[charset]");
+                let charserMetaElement = documentElement.querySelector("meta[charset]");
                 if (charserMetaElement) {
                     const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                     if (htmlCharset && htmlCharset !== charset) {
                         resource.data = decodeString(resource.rawData, charset);
                         const dom = parseDOM(resource.data, DOMParser);
-                        const charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
-                        charserMetaElement.remove();
-                        resource.data = dom.serialize();
-                    } else {
-                        charserMetaElement.remove();
-                        resource.data = dom.serialize();
+                        charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
                     }
+                    charserMetaElement.remove();
+                    resource.data = dom.serialize();
                 }
-                const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
+                let metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
                 if (metaElement) {
                     resource.contentType = metaElement.getAttribute("content");
                     const htmlCharset = getCharset(resource.contentType);
@@ -132,7 +129,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                             resource.data = decodeString(resource.rawData, htmlCharset);
                         }
                         const dom = parseDOM(resource.data, DOMParser);
-                        const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
+                        metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
                         resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
                         metaElement.setAttribute("content", resource.contentType);
                         resource.data = dom.serialize();
