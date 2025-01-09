@@ -87,7 +87,7 @@ const mhtmlToHtml = {
                     next = getLine(transferEncoding);
                     nextString = decodeString(next);
                 }
-                asset.data = new Uint8Array(asset.data);
+                asset.data = asset.rawData = new Uint8Array(asset.data);
                 let charset = getCharset(asset.contentType);
                 try {
                     asset.data = decodeString(asset.data, charset);
@@ -117,7 +117,7 @@ const mhtmlToHtml = {
                         const charserMetaElement = documentElement.querySelector("meta[charset]");
                         if (charserMetaElement) {
                             const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                            if (htmlCharset && htmlCharset !== charset) {
+                            if (charset && htmlCharset && htmlCharset !== charset) {
                                 charset = htmlCharset;
                                 charserMetaElement.remove();
                                 asset.data = decodeString(asset.data, charset);
@@ -129,11 +129,11 @@ const mhtmlToHtml = {
                         if (metaElement) {
                             asset.contentType = metaElement.getAttribute("content");
                             const htmlCharset = getCharset(asset.contentType.toLowerCase());
-                            if (htmlCharset) {
+                            if (charset && htmlCharset) {
                                 if (htmlCharset !== charset) {
                                     metaElement.setAttribute("content", asset.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`));
                                     charset = htmlCharset;
-                                    asset.data = decodeString(asset.data, charset);
+                                    asset.data = decodeString(asset.rawData, charset);
                                 } else {
                                     metaElement.remove();
                                 }
@@ -144,7 +144,7 @@ const mhtmlToHtml = {
                     if (asset.transferEncoding === QUOTED_PRINTABLE_ENCODING) {
                         // eslint-disable-next-line no-console
                         console.warn(error);
-                        asset.data = decodeString(asset.data);
+                        asset.data = decodeString(asset.rawData);
                     } else {
                         throw error;
                     }
