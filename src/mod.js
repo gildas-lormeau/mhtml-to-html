@@ -274,7 +274,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     break;
                 case "SOURCE":
                     resource = resources[src];
-                    if (resource && resource.contentType.startsWith("image/") || resource.contentType.startsWith("video/") || resource.contentType.startsWith("audio/")) {
+                    if (resource && (resource.contentType.startsWith("image/") || resource.contentType.startsWith("video/") || resource.contentType.startsWith("audio/"))) {
                         try {
                             child.setAttribute("src", getResourceURI(resource));
                         } catch (error) {
