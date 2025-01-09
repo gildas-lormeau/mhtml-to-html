@@ -4,6 +4,7 @@
 import { parse, convert } from "./src/mod.js";
 import { isGlob } from "jsr:@std/path";
 import { expandGlob } from "jsr:@std/fs";
+import { DOMParser } from "jsr:@b-fuze/deno-dom";
 
 async function main() {
     const positionals = Deno.args;
@@ -25,6 +26,7 @@ async function main() {
 }
 
 function process(input, output) {
+    const config = { DOMParser };
     output = output || input.replace(/\.[^.]+$/, ".html");
     if (!output.endsWith(".html")) {
         output += ".html";

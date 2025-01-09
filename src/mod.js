@@ -1,4 +1,4 @@
-/* global URL */
+/* global globalThis, URL */
 
 import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset } from "./util.js";
 import * as cssTree from "./lib/csstree.esm.js";
@@ -16,7 +16,7 @@ const BASE64_ENCODING = "base64";
 const UTF8_CHARSET = "utf-8";
 const CRLF = "\r\n";
 
-function parse(mhtml) {
+function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     const headers = {};
     const resources = {};
     const frames = {};
@@ -110,7 +110,7 @@ function parse(mhtml) {
                     }
                 }
                 if (resource.contentType === "text/html" || resource.contentType === "application/xhtml+xml") {
-                    const dom = parseDOM(resource.data);
+                    const dom = parseDOM(resource.data, DOMParser);
                     const documentElement = dom.document;
                     const charserMetaElement = documentElement.querySelector("meta[charset]");
                     if (charserMetaElement) {
@@ -130,7 +130,7 @@ function parse(mhtml) {
                         if (htmlCharset) {
                             if (htmlCharset !== charset) {
                                 resource.data = decodeString(resource.rawData, htmlCharset);
-                                const dom = parseDOM(resource.data);
+                                const dom = parseDOM(resource.data, DOMParser);
                                 const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
                                 resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
                                 metaElement.setAttribute("content", resource.contentType);
@@ -174,10 +174,10 @@ function parse(mhtml) {
     }
 }
 
-function convert({ frames, resources, index }) {
+function convert({ frames, resources, index }, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     let resource = resources[index];
     const url = resource.url || resource.id;
-    const dom = parseDOM(resource.data);
+    const dom = parseDOM(resource.data, DOMParser);
     const documentElement = dom.document;
     const nodes = [documentElement];
     let href, src, title;
@@ -293,7 +293,7 @@ function convert({ frames, resources, index }) {
                                 resources: Object.assign({}, resources, { [id]: frame }),
                                 frames: frames,
                                 index: id
-                            });
+                            }, { DOMParser });
                             child.removeAttribute("src");
                             child.setAttribute("srcdoc", iframe.serialize());
                         }

@@ -1,6 +1,4 @@
-/* global TextDecoder, btoa */
-
-import { DOMParser } from "jsr:@b-fuze/deno-dom";
+/* global globalThis, TextDecoder, btoa */
 
 function decodeQuotedPrintable(array) {
     const result = [];
@@ -28,7 +26,7 @@ function encodeBase64(str) {
     return btoa(unescape(encodeURIComponent(str)));
 }
 
-function parseDOM(asset) {
+function parseDOM(asset, DOMParser = globalThis.DOMParser) {
     return {
         document: new DOMParser().parseFromString(asset, "text/html"),
         serialize() {
