@@ -115,7 +115,7 @@ function parse(mhtml) {
                     const charserMetaElement = documentElement.querySelector("meta[charset]");
                     if (charserMetaElement) {
                         const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                        if (charset && htmlCharset && htmlCharset !== charset) {
+                        if (htmlCharset && htmlCharset !== charset) {
                             charset = htmlCharset;
                             charserMetaElement.remove();
                             resource.data = decodeString(resource.data, charset);
@@ -127,11 +127,11 @@ function parse(mhtml) {
                     if (metaElement) {
                         resource.contentType = metaElement.getAttribute("content");
                         const htmlCharset = getCharset(resource.contentType.toLowerCase());
-                        if (charset && htmlCharset) {
+                        if (htmlCharset) {
                             if (htmlCharset !== charset) {
-                                metaElement.setAttribute("content", resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`));
-                                charset = htmlCharset;
-                                resource.data = decodeString(resource.rawData, charset);
+                                resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
+                                metaElement.setAttribute("content", resource.contentType);
+                                resource.data = decodeString(resource.rawData, htmlCharset);
                             } else {
                                 metaElement.remove();
                             }
