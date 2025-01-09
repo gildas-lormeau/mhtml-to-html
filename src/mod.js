@@ -198,7 +198,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                 title = child.getAttribute("title");
                 const style = child.getAttribute("style");
                 if (style) {
-                    child.setAttribute("style", replaceStyleSheetUrls(resources, index, style));
+                    child.setAttribute("style", replaceStyleSheetUrls(resources, url, style, { context: "declarationList" }));
                 }
             }
             if (child.removeAttribute) {
@@ -220,7 +220,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                             if (media) {
                                 styleElement.setAttribute("media", media);
                             }
-                            resource.data = replaceStyleSheetUrls(resources, href, resource.data);
+                            resource.data = replaceStyleSheetUrls(resources, url, resource.data);
                             styleElement.appendChild(documentElement.createTextNode(resource.data));
                             childNode.replaceChild(styleElement, child);
                         }
@@ -236,7 +236,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         if (media) {
                             styleElement.setAttribute("media", media);
                         }
-                        styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
+                        styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, url, child.textContent)));
                         childNode.replaceChild(styleElement, child);
                     }
                     break;
@@ -331,10 +331,10 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
 
 export { parse, convert };
 
-function replaceStyleSheetUrls(resources, base, resource) {
+function replaceStyleSheetUrls(resources, base, resource, options = {}) {
     let ast;
     try {
-        ast = cssTree.parse(resource);
+        ast = cssTree.parse(resource, options);
     } catch (error) {
         // eslint-disable-next-line no-console
         console.warn(error);
