@@ -177,10 +177,10 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     let resource = resources[index];
     let base = resource.id;
     const dom = parseDOM(resource.data, DOMParser);
-    const documentElement = dom.document;
-    const nodes = [documentElement];
+    const document = dom.document;
+    const nodes = [document];
     let href, src, title;
-    let baseElement = documentElement.querySelector("base");
+    let baseElement = document.querySelector("base");
     if (baseElement) {
         const href = baseElement.getAttribute("href");
         if (href) {
@@ -224,7 +224,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         if (title) {
                             child.remove();
                         } else {
-                            const styleElement = documentElement.createElement("style");
+                            const styleElement = document.createElement("style");
                             styleElement.type = "text/css";
                             const media = child.getAttribute("media");
                             if (media) {
@@ -235,7 +235,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                                 resourceBase = index;
                             }
                             resource.data = replaceStyleSheetUrls(resources, resourceBase, resource.data);
-                            styleElement.appendChild(documentElement.createTextNode(resource.data));
+                            styleElement.appendChild(document.createTextNode(resource.data));
                             childNode.replaceChild(styleElement, child);
                         }
                     }
@@ -244,13 +244,13 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     if (title) {
                         child.remove();
                     } else {
-                        const styleElement = documentElement.createElement("style");
+                        const styleElement = document.createElement("style");
                         styleElement.type = "text/css";
                         const media = child.getAttribute("media");
                         if (media) {
                             styleElement.setAttribute("media", media);
                         }
-                        styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
+                        styleElement.appendChild(document.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
                         childNode.replaceChild(styleElement, child);
                     }
                     break;
@@ -329,16 +329,16 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
             nodes.push(child);
         });
     }
-    baseElement = documentElement.createElement("base");
+    baseElement = document.createElement("base");
     try {
         baseElement.setAttribute("href", new URL(base).href);
     } catch (_) {
         // ignored
     }
-    if (documentElement.head.firstChild) {
-        documentElement.head.insertBefore(baseElement, documentElement.head.firstChild);
+    if (document.head.firstChild) {
+        document.head.insertBefore(baseElement, document.head.firstChild);
     } else {
-        documentElement.head.appendChild(baseElement);
+        document.head.appendChild(baseElement);
     }
     return dom;
 }
