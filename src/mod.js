@@ -366,6 +366,6 @@ function replaceStyleSheetUrls(resources, base, asset) {
     }
 }
 
-function getResourceURI(asset) {
-    return `data:${asset.contentType};${BASE64_ENCODING},${asset.transferEncoding === BASE64_ENCODING ? asset.data : encodeBase64(asset.data)}`;
+function getResourceURI({ contentType, transferEncoding, data }) {
+    return `data:${contentType};${BASE64_ENCODING},${transferEncoding === BASE64_ENCODING ? data : encodeBase64(data)}`;
 }
