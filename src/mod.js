@@ -53,16 +53,15 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 const contentType = content[CONTENT_TYPE_HEADER];
                 const contentId = content["Content-ID"];
                 const url = content["Content-Location"];
-                if (index === undefined) {
-                    index = url;
-                }
                 resource = {
                     transferEncoding,
                     contentType,
                     data: [],
-                    id: index,
                     url
                 };
+                if (index === undefined) {
+                    resource.id = index = url;
+                }
                 if (contentId !== undefined) {
                     frames[contentId] = resource;
                 }
@@ -220,7 +219,11 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                             if (media) {
                                 styleElement.setAttribute("media", media);
                             }
-                            resource.data = replaceStyleSheetUrls(resources, resource.url, resource.data);
+                            let resourceBase = resource.url;
+                            if (resourceBase.startsWith("cid:")) {
+                                resourceBase = index;
+                            }
+                            resource.data = replaceStyleSheetUrls(resources, resourceBase, resource.data);
                             styleElement.appendChild(documentElement.createTextNode(resource.data));
                             childNode.replaceChild(styleElement, child);
                         }
@@ -236,7 +239,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         if (media) {
                             styleElement.setAttribute("media", media);
                         }
-                        styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, url, child.textContent)));
+                        styleElement.appendChild(documentElement.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
                         childNode.replaceChild(styleElement, child);
                     }
                     break;
