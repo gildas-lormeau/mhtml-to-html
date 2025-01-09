@@ -15,6 +15,7 @@ const CONTENT_TYPE_HEADER = "Content-Type";
 const BASE64_ENCODING = "base64";
 const UTF8_CHARSET = "utf-8";
 const CRLF = "\r\n";
+const LF = "\n";
 
 function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     const headers = {};
@@ -28,7 +29,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
         if (state === MHTML_FSM.MHTML_HEADERS) {
             let next = getLine();
             let nextString = decodeString(next);
-            if (nextString !== CRLF) {
+            if (nextString !== CRLF && nextString !== LF) {
                 splitHeaders(nextString, headers);
             } else {
                 const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
@@ -46,7 +47,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
         } else if (state === MHTML_FSM.MTHML_CONTENT) {
             const next = getLine();
             const nextString = decodeString(next);
-            if (nextString !== CRLF) {
+            if (nextString !== CRLF && nextString !== LF) {
                 splitHeaders(nextString, content);
             } else {
                 transferEncoding = content["Content-Transfer-Encoding"];
