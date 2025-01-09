@@ -1,8 +1,6 @@
-/* global globalThis, TextDecoder, btoa, DOMParser */
+/* global TextDecoder, btoa */
 
-if (!("DOMParser" in globalThis)) {
-    globalThis.DOMParser = (await import("jsr:@b-fuze/deno-dom")).DOMParser;
-}
+import { DOMParser } from "jsr:@b-fuze/deno-dom";
 
 function decodeQuotedPrintable(array) {
     const result = [];
