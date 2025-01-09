@@ -12,6 +12,9 @@ const MHTML_FSM = {
 
 const QUOTED_PRINTABLE_ENCODING = "quoted-printable";
 const CONTENT_TYPE_HEADER = "Content-Type";
+const CONTENT_TRANSFER_ENCODING_HEADER = "Content-Transfer-Encoding";
+const CONTENT_ID_HEADER = "Content-ID";
+const CONTENT_LOCATION_HEADER = "Content-Location";
 const BASE64_ENCODING = "base64";
 const UTF8_CHARSET = "utf-8";
 const CRLF = "\r\n";
@@ -53,18 +56,18 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 if (nextString !== CRLF && nextString !== LF) {
                     splitHeaders(nextString, content);
                 } else {
-                    transferEncoding = content["Content-Transfer-Encoding"];
+                    transferEncoding = content[CONTENT_TRANSFER_ENCODING_HEADER];
                     const contentType = content[CONTENT_TYPE_HEADER];
-                    const contentId = content["Content-ID"];
-                    const id = content["Content-Location"];
+                    const contentId = content[CONTENT_ID_HEADER];
+                    const id = content[CONTENT_LOCATION_HEADER];
                     initResource(contentType, contentId, id);
                     state = MHTML_FSM.MHTML_DATA;
                 }
             } else {
-                transferEncoding = headers["Content-Transfer-Encoding"];
+                transferEncoding = headers[CONTENT_TRANSFER_ENCODING_HEADER];
                 const contentType = headers[CONTENT_TYPE_HEADER];
-                const contentId = headers["Content-ID"];
-                const id = headers["Content-Location"];
+                const contentId = headers[CONTENT_ID_HEADER];
+                const id = headers[CONTENT_LOCATION_HEADER];
                 initResource(contentType, contentId, id);
                 state = MHTML_FSM.MHTML_DATA;
             }
