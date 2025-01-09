@@ -1,6 +1,5 @@
 The MIT License(MIT)
 
-Copyright Mathias Bynens <https://mathiasbynens.be/>
 Copyright(c) 2016 Mayank Sindwani
 Copyright(c) 2025 Gildas Lormeau
 
