@@ -1,6 +1,7 @@
 /* global Deno, TextEncoder */
 
 import mhtmlToHtml from "./src/mod.js";
+const { parse, convert } = mhtmlToHtml;
 
 function main() {
     const positionals = Deno.args;
@@ -21,4 +22,4 @@ function main() {
     }
 }
 
-export default main;
+export { parse, convert, main };

@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-net
 
-import main from "./mod.js";
+import { main } from "./mod.js";
 
 main();
