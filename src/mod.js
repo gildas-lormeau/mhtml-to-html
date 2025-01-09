@@ -129,9 +129,12 @@ function parse(mhtml) {
                         const htmlCharset = getCharset(resource.contentType.toLowerCase());
                         if (htmlCharset) {
                             if (htmlCharset !== charset) {
+                                resource.data = decodeString(resource.rawData, htmlCharset);
+                                const dom = parseDOM(resource.data);
+                                const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
                                 resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
                                 metaElement.setAttribute("content", resource.contentType);
-                                resource.data = decodeString(resource.rawData, htmlCharset);
+                                resource.data = dom.serialize();
                             } else {
                                 metaElement.remove();
                             }
