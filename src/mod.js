@@ -97,7 +97,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                                 ast.children.shift();
                             } else {
                                 charset = cssCharset;
-                                resource.data = decodeString(resource.data, cssCharset);
+                                resource.data = decodeString(resource.rawData, cssCharset);
                             }
                         }
                     }
@@ -113,7 +113,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 if (charserMetaElement) {
                     const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                     if (htmlCharset && htmlCharset !== charset) {
-                        resource.data = decodeString(resource.data, charset);
+                        resource.data = decodeString(resource.rawData, charset);
                         const dom = parseDOM(resource.data, DOMParser);
                         const charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
                         charserMetaElement.remove();
