@@ -17,7 +17,7 @@ function decodeQuotedPrintable(array) {
             result.push(array[i]);
         }
     }
-    return result;
+    return new Uint8Array(result);
 
     function isHex(value) {
         return value >= 0x30 && value <= 0x39 || value >= 0x41 && value <= 0x46;

@@ -175,7 +175,7 @@ const mhtmlToHtml = {
                     line = line.slice(0, line.length - 1);
                 }
             } while ((line[line.length - 1] === 0x0A || line[line.length - 1] === 0x0D) && indexMhtml < mhtml.length - 1);
-            return transferEncoding === QUOTED_PRINTABLE_ENCODING ? new Uint8Array(decodeQuotedPrintable(line)) : line;
+            return transferEncoding === QUOTED_PRINTABLE_ENCODING ? decodeQuotedPrintable(line) : line;
         }
 
         function splitHeaders(line, obj) {
