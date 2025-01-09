@@ -131,10 +131,10 @@ const mhtmlToHtml = {
                         }
                         const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
                         if (metaElement) {
-                            const metaContent = metaElement.getAttribute("content");
-                            const metaCharsetMatch = metaContent.match(/charset=([^;]+)/);
-                            if (metaCharsetMatch) {
-                                const htmlCharset = removeQuotes(metaCharsetMatch[1].toLowerCase());
+                            const contentType = metaElement.getAttribute("content");
+                            const charsetMatch = contentType.match(/charset=([^;]+)/);
+                            if (charsetMatch) {
+                                const htmlCharset = removeQuotes(charsetMatch[1].toLowerCase());
                                 if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                                     charset = htmlCharset;
                                     asset.data = decodeString(asset.data, charset);
