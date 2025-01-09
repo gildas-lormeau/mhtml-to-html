@@ -36,6 +36,7 @@ function process(input, output, config = { DOMParser: globalThis.DOMParser }) {
         Deno.writeTextFileSync(output, doc.serialize());
     } catch (error) {
         console.error(`Error processing ${input}: ${error.message}`);
+        console.error(error.stack);
     }
 }
 
