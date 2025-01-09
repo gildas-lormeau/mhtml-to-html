@@ -329,7 +329,12 @@ function replaceStyleSheetUrls(resources, base, resource) {
         cssTree.walk(ast, node => {
             if (node.type === "Url") {
                 const path = node.value;
-                const url = new URL(removeQuotes(path), base).href;
+                let url;
+                try {
+                    url = new URL(removeQuotes(path), base).href;
+                } catch (_) {
+                    url = path;
+                }
                 const resource = resources[url];
                 if (resource) {
                     if (resource.contentType.startsWith("text/css")) {
