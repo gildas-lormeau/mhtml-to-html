@@ -220,7 +220,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                             if (media) {
                                 styleElement.setAttribute("media", media);
                             }
-                            resource.data = replaceStyleSheetUrls(resources, url, resource.data);
+                            resource.data = replaceStyleSheetUrls(resources, resource.url, resource.data);
                             styleElement.appendChild(documentElement.createTextNode(resource.data));
                             childNode.replaceChild(styleElement, child);
                         }
@@ -353,7 +353,7 @@ function replaceStyleSheetUrls(resources, base, resource, options = {}) {
                 const resource = resources[url];
                 if (resource) {
                     if (resource.contentType.startsWith("text/css")) {
-                        resource.data = replaceStyleSheetUrls(resources, url, resource.data);
+                        resource.data = replaceStyleSheetUrls(resources, resource.url, resource.data);
                     }
                     try {
                         node.value = getResourceURI(resource);
