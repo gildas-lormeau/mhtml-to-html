@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 /* global globalThis, Deno, TextEncoder */
 
-import { parse, convert } from "./src/mod.js";
-import { isGlob } from "jsr:@std/path";
 import { expandGlob } from "jsr:@std/fs";
+import { isGlob } from "jsr:@std/path";
+import { parse, convert } from "./src/mod.js";
 
 async function main(config = { DOMParser: globalThis.DOMParser }) {
     const positionals = Deno.args;
