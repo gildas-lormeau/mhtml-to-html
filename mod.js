@@ -2,24 +2,35 @@
 
 import mhtmlToHtml from "./src/mod.js";
 const { parse, convert } = mhtmlToHtml;
+import { isGlob } from "jsr:@std/path";
+import { expandGlob } from "jsr:@std/fs";
 
-function main() {
+async function main() {
     const positionals = Deno.args;
     if (positionals.length < 1) {
         // eslint-disable-next-line no-console
         console.log("Usage: mhtml-to-html <input> [output]");
         Deno.exit(1);
     } else {
-        const input = positionals[0];
-        let output = positionals[1] || input.replace(/\.[^.]+$/, ".html");
-        if (!positionals[1] && !output.endsWith(".html")) {
-            output += ".html";
+        if (isGlob(positionals[0])) {
+            for await (const file of expandGlob(positionals[0])) {
+                process(file.path);
+            }
+        } else {
+            process(positionals[0], positionals[1]);
         }
-        const data = Deno.readTextFileSync(input);
-        const mhtml = mhtmlToHtml.parse(new TextEncoder().encode(data));
-        const doc = mhtmlToHtml.convert(mhtml);
-        Deno.writeTextFileSync(output, doc.serialize());
     }
+}
+
+function process(input, output) {
+    output = output || input.replace(/\.[^.]+$/, ".html");
+    if (!output.endsWith(".html")) {
+        output += ".html";
+    }
+    const data = Deno.readTextFileSync(input);
+    const mhtml = mhtmlToHtml.parse(new TextEncoder().encode(data));
+    const doc = mhtmlToHtml.convert(mhtml);
+    Deno.writeTextFileSync(output, doc.serialize());
 }
 
 export { parse, convert, main };
