@@ -6,7 +6,7 @@ function decodeQuotedPrintable(array) {
     const result = [];
     for (let i = 0; i < array.length; i++) {
         if (array[i] === 0x3D) {
-            if (isHex(array, i + 1) && isHex(array, i + 2)) {
+            if (isHex(array[i + 1]) && isHex(array[i + 2])) {
                 const hex = parseInt(String.fromCharCode(array[i + 1], array[i + 2]), 16);
                 result.push(hex);
                 i += 2;
@@ -19,8 +19,8 @@ function decodeQuotedPrintable(array) {
     }
     return result;
 
-    function isHex(array, i) {
-        return array[i] >= 0x30 && array[i] <= 0x39 || array[i] >= 0x41 && array[i] <= 0x46;
+    function isHex(value) {
+        return value >= 0x30 && value <= 0x39 || value >= 0x41 && value <= 0x46;
     }
 }
 
