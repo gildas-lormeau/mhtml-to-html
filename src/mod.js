@@ -128,7 +128,7 @@ const mhtmlToHtml = {
                         if (metaElement) {
                             const contentType = metaElement.getAttribute("content");
                             asset.contentType = contentType;
-                            const htmlCharset = getCharset(contentType);
+                            const htmlCharset = getCharset(contentType.toLowerCase());
                             if (htmlCharset) {
                                 if (htmlCharset !== charset) {
                                     charset = htmlCharset;
