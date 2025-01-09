@@ -35,50 +35,48 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 const contentTypeParams = headers[CONTENT_TYPE_HEADER].split(";");
                 contentTypeParams.shift();
                 const boundaryParam = contentTypeParams.find(param => param.startsWith("boundary="));
-                boundary = removeQuotes(boundaryParam.substring(9));
-                while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
-                    next = getLine();
-                    nextString = decodeString(next);
+                if (boundaryParam) {
+                    boundary = removeQuotes(boundaryParam.substring(9));
+                    while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
+                        next = getLine();
+                        nextString = decodeString(next);
+                    }
                 }
                 content = {};
                 headerKey = null;
                 state = MHTML_FSM.MTHML_CONTENT;
             }
         } else if (state === MHTML_FSM.MTHML_CONTENT) {
-            const next = getLine();
-            const nextString = decodeString(next);
-            if (nextString !== CRLF && nextString !== LF) {
-                splitHeaders(nextString, content);
+            if (boundary) {
+                const next = getLine();
+                const nextString = decodeString(next);
+                if (nextString !== CRLF && nextString !== LF) {
+                    splitHeaders(nextString, content);
+                } else {
+                    transferEncoding = content["Content-Transfer-Encoding"];
+                    const contentType = content[CONTENT_TYPE_HEADER];
+                    const contentId = content["Content-ID"];
+                    const id = content["Content-Location"];
+                    initResource(contentType, contentId, id);
+                    state = MHTML_FSM.MHTML_DATA;
+                }
             } else {
-                transferEncoding = content["Content-Transfer-Encoding"];
-                const contentType = content[CONTENT_TYPE_HEADER];
-                const contentId = content["Content-ID"];
-                const id = content["Content-Location"];
-                resource = {
-                    transferEncoding,
-                    contentType,
-                    data: [],
-                    id
-                };
-                if (index === undefined) {
-                    index = id;
-                }
-                if (contentId !== undefined) {
-                    frames[contentId] = resource;
-                }
-                if (id !== undefined && !resources[id]) {
-                    resources[id] = resource;
-                }
-                content = {};
+                transferEncoding = headers["Content-Transfer-Encoding"];
+                const contentType = headers[CONTENT_TYPE_HEADER];
+                const contentId = headers["Content-ID"];
+                const id = headers["Content-Location"];
+                initResource(contentType, contentId, id);
                 state = MHTML_FSM.MHTML_DATA;
             }
         } else if (state === MHTML_FSM.MHTML_DATA) {
             let next = getLine(transferEncoding);
             let nextString = decodeString(next);
-            while (!nextString.includes(boundary) && indexMhtml < mhtml.length - 1) {
+            while ((!boundary || !nextString.includes(boundary)) && indexMhtml < mhtml.length - 1) {
                 if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING && resource.data.length) {
-                    if (resource.data[resource.data.length - 3] === 0x3D) {
+                    if (resource.data[resource.data.length - 3] === 0x3D && resource.data[resource.data.length - 2] === 0x0D && resource.data[resource.data.length - 1] === 0x0A) {
                         resource.data.splice(resource.data.length - 3, 3);
+                    } else if (resource.data[resource.data.length - 2] === 0x3D && resource.data[resource.data.length - 1] === 0x0A) {
+                        resource.data.splice(resource.data.length - 2, 2);
                     }
                 }
                 resource.data.splice(resource.data.length, 0, ...next);
@@ -89,7 +87,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             let charset = getCharset(resource.contentType);
             try {
                 resource.data = decodeString(resource.data, charset);
-                if (resource.contentType === "text/css") {
+                if (resource.contentType.startsWith("text/css")) {
                     const ast = cssTree.parse(resource.data);
                     try {
                         if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
@@ -109,35 +107,36 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                         console.warn(error);
                     }
                 }
-                if (resource.contentType === "text/html" || resource.contentType === "application/xhtml+xml") {
+                if (resource.contentType.startsWith("text/html") || resource.contentType.startsWith("application/xhtml+xml")) {
                     const dom = parseDOM(resource.data, DOMParser);
                     const documentElement = dom.document;
                     const charserMetaElement = documentElement.querySelector("meta[charset]");
                     if (charserMetaElement) {
                         const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                         if (htmlCharset && htmlCharset !== charset) {
-                            charset = htmlCharset;
-                            charserMetaElement.remove();
                             resource.data = decodeString(resource.data, charset);
+                            const dom = parseDOM(resource.data, DOMParser);
+                            const charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
+                            charserMetaElement.remove();
+                            resource.data = dom.serialize();
                         } else {
                             charserMetaElement.remove();
+                            resource.data = dom.serialize();
                         }
                     }
                     const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
                     if (metaElement) {
                         resource.contentType = metaElement.getAttribute("content");
-                        const htmlCharset = getCharset(resource.contentType.toLowerCase());
+                        const htmlCharset = getCharset(resource.contentType);
                         if (htmlCharset) {
                             if (htmlCharset !== charset) {
                                 resource.data = decodeString(resource.rawData, htmlCharset);
-                                const dom = parseDOM(resource.data, DOMParser);
-                                const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
-                                resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
-                                metaElement.setAttribute("content", resource.contentType);
-                                resource.data = dom.serialize();
-                            } else {
-                                metaElement.remove();
                             }
+                            const dom = parseDOM(resource.data, DOMParser);
+                            const metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
+                            resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
+                            metaElement.setAttribute("content", resource.contentType);
+                            resource.data = dom.serialize();
                         }
                     }
                 }
@@ -171,6 +170,25 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
         } else {
             obj[headerKey] += line.trim();
         }
+    }
+
+    function initResource(contentType, contentId, id) {
+        resource = {
+            transferEncoding,
+            contentType,
+            data: [],
+            id
+        };
+        if (index === undefined) {
+            index = id;
+        }
+        if (contentId !== undefined) {
+            frames[contentId] = resource;
+        }
+        if (id !== undefined && !resources[id]) {
+            resources[id] = resource;
+        }
+        content = {};
     }
 }
 
