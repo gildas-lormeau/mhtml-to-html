@@ -30,7 +30,6 @@ function process(input, output, config = { DOMParser: globalThis.DOMParser }) {
         output += ".html";
     }
     try {
-        console.log(`Processing ${input} to ${output}`);
         const data = Deno.readTextFileSync(input);
         const mhtml = parse(new TextEncoder().encode(data), config);
         const doc = convert(mhtml, config);
