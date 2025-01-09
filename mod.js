@@ -1,10 +1,8 @@
 /* global Deno, TextEncoder */
 
-import mhtmlToHtml from "./src/mod.js";
+import { parse, convert } from "./src/mod.js";
 import { isGlob } from "jsr:@std/path";
 import { expandGlob } from "jsr:@std/fs";
-
-const { parse, convert } = mhtmlToHtml;
 
 async function main() {
     const positionals = Deno.args;
@@ -29,8 +27,8 @@ function process(input, output) {
         output += ".html";
     }
     const data = Deno.readTextFileSync(input);
-    const mhtml = mhtmlToHtml.parse(new TextEncoder().encode(data));
-    const doc = mhtmlToHtml.convert(mhtml);
+    const mhtml = parse(new TextEncoder().encode(data));
+    const doc = convert(mhtml);
     Deno.writeTextFileSync(output, doc.serialize());
 }
 
