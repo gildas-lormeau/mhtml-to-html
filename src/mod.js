@@ -117,7 +117,7 @@ const mhtmlToHtml = {
                         const charserMetaElement = documentElement.querySelector("meta[charset]");
                         if (charserMetaElement) {
                             const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                            if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                            if (htmlCharset && htmlCharset !== charset) {
                                 charset = htmlCharset;
                                 asset.data = decodeString(asset.data, charset);
                             } else {
@@ -130,7 +130,7 @@ const mhtmlToHtml = {
                             asset.contentType = contentType;
                             const htmlCharset = getCharset(contentType);
                             if (htmlCharset) {
-                                if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                                if (htmlCharset !== charset) {
                                     charset = htmlCharset;
                                     asset.data = decodeString(asset.data, charset);
                                 } else {
