@@ -91,7 +91,7 @@ const mhtmlToHtml = {
                 let charset;
                 const charsetMatch = asset.contentType.match(/charset=([^;]+)/);
                 if (charsetMatch) {
-                    charset = removeQuotes(charsetMatch[1]);
+                    charset = removeQuotes(charsetMatch[1]).toLowerCase();
                 }
                 try {
                     asset.data = decodeString(asset.data, charset);
