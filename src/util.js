@@ -1,4 +1,4 @@
-/* global globalThis, TextDecoder, btoa */
+/* global globalThis, TextDecoder, btoa, DOMParser */
 
 if (!("DOMParser" in globalThis)) {
     globalThis.DOMParser = (await import("jsr:@b-fuze/deno-dom")).DOMParser;
