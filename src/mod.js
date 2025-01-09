@@ -1,6 +1,6 @@
 /* global URL */
 
-import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString } from "./util.js";
+import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset } from "./util.js";
 import * as cssTree from "./lib/csstree.esm.js";
 
 const MHTML_FSM = {
@@ -88,11 +88,7 @@ const mhtmlToHtml = {
                     nextString = decodeString(next);
                 }
                 asset.data = new Uint8Array(asset.data);
-                let charset;
-                const charsetMatch = asset.contentType.match(/charset=([^;]+)/);
-                if (charsetMatch) {
-                    charset = removeQuotes(charsetMatch[1]).toLowerCase();
-                }
+                let charset = getCharset(asset.contentType);
                 try {
                     asset.data = decodeString(asset.data, charset);
                     if (asset.contentType === "text/css") {
@@ -133,9 +129,8 @@ const mhtmlToHtml = {
                         if (metaElement) {
                             const contentType = metaElement.getAttribute("content");
                             asset.contentType = contentType;
-                            const charsetMatch = contentType.match(/charset=([^;]+)/);
-                            if (charsetMatch) {
-                                const htmlCharset = removeQuotes(charsetMatch[1].toLowerCase());
+                            const htmlCharset = getCharset(contentType);
+                            if (htmlCharset) {
                                 if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                                     charset = htmlCharset;
                                     asset.data = decodeString(asset.data, charset);

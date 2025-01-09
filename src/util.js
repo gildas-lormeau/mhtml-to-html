@@ -54,4 +54,11 @@ function decodeString(array, charset) {
     return new TextDecoder(charset).decode(array);
 }
 
-export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString };
+function getCharset(contentType) {
+    const charsetMatch = contentType.match(/charset=([^;]+)/);
+    if (charsetMatch) {
+        return removeQuotes(charsetMatch[1]);
+    }
+}
+
+export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset };
