@@ -1,6 +1,6 @@
 /* global globalThis, URL */
 
-import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset } from "./util.js";
+import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet } from "./util.js";
 import * as cssTree from "./lib/csstree.esm.js";
 
 const MHTML_FSM = {
@@ -89,7 +89,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             resource.data = resource.rawData = new Uint8Array(resource.data);
             let charset = getCharset(resource.contentType);
             resource.data = decodeString(resource.data, charset);
-            if (resource.contentType.startsWith("text/css")) {
+            if (isStylesheet(resource.contentType)) {
                 const ast = cssTree.parse(resource.data);
                 try {
                     if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
@@ -109,7 +109,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                     console.warn(error);
                 }
             }
-            if (resource.contentType.startsWith("text/html") || resource.contentType.startsWith("application/xhtml+xml")) {
+            if (isDocument(resource.contentType)) {
                 const dom = parseDOM(resource.data, DOMParser);
                 const documentElement = dom.document;
                 let charserMetaElement = documentElement.querySelector("meta[charset]");
@@ -169,7 +169,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             data: [],
             id
         };
-        if (index === undefined && (contentType.startsWith("text/html") || contentType.startsWith("application/xhtml+xml"))) {
+        if (index === undefined && isDocument(contentType)) {
             index = id;
         }
         if (contentId !== undefined) {
@@ -229,7 +229,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     break;
                 case "LINK":
                     resource = resources[href];
-                    if (resource && resource.contentType.startsWith("text/css")) {
+                    if (resource && isStylesheet(resource.contentType)) {
                         if (title) {
                             child.remove();
                         } else {
@@ -311,7 +311,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     if (src) {
                         const id = `<${src.split("cid:")[1]}>`;
                         const frame = frames[id];
-                        if (frame && (frame.contentType.startsWith("text/html") || frame.contentType.startsWith("application/xhtml+xml"))) {
+                        if (frame && isDocument(frame.contentType)) {
                             const iframe = convert({
                                 resources: Object.assign({}, resources, { [id]: frame }),
                                 frames: frames,
@@ -375,7 +375,7 @@ function replaceStyleSheetUrls(resources, base, resource, options = {}) {
                 }
                 const resource = resources[id];
                 if (resource) {
-                    if (resource.contentType.startsWith("text/css")) {
+                    if (isStylesheet(resource.contentType)) {
                         resource.data = replaceStyleSheetUrls(resources, resource.id, resource.data);
                     }
                     try {

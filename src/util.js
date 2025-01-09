@@ -59,4 +59,12 @@ function getCharset(contentType) {
     }
 }
 
-export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset };
+function isDocument(contentType) {
+    return contentType.startsWith("text/html") || contentType.startsWith("application/xhtml+xml");
+}
+
+function isStylesheet(contentType) {
+    return contentType.startsWith("text/css");
+}
+
+export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet };
