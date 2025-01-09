@@ -52,21 +52,21 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 transferEncoding = content["Content-Transfer-Encoding"];
                 const contentType = content[CONTENT_TYPE_HEADER];
                 const contentId = content["Content-ID"];
-                const url = content["Content-Location"];
+                const id = content["Content-Location"];
                 resource = {
                     transferEncoding,
                     contentType,
                     data: [],
-                    url
+                    id
                 };
                 if (index === undefined) {
-                    resource.id = index = url;
+                    index = id;
                 }
                 if (contentId !== undefined) {
                     frames[contentId] = resource;
                 }
-                if (url !== undefined && !resources[url]) {
-                    resources[url] = resource;
+                if (id !== undefined && !resources[id]) {
+                    resources[id] = resource;
                 }
                 content = {};
                 state = MHTML_FSM.MHTML_DATA;
@@ -175,7 +175,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
 
 function convert({ frames, resources, index }, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     let resource = resources[index];
-    const url = resource.url || resource.id;
+    const id = resource.id;
     const dom = parseDOM(resource.data, DOMParser);
     const documentElement = dom.document;
     const nodes = [documentElement];
@@ -185,19 +185,19 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
         childNode.childNodes.forEach(child => {
             if (child.getAttribute) {
                 try {
-                    href = new URL(child.getAttribute("href"), url).href;
+                    href = new URL(child.getAttribute("href"), id).href;
                 } catch (_) {
                     href = child.getAttribute("href");
                 }
                 try {
-                    src = new URL(child.getAttribute("src"), url).href;
+                    src = new URL(child.getAttribute("src"), id).href;
                 } catch (_) {
                     src = child.getAttribute("src");
                 }
                 title = child.getAttribute("title");
                 const style = child.getAttribute("style");
                 if (style) {
-                    child.setAttribute("style", replaceStyleSheetUrls(resources, url, style, { context: "declarationList" }));
+                    child.setAttribute("style", replaceStyleSheetUrls(resources, id, style, { context: "declarationList" }));
                 }
             }
             if (child.removeAttribute) {
@@ -219,7 +219,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                             if (media) {
                                 styleElement.setAttribute("media", media);
                             }
-                            let resourceBase = resource.url;
+                            let resourceBase = resource.id;
                             if (resourceBase.startsWith("cid:")) {
                                 resourceBase = index;
                             }
@@ -306,7 +306,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                 case "AREA":
                     if (href && !href.startsWith("#") && !href.match(/^[^:]+:/)) {
                         try {
-                            child.setAttribute("href", new URL(href, url).href);
+                            child.setAttribute("href", new URL(href, id).href);
                         } catch (_) {
                             // ignored
                         }
@@ -320,7 +320,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     }
     const baseElement = documentElement.createElement("base");
     try {
-        baseElement.setAttribute("href", new URL(url).href);
+        baseElement.setAttribute("href", new URL(id).href);
     } catch (_) {
         // ignored
     }
@@ -347,16 +347,16 @@ function replaceStyleSheetUrls(resources, base, resource, options = {}) {
         cssTree.walk(ast, node => {
             if (node.type === "Url") {
                 const path = node.value;
-                let url;
+                let id;
                 try {
-                    url = new URL(removeQuotes(path), base).href;
+                    id = new URL(removeQuotes(path), base).href;
                 } catch (_) {
-                    url = path;
+                    id = path;
                 }
-                const resource = resources[url];
+                const resource = resources[id];
                 if (resource) {
                     if (resource.contentType.startsWith("text/css")) {
-                        resource.data = replaceStyleSheetUrls(resources, resource.url, resource.data);
+                        resource.data = replaceStyleSheetUrls(resources, resource.id, resource.data);
                     }
                     try {
                         node.value = getResourceURI(resource);
