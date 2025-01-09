@@ -132,6 +132,7 @@ const mhtmlToHtml = {
                         const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
                         if (metaElement) {
                             const contentType = metaElement.getAttribute("content");
+                            asset.contentType = contentType;
                             const charsetMatch = contentType.match(/charset=([^;]+)/);
                             if (charsetMatch) {
                                 const htmlCharset = removeQuotes(charsetMatch[1].toLowerCase());
