@@ -127,12 +127,11 @@ const mhtmlToHtml = {
                         }
                         const metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
                         if (metaElement) {
-                            const contentType = metaElement.getAttribute("content");
-                            asset.contentType = contentType;
-                            const htmlCharset = getCharset(contentType.toLowerCase());
+                            asset.contentType = metaElement.getAttribute("content");
+                            const htmlCharset = getCharset(asset.contentType.toLowerCase());
                             if (htmlCharset) {
                                 if (htmlCharset !== charset) {
-                                    metaElement.content = metaElement.content.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
+                                    metaElement.setAttribute("content", asset.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`));
                                     charset = htmlCharset;
                                     asset.data = decodeString(asset.data, charset);
                                 } else {
