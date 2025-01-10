@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { parse, convert } from "./src/mod.js";
+import { parse, convert } from "./lib/mod.js";
 
 let expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit;
 

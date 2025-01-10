@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "mhtml-to-html",
   "exports": {
-    ".": "./src/mod.js"
+    ".": "./lib/mod.js"
   }
 }
