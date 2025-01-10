@@ -13,7 +13,7 @@ async function main() {
     if (positionals.length < 1 || positionals.includes("-h") || positionals.includes("--help")) {
         console.log("Usage: mhtml-to-html <input> [output] [options]");
         console.log(" Arguments:");
-        console.log("  input: The input MHTML file, wildcards are supported");
+        console.log("  input: The input MHTML file, wildcards are supported (the output argument will be ignored)");
         console.log("  output: The output HTML file, if not specified, the input file will be used with the extension changed to .html");
         console.log(" Options:");
         console.log("  -h, --help: Show this help message");
