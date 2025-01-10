@@ -29,14 +29,14 @@ const STYLESHEET_CONTENT_TYPE = "text/css";
 const META_CHARSET_SELECTOR = "meta[charset]";
 const META_CONTENT_TYPE_SELECTOR = `meta[http-equiv='${CONTENT_TYPE_HEADER}']`;
 
-function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
+function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, context = { resources: {}, frames: {} }) {
     const headers = {};
-    const resources = {};
-    const frames = {};
-    let resource, transferEncoding, index, boundary, headerKey;
+    const { resources, frames } = context;
+    let resource, transferEncoding, /*index,*/ boundary, headerKey;
     let content = {};
     let state = MHTML_FSM.MHTML_HEADERS;
     let indexMhtml = 0;
+    let indexStartEmbeddedMhtml;
     while (state !== MHTML_FSM.MHTML_END) {
         if (state === MHTML_FSM.MHTML_HEADERS) {
             let next = getLine();
@@ -60,6 +60,9 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             }
         } else if (state === MHTML_FSM.MTHML_CONTENT) {
             if (boundary) {
+                if (indexStartEmbeddedMhtml === undefined) {
+                    indexStartEmbeddedMhtml = indexMhtml;
+                }
                 const next = getLine();
                 const nextString = decodeString(next);
                 if (nextString !== CRLF && nextString !== LF) {
@@ -69,6 +72,9 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                     const contentType = content[CONTENT_TYPE_HEADER];
                     const contentId = content[CONTENT_ID_HEADER];
                     const id = content[CONTENT_LOCATION_HEADER];
+                    if (!contentType.startsWith("multipart/alternative;")) {
+                        indexStartEmbeddedMhtml = undefined;
+                    }
                     initResource(contentType, contentId, id);
                     state = MHTML_FSM.MHTML_DATA;
                 }
@@ -83,7 +89,9 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
         } else if (state === MHTML_FSM.MHTML_DATA) {
             let next = getLine(transferEncoding);
             let nextString = decodeString(next);
+            let indexEndEmbeddedMhtml;
             while ((!boundary || !nextString.includes(boundary)) && indexMhtml < mhtml.length - 1) {
+                indexEndEmbeddedMhtml = indexMhtml;
                 if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING && resource.data.length) {
                     if (resource.data[resource.data.length - 3] === 0x3D && resource.data[resource.data.length - 2] === 0x0D && resource.data[resource.data.length - 1] === 0x0A) {
                         resource.data.splice(resource.data.length - 3, 3);
@@ -92,64 +100,73 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                     }
                 }
                 resource.data.splice(resource.data.length, 0, ...next);
+                if (resource.transferEncoding === BASE64_ENCODING) {
+                    resource.data = resource.data.filter(byte => byte !== 0x0D && byte !== 0x0A);
+                }
                 next = getLine(transferEncoding);
                 nextString = decodeString(next);
             }
-            resource.data = resource.rawData = new Uint8Array(resource.data);
-            const charset = getCharset(resource.contentType);
-            resource.data = decodeString(resource.data, charset);
-            if (isStylesheet(resource.contentType)) {
-                const ast = cssTree.parse(resource.data);
-                try {
-                    if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
-                        const charsetNode = ast.children.first;
-                        const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
-                        if (cssCharset !== UTF8_CHARSET && cssCharset !== charset) {
-                            resource.data = decodeString(resource.rawData, cssCharset);
-                            const ast = cssTree.parse(resource.data);
-                            ast.children.shift();
-                            resource.data = cssTree.generate(ast);
+            if (indexStartEmbeddedMhtml !== undefined) {
+                const context2 = { resources, frames };
+                parse(mhtml.slice(indexStartEmbeddedMhtml, indexEndEmbeddedMhtml - 2), { DOMParser }, context2);
+                context.index = context2.index;
+            } else {
+                resource.data = resource.rawData = new Uint8Array(resource.data);
+                const charset = getCharset(resource.contentType);
+                resource.data = decodeString(resource.data, charset);
+                if (isStylesheet(resource.contentType)) {
+                    const ast = cssTree.parse(resource.data);
+                    try {
+                        if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
+                            const charsetNode = ast.children.first;
+                            const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
+                            if (cssCharset !== UTF8_CHARSET && cssCharset !== charset) {
+                                resource.data = decodeString(resource.rawData, cssCharset);
+                                const ast = cssTree.parse(resource.data);
+                                ast.children.shift();
+                                resource.data = cssTree.generate(ast);
+                            }
                         }
+                    } catch (error) {
+                        // eslint-disable-next-line no-console
+                        console.warn(error);
                     }
-                } catch (error) {
-                    // eslint-disable-next-line no-console
-                    console.warn(error);
                 }
-            }
-            if (isDocument(resource.contentType)) {
-                const dom = parseDOM(resource.data, DOMParser);
-                const documentElement = dom.document;
-                let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
-                if (charserMetaElement) {
-                    const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                    if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
-                        resource.data = decodeString(resource.rawData, charset);
-                        const dom = parseDOM(resource.data, DOMParser);
-                        charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
-                    }
-                    charserMetaElement.remove();
-                    resource.data = dom.serialize();
-                }
-                let metaElement = documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
-                if (metaElement) {
-                    resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
-                    const htmlCharset = getCharset(resource.contentType);
-                    if (htmlCharset) {
-                        if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
-                            resource.data = decodeString(resource.rawData, htmlCharset);
+                if (isDocument(resource.contentType)) {
+                    const dom = parseDOM(resource.data, DOMParser);
+                    const documentElement = dom.document;
+                    let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
+                    if (charserMetaElement) {
+                        const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
+                        if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                            resource.data = decodeString(resource.rawData, charset);
+                            const dom = parseDOM(resource.data, DOMParser);
+                            charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
                         }
-                        const dom = parseDOM(resource.data, DOMParser);
-                        metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
-                        resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
-                        metaElement.setAttribute(CONTENT_ATTRIBUTE, resource.contentType);
+                        charserMetaElement.remove();
                         resource.data = dom.serialize();
+                    }
+                    let metaElement = documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
+                    if (metaElement) {
+                        resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
+                        const htmlCharset = getCharset(resource.contentType);
+                        if (htmlCharset) {
+                            if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                                resource.data = decodeString(resource.rawData, htmlCharset);
+                            }
+                            const dom = parseDOM(resource.data, DOMParser);
+                            metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
+                            resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
+                            metaElement.setAttribute(CONTENT_ATTRIBUTE, resource.contentType);
+                            resource.data = dom.serialize();
+                        }
                     }
                 }
             }
             state = (indexMhtml >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
         }
     }
-    return { frames, resources, index };
+    return { frames, resources, index: context.index };
 
     function getLine(transferEncoding) {
         const indexStart = indexMhtml;
@@ -176,8 +193,8 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             data: [],
             id
         };
-        if (index === undefined && isDocument(contentType)) {
-            index = id;
+        if (context.index === undefined && isDocument(contentType)) {
+            context.index = id;
         }
         if (contentId !== undefined) {
             frames[contentId] = resource;
@@ -337,9 +354,15 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                 case "FRAME":
                 case "IFRAME":
                     if (src) {
-                        const id = `<${src.split("cid:")[1]}>`;
-                        const frame = frames[id];
-                        if (frame && isDocument(frame.contentType)) {
+                        let id, frame;
+                        if (src.startsWith("cid:")) {
+                            id = `<${src.split("cid:")[1]}>`;
+                            frame = frames[id];
+                        } else {
+                            id = new URL(src, base).href;
+                            frame = resources[id];
+                        }
+                        if (frame) {
                             const html = convert({
                                 resources: Object.assign({}, resources, { [id]: frame }),
                                 frames: frames,
