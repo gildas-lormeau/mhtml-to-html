@@ -196,7 +196,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     const document = dom.document;
     const nodes = [document];
     let href, src, title;
-    let baseElement = document.querySelector("base");
+    const baseElement = document.querySelector("base");
     if (baseElement) {
         const href = baseElement.getAttribute(HREF_ATTRIBUTE);
         if (href) {
@@ -206,6 +206,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                 // ignored
             }
         }
+        baseElement.remove();
     }
     while (nodes.length) {
         const childNode = nodes.shift();
@@ -348,17 +349,6 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
             }
             nodes.push(child);
         });
-    }
-    baseElement = document.createElement("base");
-    try {
-        baseElement.setAttribute(HREF_ATTRIBUTE, new URL(base).href);
-        if (document.head.firstChild) {
-            document.head.insertBefore(baseElement, document.head.firstChild);
-        } else {
-            document.head.appendChild(baseElement);
-        }
-    } catch (_) {
-        // ignored
     }
     return dom.serialize();
 }
