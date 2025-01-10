@@ -19,6 +19,8 @@ const BASE64_ENCODING = "base64";
 const UTF8_CHARSET = "utf-8";
 const CRLF = "\r\n";
 const LF = "\n";
+const CR_CODE = 0x0D;
+const LF_CODE = 0x0A;
 const HREF_ATTRIBUTE = "href";
 const SRC_ATTRIBUTE = "src";
 const SRCSET_ATTRIBUTE = "srcset";
@@ -95,24 +97,24 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
             while ((!boundary || !nextString.includes(boundary)) && indexMhtml < mhtml.length - 1) {
                 indexEndEmbeddedMhtml = indexMhtml;
                 if (resource.transferEncoding === QUOTED_PRINTABLE_ENCODING && resource.data.length) {
-                    if (resource.data[resource.data.length - 3] === 0x3D && resource.data[resource.data.length - 2] === 0x0D && resource.data[resource.data.length - 1] === 0x0A) {
+                    if (resource.data[resource.data.length - 3] === 0x3D && resource.data[resource.data.length - 2] === CR_CODE && resource.data[resource.data.length - 1] === LF_CODE) {
                         resource.data.splice(resource.data.length - 3, 3);
-                    } else if (resource.data[resource.data.length - 2] === 0x3D && resource.data[resource.data.length - 1] === 0x0A) {
+                    } else if (resource.data[resource.data.length - 2] === 0x3D && resource.data[resource.data.length - 1] === LF_CODE) {
                         resource.data.splice(resource.data.length - 2, 2);
                     }
                 }
                 resource.data.splice(resource.data.length, 0, ...next);
                 if (resource.transferEncoding === BASE64_ENCODING) {
-                    resource.data = resource.data.filter(byte => byte !== 0x0D && byte !== 0x0A);
+                    resource.data = resource.data.filter(byte => byte !== CR_CODE && byte !== LF_CODE);
                 }
                 next = getLine(transferEncoding);
                 nextString = decodeString(next);
             }
             if (indexStartEmbeddedMhtml !== undefined && indexEndEmbeddedMhtml !== undefined) {
                 const contextEmbeddedMhtml = { resources, frames };
-                if (mhtml[indexEndEmbeddedMhtml - 1] === 0x0A) {
+                if (mhtml[indexEndEmbeddedMhtml - 1] === LF_CODE) {
                     indexEndEmbeddedMhtml--;
-                    if (mhtml[indexEndEmbeddedMhtml - 2] === 0x0D) {
+                    if (mhtml[indexEndEmbeddedMhtml - 2] === CR_CODE) {
                         indexEndEmbeddedMhtml--;
                     }
                 }
@@ -135,7 +137,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
 
     function getLine(transferEncoding) {
         const indexStart = indexMhtml;
-        while (mhtml[indexMhtml] !== 0x0A && indexMhtml++ < mhtml.length - 1);
+        while (mhtml[indexMhtml] !== LF_CODE && indexMhtml++ < mhtml.length - 1);
         indexMhtml++;
         const line = mhtml.slice(indexStart, indexMhtml);
         return transferEncoding === QUOTED_PRINTABLE_ENCODING ? decodeQuotedPrintable(line) : line;
