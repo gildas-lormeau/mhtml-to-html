@@ -96,7 +96,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 nextString = decodeString(next);
             }
             resource.data = resource.rawData = new Uint8Array(resource.data);
-            let charset = getCharset(resource.contentType);
+            const charset = getCharset(resource.contentType);
             resource.data = decodeString(resource.data, charset);
             if (isStylesheet(resource.contentType)) {
                 const ast = cssTree.parse(resource.data);
@@ -108,7 +108,6 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                             if (cssCharset === charset) {
                                 ast.children.shift();
                             } else {
-                                charset = cssCharset;
                                 resource.data = decodeString(resource.rawData, cssCharset);
                             }
                         }
