@@ -388,6 +388,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         }
                     }
                     break;
+                /*
                 case "SCRIPT":
                     if (src) {
                         resource = resources[src];
@@ -401,6 +402,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         }
                     }
                     break;
+                */
                 default:
                     break;
             }
