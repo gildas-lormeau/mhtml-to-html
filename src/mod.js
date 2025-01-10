@@ -121,52 +121,9 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
                 const charset = getCharset(resource.contentType);
                 resource.data = decodeString(resource.data, charset);
                 if (isStylesheet(resource.contentType)) {
-                    const ast = cssTree.parse(resource.data);
-                    try {
-                        if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
-                            const charsetNode = ast.children.first;
-                            const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
-                            if (cssCharset !== UTF8_CHARSET && cssCharset !== charset) {
-                                resource.data = decodeString(resource.rawData, cssCharset);
-                                const ast = cssTree.parse(resource.data);
-                                ast.children.shift();
-                                resource.data = cssTree.generate(ast);
-                            }
-                        }
-                    } catch (error) {
-                        // eslint-disable-next-line no-console
-                        console.warn(error);
-                    }
-                }
-                if (isDocument(resource.contentType)) {
-                    const dom = parseDOM(resource.data, DOMParser);
-                    const documentElement = dom.document;
-                    let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
-                    if (charserMetaElement) {
-                        const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                        if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
-                            resource.data = decodeString(resource.rawData, charset);
-                            const dom = parseDOM(resource.data, DOMParser);
-                            charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
-                        }
-                        charserMetaElement.remove();
-                        resource.data = dom.serialize();
-                    }
-                    let metaElement = documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
-                    if (metaElement) {
-                        resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
-                        const htmlCharset = getCharset(resource.contentType);
-                        if (htmlCharset) {
-                            if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
-                                resource.data = decodeString(resource.rawData, htmlCharset);
-                            }
-                            const dom = parseDOM(resource.data, DOMParser);
-                            metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
-                            resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
-                            metaElement.setAttribute(CONTENT_ATTRIBUTE, resource.contentType);
-                            resource.data = dom.serialize();
-                        }
-                    }
+                    processStyleSheetCharset(charset);
+                } else if (isDocument(resource.contentType)) {
+                    processDocumentCharset(charset);
                 }
             }
             state = (indexMhtml >= mhtml.length - 1 ? MHTML_FSM.MHTML_END : MHTML_FSM.MTHML_CONTENT);
@@ -214,6 +171,56 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
             resources[id] = resource;
         }
         content = {};
+    }
+
+    function processStyleSheetCharset(charset) {
+        const ast = cssTree.parse(resource.data);
+        try {
+            if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
+                const charsetNode = ast.children.first;
+                const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
+                if (cssCharset !== UTF8_CHARSET && cssCharset !== charset) {
+                    resource.data = decodeString(resource.rawData, cssCharset);
+                    const ast = cssTree.parse(resource.data);
+                    ast.children.shift();
+                    resource.data = cssTree.generate(ast);
+                }
+            }
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.warn(error);
+        }
+    }
+
+    function processDocumentCharset(charset) {
+        const dom = parseDOM(resource.data, DOMParser);
+        const documentElement = dom.document;
+        let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
+        if (charserMetaElement) {
+            const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
+            if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                resource.data = decodeString(resource.rawData, charset);
+                const dom = parseDOM(resource.data, DOMParser);
+                charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
+            }
+            charserMetaElement.remove();
+            resource.data = dom.serialize();
+        }
+        let metaElement = documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
+        if (metaElement) {
+            resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
+            const htmlCharset = getCharset(resource.contentType);
+            if (htmlCharset) {
+                if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                    resource.data = decodeString(resource.rawData, htmlCharset);
+                }
+                const dom = parseDOM(resource.data, DOMParser);
+                metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
+                resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
+                metaElement.setAttribute(CONTENT_ATTRIBUTE, resource.contentType);
+                resource.data = dom.serialize();
+            }
+        }
     }
 }
 
