@@ -32,7 +32,7 @@ const META_CONTENT_TYPE_SELECTOR = `meta[http-equiv='${CONTENT_TYPE_HEADER}']`;
 function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, context = { resources: {}, frames: {} }) {
     const headers = {};
     const { resources, frames } = context;
-    let resource, transferEncoding, /*index,*/ boundary, headerKey;
+    let resource, transferEncoding, boundary, headerKey;
     let content = {};
     let state = MHTML_FSM.MHTML_HEADERS;
     let indexMhtml = 0;
