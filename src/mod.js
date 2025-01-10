@@ -21,6 +21,7 @@ const CRLF = "\r\n";
 const LF = "\n";
 const HREF_ATTRIBUTE = "href";
 const SRC_ATTRIBUTE = "src";
+const SRCSET_ATTRIBUTE = "srcset";
 const CONTENT_ATTRIBUTE = "content";
 const STYLE_ATTRIBUTE = "style";
 const MEDIA_ATTRIBUTE = "media";
@@ -28,6 +29,7 @@ const STYLE_TAG = "style";
 const STYLESHEET_CONTENT_TYPE = "text/css";
 const META_CHARSET_SELECTOR = "meta[charset]";
 const META_CONTENT_TYPE_SELECTOR = `meta[http-equiv='${CONTENT_TYPE_HEADER}']`;
+const CID_PROTOCOL = "cid:";
 
 function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, context = { resources: {}, frames: {} }) {
     const headers = {};
@@ -285,7 +287,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                                 styleElement.setAttribute(MEDIA_ATTRIBUTE, media);
                             }
                             let resourceBase = resource.id;
-                            if (resourceBase.startsWith("cid:")) {
+                            if (resourceBase.startsWith(CID_PROTOCOL)) {
                                 resourceBase = index;
                             }
                             resource.data = replaceStyleSheetUrls(resources, resourceBase, resource.data);
@@ -318,7 +320,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                             console.warn(error);
                         }
                     }
-                    srcset = child.getAttribute("srcset");
+                    srcset = child.getAttribute(SRCSET_ATTRIBUTE);
                     if (srcset) {
                         const sources = srcset.split(",").map(source => source.trim().split(" "));
                         sources.forEach(source => {
@@ -332,7 +334,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                                 // ignored
                             }
                         });
-                        child.setAttribute("srcset", sources.map(source => source.join(" ")).join(","));
+                        child.setAttribute(SRCSET_ATTRIBUTE, sources.map(source => source.join(" ")).join(","));
                     }
                     break;
                 case "BODY":
@@ -390,8 +392,8 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                 case "IFRAME":
                     if (src) {
                         let id, frame;
-                        if (src.startsWith("cid:")) {
-                            id = `<${src.split("cid:")[1]}>`;
+                        if (src.startsWith(CID_PROTOCOL)) {
+                            id = `<${src.split(CID_PROTOCOL)[1]}>`;
                             frame = frames[id];
                         } else {
                             id = src;
@@ -411,8 +413,8 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                 case "FRAME":
                     if (src) {
                         let id, frame;
-                        if (src.startsWith("cid:")) {
-                            id = `<${src.split("cid:")[1]}>`;
+                        if (src.startsWith(CID_PROTOCOL)) {
+                            id = `<${src.split(CID_PROTOCOL)[1]}>`;
                             frame = frames[id];
                         } else {
                             id = new URL(src, base).href;
@@ -424,7 +426,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                                 frames: frames,
                                 index: id
                             }, { DOMParser });
-                            child.setAttribute("src", `data:text/html,${encodeURIComponent(html)}`);
+                            child.setAttribute(SRC_ATTRIBUTE, `data:text/html,${encodeURIComponent(html)}`);
                         }
                     }
                     break;
