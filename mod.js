@@ -24,6 +24,10 @@ async function main() {
             for await (const file of expandGlob(positionals[0])) {
                 await process(file.path, null, config);
             }
+        } if (positionals.length > 2 || positionals[1].match(/\.mht(ml)?$/i)) {
+            for (const positional of positionals) {
+                await process(positional, null, config);
+            }
         } else {
             await process(positionals[0], positionals[1], config);
         }
