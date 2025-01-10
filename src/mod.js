@@ -104,12 +104,9 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                     if (ast.children.first && ast.children.first.type === "Atrule" && ast.children.first.name === "charset") {
                         const charsetNode = ast.children.first;
                         const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
-                        if (cssCharset !== UTF8_CHARSET) {
-                            if (cssCharset === charset) {
-                                ast.children.shift();
-                            } else {
-                                resource.data = decodeString(resource.rawData, cssCharset);
-                            }
+                        if (cssCharset !== UTF8_CHARSET && cssCharset !== charset) {
+                            ast.children.shift();
+                            resource.data = decodeString(resource.rawData, cssCharset);
                         }
                     }
                 } catch (error) {
@@ -123,7 +120,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                 let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
                 if (charserMetaElement) {
                     const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
-                    if (htmlCharset && htmlCharset !== charset) {
+                    if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                         resource.data = decodeString(resource.rawData, charset);
                         const dom = parseDOM(resource.data, DOMParser);
                         charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
@@ -136,7 +133,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                     resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
                     const htmlCharset = getCharset(resource.contentType);
                     if (htmlCharset) {
-                        if (htmlCharset !== charset) {
+                        if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                             resource.data = decodeString(resource.rawData, htmlCharset);
                         }
                         const dom = parseDOM(resource.data, DOMParser);
