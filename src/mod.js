@@ -104,11 +104,11 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
                     }
                 }
                 resource.data.splice(resource.data.length, 0, ...next);
-                if (resource.transferEncoding === BASE64_ENCODING) {
-                    resource.data = resource.data.filter(byte => byte !== CR_CODE && byte !== LF_CODE);
-                }
                 next = getLine(transferEncoding);
                 nextString = decodeString(next);
+            }
+            if (resource.transferEncoding === BASE64_ENCODING) {
+                resource.data = resource.data.filter(byte => byte !== CR_CODE && byte !== LF_CODE);
             }
             if (indexStartEmbeddedMhtml !== undefined && indexEndEmbeddedMhtml !== undefined) {
                 const contextEmbeddedMhtml = { resources, frames };
