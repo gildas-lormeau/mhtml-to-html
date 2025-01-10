@@ -247,6 +247,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
     }
     while (nodes.length) {
         const childNode = nodes.shift();
+        let srcset;
         childNode.childNodes.forEach(child => {
             if (child.getAttribute) {
                 try {
@@ -317,6 +318,22 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                             // eslint-disable-next-line no-console
                             console.warn(error);
                         }
+                    }
+                    srcset = child.getAttribute("srcset");
+                    if (srcset) {
+                        const sources = srcset.split(",").map(source => source.trim().split(" "));
+                        sources.forEach(source => {
+                            try {
+                                const src = new URL(source[0], base).href;
+                                const resource = resources[src];
+                                if (resource && isImage(resource.contentType)) {
+                                    source[0] = getResourceURI(resource);
+                                }
+                            } catch (_) {
+                                // ignored
+                            }
+                        });
+                        child.setAttribute("srcset", sources.map(source => source.join(" ")).join(","));
                     }
                     break;
                 case "BODY":
