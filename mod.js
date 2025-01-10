@@ -30,7 +30,8 @@ async function main() {
         console.log("");
         console.log("Examples:");
         console.log(" mhtml-to-html file.mht");
-        console.log(" mhtml-to-html file.mht --output file.html");
+        console.log(" mhtml-to-html file1.mht file2.mht");
+        console.log(" mhtml-to-html file.mht --output output_file.html");
         console.log(" mhtml-to-html *.mht");
         console.log(" mhtml-to-html *.mht --enable-scripts");
         exit(1);

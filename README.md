@@ -37,7 +37,8 @@ Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] 
 
 Examples:
  mhtml-to-html file.mht
- mhtml-to-html file.mht --output file.html
+ mhtml-to-html file1.mht file2.mht
+ mhtml-to-html file.mht --output output_file.html
  mhtml-to-html *.mht
  mhtml-to-html *.mht --enable-scripts
 ```
