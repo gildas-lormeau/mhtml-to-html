@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
 /* global TextEncoder */
 
-let expandGlob, isGlob, parse, convert, DOMParser, args, readTextFile, writeTextFile, exit;
+import { parse, convert } from "./src/mod.js";
+
+let expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit;
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, parse, convert, DOMParser, args, readTextFile, writeTextFile, exit } = dependencies);
+    ({ expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit } = dependencies);
 }
 
 async function main() {
