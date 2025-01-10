@@ -193,6 +193,11 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
             data: [],
             id
         };
+        if (id === undefined) {
+            do {
+                id = "_" + Math.random().toString(36).substring(2);
+            } while (resources[id]);
+        }
         if (context.index === undefined && isDocument(contentType)) {
             context.index = id;
         }
