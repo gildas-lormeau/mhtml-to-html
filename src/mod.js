@@ -389,14 +389,16 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                     }
                     break;
                 case "SCRIPT":
-                    if (enableScripts && src) {
-                        resource = resources[src];
-                        if (resource) {
-                            try {
-                                child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
-                            } catch (error) {
-                                // eslint-disable-next-line no-console
-                                console.warn(error);
+                    if (enableScripts) {
+                        if (src) {
+                            resource = resources[src];
+                            if (resource) {
+                                try {
+                                    child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
+                                } catch (error) {
+                                    // eslint-disable-next-line no-console
+                                    console.warn(error);
+                                }
                             }
                         }
                     } else {
