@@ -305,7 +305,10 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     break;
                 case "SOURCE":
                     resource = resources[src];
-                    if (resource && (isImage(resource.contentType) || isAudio(resource.contentType) || isVideo(resource.contentType))) {
+                    if (resource && (
+                        (child.parentNode.tagName === "AUDIO" && isAudio(resource.contentType)) ||
+                        (child.parentNode.tagName === "VIDEO" && isVideo(resource.contentType)) ||
+                        (child.parentNode.tagName === "PICTURE") && isImage(resource.contentType))) {
                         try {
                             child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
                         } catch (error) {
