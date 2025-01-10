@@ -378,7 +378,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                             id = `<${src.split("cid:")[1]}>`;
                             frame = frames[id];
                         } else {
-                            id = new URL(src, base).href;
+                            id = src;
                             frame = resources[id];
                         }
                         if (frame) {
@@ -414,12 +414,8 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                     break;
                 case "A":
                 case "AREA":
-                    if (href && !href.startsWith("#") && !href.match(/^[^:]+:/)) {
-                        try {
-                            child.setAttribute(HREF_ATTRIBUTE, new URL(href, base).href);
-                        } catch (_) {
-                            // ignored
-                        }
+                    if (href) {
+                        child.setAttribute(HREF_ATTRIBUTE, href);
                     }
                     break;
                 case "SCRIPT":
