@@ -17,16 +17,27 @@ async function main() {
     const output = positionals.includes("--output") ? positionals[positionals.indexOf("--output") + 1] || "" : undefined;
     const input = values[0] || "";
     const enableScripts = positionals.includes("--enable-scripts");
+    const version = positionals.includes("--version");
     if (input === "" || output === "" || help) {
-        console.log("Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts]");
+        console.log("Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--version]");
         console.log(" Arguments:");
         console.log("  <input>: The input MHTML file, wildcards are supported");
         console.log(" Options:");
         console.log("  --output <output>: The output HTML file (default: input file with .html extension), only used when a single input file is provided");
         console.log("  --enable-scripts: Enable scripts (default: disabled)");
         console.log("  --help: Show this help message");
+        console.log("  --version: Show the version number");
         console.log("");
+        console.log("Examples:");
+        console.log(" mhtml-to-html file.mht");
+        console.log(" mhtml-to-html file.mht --output file.html");
+        console.log(" mhtml-to-html *.mht");
+        console.log(" mhtml-to-html *.mht --enable-scripts");
         exit(1);
+    } else if (version) {
+        const packageData = await readTextFile("./deno.json");
+        const { version } = JSON.parse(packageData);
+        console.log(version);
     } else {
         config.enableScripts = enableScripts;
         if (isGlob(input)) {
