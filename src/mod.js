@@ -282,6 +282,22 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         }
                     }
                     break;
+                case "BODY":
+                case "TABLE":
+                case "TD":
+                case "TH":
+                    if (child.getAttribute("background")) {
+                        resource = resources[child.getAttribute("background")];
+                        if (resource && isImage(resource.contentType)) {
+                            try {
+                                child.setAttribute("background", getResourceURI(resource));
+                            } catch (error) {
+                                // eslint-disable-next-line no-console
+                                console.warn(error);
+                            }
+                        }
+                    }
+                    break;
                 case "AUDIO":
                     resource = resources[src];
                     if (resource && isAudio(resource.contentType)) {
