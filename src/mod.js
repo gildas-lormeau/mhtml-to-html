@@ -1,6 +1,6 @@
 /* global globalThis, URL */
 
-import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet } from "./util.js";
+import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet, isImage, isAudio, isVideo } from "./util.js";
 import * as cssTree from "./lib/csstree.esm.js";
 
 const MHTML_FSM = {
@@ -19,6 +19,14 @@ const BASE64_ENCODING = "base64";
 const UTF8_CHARSET = "utf-8";
 const CRLF = "\r\n";
 const LF = "\n";
+const HREF_ATTRIBUTE = "href";
+const SRC_ATTRIBUTE = "src";
+const CONTENT_ATTRIBUTE = "content";
+const STYLE_ATTRIBUTE = "style";
+const MEDIA_ATTRIBUTE = "media";
+const STYLE_TAG = "style";
+const META_CHARSET_SELECTOR = "meta[charset]";
+const META_CONTENT_TYPE_SELECTOR = `meta[http-equiv='${CONTENT_TYPE_HEADER}']`;
 
 function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     const headers = {};
@@ -112,29 +120,29 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
             if (isDocument(resource.contentType)) {
                 const dom = parseDOM(resource.data, DOMParser);
                 const documentElement = dom.document;
-                let charserMetaElement = documentElement.querySelector("meta[charset]");
+                let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
                 if (charserMetaElement) {
                     const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                     if (htmlCharset && htmlCharset !== charset) {
                         resource.data = decodeString(resource.rawData, charset);
                         const dom = parseDOM(resource.data, DOMParser);
-                        charserMetaElement = dom.document.documentElement.querySelector("meta[charset]");
+                        charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
                     }
                     charserMetaElement.remove();
                     resource.data = dom.serialize();
                 }
-                let metaElement = documentElement.querySelector("meta[http-equiv='Content-Type']");
+                let metaElement = documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
                 if (metaElement) {
-                    resource.contentType = metaElement.getAttribute("content");
+                    resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
                     const htmlCharset = getCharset(resource.contentType);
                     if (htmlCharset) {
                         if (htmlCharset !== charset) {
                             resource.data = decodeString(resource.rawData, htmlCharset);
                         }
                         const dom = parseDOM(resource.data, DOMParser);
-                        metaElement = dom.document.documentElement.querySelector("meta[http-equiv='Content-Type']");
+                        metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
                         resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
-                        metaElement.setAttribute("content", resource.contentType);
+                        metaElement.setAttribute(CONTENT_ATTRIBUTE, resource.contentType);
                         resource.data = dom.serialize();
                     }
                 }
@@ -191,10 +199,10 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     let href, src, title;
     let baseElement = document.querySelector("base");
     if (baseElement) {
-        const href = baseElement.getAttribute("href");
+        const href = baseElement.getAttribute(HREF_ATTRIBUTE);
         if (href) {
             try {
-                base = new URL(baseElement.getAttribute("href"), base).href;
+                base = new URL(baseElement.getAttribute(HREF_ATTRIBUTE), base).href;
             } catch (_) {
                 // ignored
             }
@@ -205,19 +213,19 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
         childNode.childNodes.forEach(child => {
             if (child.getAttribute) {
                 try {
-                    href = new URL(child.getAttribute("href"), base).href;
+                    href = new URL(child.getAttribute(HREF_ATTRIBUTE), base).href;
                 } catch (_) {
-                    href = child.getAttribute("href");
+                    href = child.getAttribute(HREF_ATTRIBUTE);
                 }
                 try {
-                    src = new URL(child.getAttribute("src"), base).href;
+                    src = new URL(child.getAttribute(SRC_ATTRIBUTE), base).href;
                 } catch (_) {
-                    src = child.getAttribute("src");
+                    src = child.getAttribute(SRC_ATTRIBUTE);
                 }
                 title = child.getAttribute("title");
-                const style = child.getAttribute("style");
+                const style = child.getAttribute(STYLE_ATTRIBUTE);
                 if (style) {
-                    child.setAttribute("style", replaceStyleSheetUrls(resources, base, style, { context: "declarationList" }));
+                    child.setAttribute(STYLE_ATTRIBUTE, replaceStyleSheetUrls(resources, base, style, { context: "declarationList" }));
                 }
             }
             if (child.removeAttribute) {
@@ -233,11 +241,11 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         if (title) {
                             child.remove();
                         } else {
-                            const styleElement = document.createElement("style");
+                            const styleElement = document.createElement(STYLE_TAG);
                             styleElement.type = "text/css";
-                            const media = child.getAttribute("media");
+                            const media = child.getAttribute(MEDIA_ATTRIBUTE);
                             if (media) {
-                                styleElement.setAttribute("media", media);
+                                styleElement.setAttribute(MEDIA_ATTRIBUTE, media);
                             }
                             let resourceBase = resource.id;
                             if (resourceBase.startsWith("cid:")) {
@@ -253,11 +261,11 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     if (title) {
                         child.remove();
                     } else {
-                        const styleElement = document.createElement("style");
+                        const styleElement = document.createElement(STYLE_TAG);
                         styleElement.type = "text/css";
-                        const media = child.getAttribute("media");
+                        const media = child.getAttribute(MEDIA_ATTRIBUTE);
                         if (media) {
-                            styleElement.setAttribute("media", media);
+                            styleElement.setAttribute(MEDIA_ATTRIBUTE, media);
                         }
                         styleElement.appendChild(document.createTextNode(replaceStyleSheetUrls(resources, index, child.textContent)));
                         childNode.replaceChild(styleElement, child);
@@ -265,9 +273,9 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     break;
                 case "IMG":
                     resource = resources[src];
-                    if (resource && resource.contentType.startsWith("image/")) {
+                    if (resource && isImage(resource.contentType)) {
                         try {
-                            child.setAttribute("src", getResourceURI(resource));
+                            child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
                         } catch (error) {
                             // eslint-disable-next-line no-console
                             console.warn(error);
@@ -276,9 +284,9 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     break;
                 case "AUDIO":
                     resource = resources[src];
-                    if (resource && resource.contentType.startsWith("audio/")) {
+                    if (resource && isAudio(resource.contentType)) {
                         try {
-                            child.setAttribute("src", getResourceURI(resource));
+                            child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
                         } catch (error) {
                             // eslint-disable-next-line no-console
                             console.warn(error);
@@ -286,9 +294,10 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     }
                     break;
                 case "VIDEO":
-                    if (resource.contentType.startsWith("video/")) {
+                    resource = resources[src];
+                    if (resource && isVideo(resource.contentType)) {
                         try {
-                            child.setAttribute("src", getResourceURI(resource));
+                            child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
                         } catch (error) {
                             // eslint-disable-next-line no-console
                             console.warn(error);
@@ -297,9 +306,9 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                     break;
                 case "SOURCE":
                     resource = resources[src];
-                    if (resource && (resource.contentType.startsWith("image/") || resource.contentType.startsWith("video/") || resource.contentType.startsWith("audio/"))) {
+                    if (resource && (isImage(resource.contentType) || isAudio(resource.contentType) || isVideo(resource.contentType))) {
                         try {
-                            child.setAttribute("src", getResourceURI(resource));
+                            child.setAttribute(SRC_ATTRIBUTE, getResourceURI(resource));
                         } catch (error) {
                             // eslint-disable-next-line no-console
                             console.warn(error);
@@ -317,7 +326,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                                 frames: frames,
                                 index: id
                             }, { DOMParser });
-                            child.removeAttribute("src");
+                            child.removeAttribute(SRC_ATTRIBUTE);
                             child.setAttribute("srcdoc", iframe.serialize());
                         }
                     }
@@ -326,7 +335,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                 case "AREA":
                     if (href && !href.startsWith("#") && !href.match(/^[^:]+:/)) {
                         try {
-                            child.setAttribute("href", new URL(href, base).href);
+                            child.setAttribute(HREF_ATTRIBUTE, new URL(href, base).href);
                         } catch (_) {
                             // ignored
                         }
@@ -340,14 +349,14 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     }
     baseElement = document.createElement("base");
     try {
-        baseElement.setAttribute("href", new URL(base).href);
+        baseElement.setAttribute(HREF_ATTRIBUTE, new URL(base).href);
+        if (document.head.firstChild) {
+            document.head.insertBefore(baseElement, document.head.firstChild);
+        } else {
+            document.head.appendChild(baseElement);
+        }
     } catch (_) {
         // ignored
-    }
-    if (document.head.firstChild) {
-        document.head.insertBefore(baseElement, document.head.firstChild);
-    } else {
-        document.head.appendChild(baseElement);
     }
     return dom;
 }

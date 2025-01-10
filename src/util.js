@@ -67,4 +67,16 @@ function isStylesheet(contentType) {
     return contentType.startsWith("text/css");
 }
 
-export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet };
+function isImage(contentType) {
+    return contentType.startsWith("image/");
+}
+
+function isAudio(contentType) {
+    return contentType.startsWith("audio/");
+}
+
+function isVideo(contentType) {
+    return contentType.startsWith("video/");
+}
+
+export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet, isImage, isAudio, isVideo };
