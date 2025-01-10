@@ -4,6 +4,10 @@ Deno library for converting MHTML files to single HTML files
 
 ## Install
 
+Download the executable for your OS here: https://github.com/gildas-lormeau/mhtml-to-html/releases
+
+## Install from source
+
 - Install Deno, see https://deno.com
 
 - Install Git, see https://git-scm.com
