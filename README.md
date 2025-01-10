@@ -21,12 +21,12 @@ chmod +x mhtml-to-html
 
 ## Usage 
 
-``` sh
+```
 Usage: mhtml-to-html <input>... [--output output] [--help] [--enable-scripts]
  Arguments:
-  input: The input MHTML file, wildcards are supported (the output option will be ignored)
+  input: The input MHTML file, wildcards are supported
  Options:
-  --output: The output HTML file (default: input file with .html extension)
+  --output: The output HTML file (default: input file with .html extension), only used when a single input file is provided
   --enable-scripts: Enable scripts (default: disabled)
   --help: Show this help message
 ```
