@@ -25,6 +25,7 @@ const CONTENT_ATTRIBUTE = "content";
 const STYLE_ATTRIBUTE = "style";
 const MEDIA_ATTRIBUTE = "media";
 const STYLE_TAG = "style";
+const STYLESHEET_CONTENT_TYPE = "text/css";
 const META_CHARSET_SELECTOR = "meta[charset]";
 const META_CONTENT_TYPE_SELECTOR = `meta[http-equiv='${CONTENT_TYPE_HEADER}']`;
 
@@ -242,7 +243,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                             child.remove();
                         } else {
                             const styleElement = document.createElement(STYLE_TAG);
-                            styleElement.type = "text/css";
+                            styleElement.type = STYLESHEET_CONTENT_TYPE;
                             const media = child.getAttribute(MEDIA_ATTRIBUTE);
                             if (media) {
                                 styleElement.setAttribute(MEDIA_ATTRIBUTE, media);
@@ -262,7 +263,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         child.remove();
                     } else {
                         const styleElement = document.createElement(STYLE_TAG);
-                        styleElement.type = "text/css";
+                        styleElement.type = STYLESHEET_CONTENT_TYPE;
                         const media = child.getAttribute(MEDIA_ATTRIBUTE);
                         if (media) {
                             styleElement.setAttribute(MEDIA_ATTRIBUTE, media);
