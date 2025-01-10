@@ -107,9 +107,15 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
                 nextString = decodeString(next);
             }
             if (indexStartEmbeddedMhtml !== undefined) {
-                const context2 = { resources, frames };
-                parse(mhtml.slice(indexStartEmbeddedMhtml, indexEndEmbeddedMhtml - 2), { DOMParser }, context2);
-                context.index = context2.index;
+                const contextEmbeddedMhtml = { resources, frames };
+                if (mhtml[indexEndEmbeddedMhtml - 1] === 0x0A) {
+                    indexEndEmbeddedMhtml--;
+                    if (mhtml[indexEndEmbeddedMhtml - 2] === 0x0D) {
+                        indexEndEmbeddedMhtml--;
+                    }
+                }
+                parse(mhtml.slice(indexStartEmbeddedMhtml, indexEndEmbeddedMhtml), { DOMParser }, contextEmbeddedMhtml);
+                context.index = contextEmbeddedMhtml.index;
             } else {
                 resource.data = resource.rawData = new Uint8Array(resource.data);
                 const charset = getCharset(resource.contentType);
