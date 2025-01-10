@@ -399,6 +399,8 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                                 console.warn(error);
                             }
                         }
+                    } else {
+                        child.remove();
                     }
                     break;
                 default:
