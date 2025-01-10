@@ -211,16 +211,13 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
             if (metaElement) {
                 resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
                 const htmlCharset = getCharset(resource.contentType);
-                if (htmlCharset) {
-                    if (htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
-                        resource.data = decodeString(resource.rawData, htmlCharset);
-                    }
+                if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
+                    resource.data = decodeString(resource.rawData, htmlCharset);
                     const dom = parseDOM(resource.data, DOMParser);
                     metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
-                    resource.contentType = resource.contentType.replace(/charset=[^;]+/, `charset=${UTF8_CHARSET}`);
-                    metaElement.setAttribute(CONTENT_ATTRIBUTE, resource.contentType);
-                    resource.data = dom.serialize();
                 }
+                metaElement.remove();
+                resource.data = dom.serialize();
             }
         } catch (error) {
             // eslint-disable-next-line no-console
