@@ -12,25 +12,34 @@ function initDependencies(dependencies) {
 async function main() {
     const config = { DOMParser };
     const positionals = args;
-    if (positionals.length < 1 || positionals.includes("-h") || positionals.includes("--help")) {
-        console.log("Usage: mhtml-to-html <input> [output] [options]");
+    const values = positionals.filter(arg => arg !== "--output" && arg !== "--help" && arg !== "--enable-scripts");
+    const help = positionals.includes("--help");
+    const output = positionals.includes("--output") ? positionals[positionals.indexOf("--output") + 1] || "" : undefined;
+    const input = values[0] || "";
+    const enableScripts = positionals.includes("--enable-scripts");
+    if (input === "" || output === "" || help) {
+        console.log("Usage: mhtml-to-html <input>... [--output output] [--help] [--enable-scripts]");
         console.log(" Arguments:");
-        console.log("  input: The input MHTML file, wildcards are supported (the output argument will be ignored)");
-        console.log("  output: The output HTML file, if not specified, the input file will be used with the extension changed to .html");
+        console.log("  input: The input MHTML file, wildcards are supported (the output option will be ignored)");
         console.log(" Options:");
-        console.log("  -h, --help: Show this help message");
+        console.log("  --output: The output HTML file (default: input file with .html extension)");
+        console.log("  --enable-scripts: Enable scripts (default: disabled)");
+        console.log("  --help: Show this help message");
         console.log("");
         exit(1);
-    } else if (isGlob(positionals[0])) {
-        for await (const file of expandGlob(positionals[0])) {
-            await process(file.path, null, config);
-        }
-    } else if (positionals.length > 2 || (positionals[1] && positionals[1].match(/\.mht(ml)?$/i))) {
-        for (const positional of positionals) {
-            await process(positional, null, config);
-        }
     } else {
-        await process(positionals[0], positionals[1], config);
+        config.enableScripts = enableScripts;
+        if (isGlob(input)) {
+            for await (const file of expandGlob(input)) {
+                await process(file.path, null, config);
+            }
+        } else if (input && output) {
+            await process(input, output, config);
+        } else {
+            for (const input of values) {
+                await process(input, null, config);
+            }
+        }
     }
 }
 

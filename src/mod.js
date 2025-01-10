@@ -211,7 +211,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
     }
 }
 
-function convert({ frames, resources, index }, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
+function convert({ frames, resources, index }, { DOMParser, enableScripts } = { DOMParser: globalThis.DOMParser, enableScripts: false }) {
     let resource = resources[index];
     let base = resource.id;
     const dom = parseDOM(resource.data, DOMParser);
@@ -388,9 +388,8 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         }
                     }
                     break;
-                /*
                 case "SCRIPT":
-                    if (src) {
+                    if (enableScripts && src) {
                         resource = resources[src];
                         if (resource) {
                             try {
@@ -402,7 +401,6 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         }
                     }
                     break;
-                */
                 default:
                     break;
             }
