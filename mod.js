@@ -21,18 +21,16 @@ async function main() {
         console.log("  -h, --help: Show this help message");
         console.log("");
         exit(1);
-    } else {
-        if (isGlob(positionals[0])) {
-            for await (const file of expandGlob(positionals[0])) {
-                await process(file.path, null, config);
-            }
-        } else if (positionals.length > 2 || positionals[1].match(/\.mht(ml)?$/i)) {
-            for (const positional of positionals) {
-                await process(positional, null, config);
-            }
-        } else {
-            await process(positionals[0], positionals[1], config);
+    } else if (isGlob(positionals[0])) {
+        for await (const file of expandGlob(positionals[0])) {
+            await process(file.path, null, config);
         }
+    } else if (positionals.length > 2 || positionals[1].match(/\.mht(ml)?$/i)) {
+        for (const positional of positionals) {
+            await process(positional, null, config);
+        }
+    } else {
+        await process(positionals[0], positionals[1], config);
     }
 }
 
