@@ -105,8 +105,10 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
                         const charsetNode = ast.children.first;
                         const cssCharset = charsetNode.prelude.children.first.value.toLowerCase();
                         if (cssCharset !== UTF8_CHARSET && cssCharset !== charset) {
-                            ast.children.shift();
                             resource.data = decodeString(resource.rawData, cssCharset);
+                            const ast = cssTree.parse(resource.data);
+                            ast.children.shift();
+                            resource.data = cssTree.generate(ast);
                         }
                     }
                 } catch (error) {
