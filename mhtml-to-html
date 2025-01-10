@@ -1,6 +1,14 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-net
 
-import { main } from "./mod.js";
+/* global Deno */
+
+import { expandGlob } from "jsr:@std/fs";
+import { isGlob } from "jsr:@std/path";
+import { parse, convert } from "./src/mod.js";
 import { DOMParser } from "jsr:@b-fuze/deno-dom";
 
-await main({ DOMParser });
+import { initDependencies, main } from "./mod.js";
+
+const { args, readTextFile, writeTextFile, exit } = Deno;
+initDependencies({ expandGlob, isGlob, parse, convert, DOMParser, args, readTextFile, writeTextFile, exit });
+await main();
