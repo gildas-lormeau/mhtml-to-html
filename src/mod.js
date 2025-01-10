@@ -232,7 +232,6 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
     const dom = parseDOM(resource.data, DOMParser);
     const document = dom.document;
     const nodes = [document];
-    let href, src, title;
     const baseElement = document.querySelector("base");
     if (baseElement) {
         const href = baseElement.getAttribute(HREF_ATTRIBUTE);
@@ -247,7 +246,7 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
     }
     while (nodes.length) {
         const childNode = nodes.shift();
-        let srcset;
+        let srcset, href, src, title;
         childNode.childNodes.forEach(child => {
             if (child.getAttribute) {
                 try {
