@@ -11,7 +11,7 @@ function initDependencies(dependencies) {
 async function main() {
     const config = { DOMParser };
     const positionals = args;
-    const values = positionals.filter(arg => arg !== "--output" && arg !== "--help" && arg !== "--enable-scripts");
+    const values = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts");
     const help = positionals.includes("--help");
     const output = positionals.includes("--output") ? positionals[positionals.indexOf("--output") + 1] || "" : undefined;
     const input = values[0] || "";
