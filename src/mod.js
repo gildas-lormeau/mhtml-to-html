@@ -167,7 +167,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
         if (contentId !== undefined) {
             frames[contentId] = resource;
         }
-        if (id !== undefined && !resources[id]) {
+        if (!resources[id]) {
             resources[id] = resource;
         }
         content = {};
