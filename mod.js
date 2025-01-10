@@ -40,19 +40,19 @@ async function main() {
         config.enableScripts = enableScripts;
         if (isGlob(input)) {
             for await (const file of expandGlob(input)) {
-                await process(file.path, null, config);
+                await convertFile(file.path, null, config);
             }
         } else if (input && output) {
-            await process(input, output, config);
+            await convertFile(input, output, config);
         } else {
             for (const input of values) {
-                await process(input, null, config);
+                await convertFile(input, null, config);
             }
         }
     }
 }
 
-async function process(input, output, config) {
+async function convertFile(input, output, config) {
     output = output || input.replace(/\.[^.]+$/, ".html");
     if (!output.endsWith(".html")) {
         output += ".html";
@@ -68,4 +68,4 @@ async function process(input, output, config) {
     }
 }
 
-export { initDependencies, main, process, parse, convert };
+export { initDependencies, main, convertFile, parse, convert };
