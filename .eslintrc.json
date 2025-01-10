@@ -13,7 +13,7 @@
 		"sourceType": "module"
 	},
 	"ignorePatterns": [
-		"/lib/"
+		"/**/vendor/*.js"
 	],
 	"rules": {
 		"linebreak-style": [
