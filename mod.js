@@ -18,11 +18,11 @@ async function main() {
     const input = values[0] || "";
     const enableScripts = positionals.includes("--enable-scripts");
     if (input === "" || output === "" || help) {
-        console.log("Usage: mhtml-to-html <input>... [--output output] [--help] [--enable-scripts]");
+        console.log("Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts]");
         console.log(" Arguments:");
-        console.log("  input: The input MHTML file, wildcards are supported");
+        console.log("  <input>: The input MHTML file, wildcards are supported");
         console.log(" Options:");
-        console.log("  --output: The output HTML file (default: input file with .html extension), only used when a single input file is provided");
+        console.log("  --output <output>: The output HTML file (default: input file with .html extension), only used when a single input file is provided");
         console.log("  --enable-scripts: Enable scripts (default: disabled)");
         console.log("  --help: Show this help message");
         console.log("");
