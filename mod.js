@@ -35,9 +35,7 @@ async function main() {
         console.log(" mhtml-to-html *.mht --enable-scripts");
         exit(1);
     } else if (version) {
-        const packageData = await readTextFile("./deno.json");
-        const { version } = JSON.parse(packageData);
-        console.log(version);
+        console.log("1.0.0");
     } else {
         config.enableScripts = enableScripts;
         if (isGlob(input)) {
