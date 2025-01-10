@@ -197,7 +197,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
     }
 
     function processDocumentCharset(charset) {
-        const dom = parseDOM(resource.data, DOMParser);
+        let dom = parseDOM(resource.data, DOMParser);
         const documentElement = dom.document;
         let charserMetaElement = documentElement.querySelector(META_CHARSET_SELECTOR);
         try {
@@ -205,7 +205,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
                 const htmlCharset = charserMetaElement.getAttribute("charset").toLowerCase();
                 if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                     resource.data = decodeString(resource.rawData, charset);
-                    const dom = parseDOM(resource.data, DOMParser);
+                    dom = parseDOM(resource.data, DOMParser);
                     charserMetaElement = dom.document.documentElement.querySelector(META_CHARSET_SELECTOR);
                 }
                 charserMetaElement.remove();
@@ -213,11 +213,11 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
             }
             let metaElement = documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
             if (metaElement) {
-                resource.contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
-                const htmlCharset = getCharset(resource.contentType);
+                const contentType = metaElement.getAttribute(CONTENT_ATTRIBUTE);
+                const htmlCharset = getCharset(contentType);
                 if (htmlCharset && htmlCharset !== UTF8_CHARSET && htmlCharset !== charset) {
                     resource.data = decodeString(resource.rawData, htmlCharset);
-                    const dom = parseDOM(resource.data, DOMParser);
+                    dom = parseDOM(resource.data, DOMParser);
                     metaElement = dom.document.documentElement.querySelector(META_CONTENT_TYPE_SELECTOR);
                 }
                 metaElement.remove();
