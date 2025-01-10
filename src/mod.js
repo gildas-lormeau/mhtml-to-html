@@ -323,13 +323,13 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
                         const id = `<${src.split("cid:")[1]}>`;
                         const frame = frames[id];
                         if (frame && isDocument(frame.contentType)) {
-                            const iframe = convert({
+                            const html = convert({
                                 resources: Object.assign({}, resources, { [id]: frame }),
                                 frames: frames,
                                 index: id
                             }, { DOMParser });
                             child.removeAttribute(SRC_ATTRIBUTE);
-                            child.setAttribute("srcdoc", iframe.serialize());
+                            child.setAttribute("srcdoc", html);
                         }
                     }
                     break;
@@ -360,7 +360,7 @@ function convert({ frames, resources, index }, { DOMParser } = { DOMParser: glob
     } catch (_) {
         // ignored
     }
-    return dom;
+    return dom.serialize();
 }
 
 export { parse, convert };

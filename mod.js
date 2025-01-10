@@ -42,8 +42,8 @@ async function process(input, output, config) {
     try {
         const data = await readTextFile(input);
         const mhtml = parse(new TextEncoder().encode(data), config);
-        const doc = convert(mhtml, config);
-        await writeTextFile(output, doc.serialize());
+        const html = convert(mhtml, config);
+        await writeTextFile(output, html);
     } catch (error) {
         console.error(`Error processing ${input}: ${error.message}`);
         console.error(error.stack);
