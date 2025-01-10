@@ -1,4 +1,4 @@
-/* global globalThis, TextDecoder, btoa */
+/* global globalThis, TextDecoder, TextEncoder, btoa */
 
 function decodeQuotedPrintable(array) {
     const result = [];
@@ -52,6 +52,10 @@ function decodeString(array, charset) {
     return new TextDecoder(charset).decode(array);
 }
 
+function encodeString(str, charset) {
+    return new TextEncoder(charset).encode(str);
+}
+
 function getCharset(contentType) {
     const charsetMatch = contentType.match(/charset=([^;]+)/);
     if (charsetMatch) {
@@ -79,4 +83,17 @@ function isVideo(contentType) {
     return contentType.startsWith("video/");
 }
 
-export { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet, isImage, isAudio, isVideo };
+export {
+    decodeQuotedPrintable,
+    encodeBase64,
+    parseDOM,
+    removeQuotes,
+    decodeString,
+    encodeString,
+    getCharset,
+    isDocument,
+    isStylesheet,
+    isImage,
+    isAudio,
+    isVideo
+};

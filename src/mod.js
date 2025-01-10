@@ -1,6 +1,19 @@
 /* global globalThis, URL */
 
-import { decodeQuotedPrintable, encodeBase64, parseDOM, removeQuotes, decodeString, getCharset, isDocument, isStylesheet, isImage, isAudio, isVideo } from "./util.js";
+import {
+    decodeQuotedPrintable,
+    encodeBase64,
+    parseDOM,
+    removeQuotes,
+    decodeString,
+    encodeString,
+    getCharset,
+    isDocument,
+    isStylesheet,
+    isImage,
+    isAudio,
+    isVideo
+} from "./util.js";
 import * as cssTree from "./lib/csstree.esm.js";
 
 const MHTML_FSM = {
@@ -34,6 +47,9 @@ const META_CONTENT_TYPE_SELECTOR = `meta[http-equiv='${CONTENT_TYPE_HEADER}']`;
 const CID_PROTOCOL = "cid:";
 
 function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, context = { resources: {}, frames: {} }) {
+    if (typeof mhtml === "string") {
+        mhtml = encodeString(mhtml);
+    }
     const headers = {};
     const { resources, frames } = context;
     let resource, transferEncoding, boundary, headerKey;

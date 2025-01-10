@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* global TextEncoder */
 
 import { parse, convert } from "./src/mod.js";
 
@@ -60,7 +59,7 @@ async function process(input, output, config) {
     }
     try {
         const data = await readTextFile(input);
-        const mhtml = parse(new TextEncoder().encode(data), config);
+        const mhtml = parse(data, config);
         const html = convert(mhtml, config);
         await writeTextFile(output, html);
     } catch (error) {
