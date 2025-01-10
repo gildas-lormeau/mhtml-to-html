@@ -371,7 +371,6 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                         }
                     }
                     break;
-                case "FRAME":
                 case "IFRAME":
                     if (src) {
                         let id, frame;
@@ -390,6 +389,26 @@ function convert({ frames, resources, index }, { DOMParser, enableScripts } = { 
                             }, { DOMParser });
                             child.removeAttribute(SRC_ATTRIBUTE);
                             child.setAttribute("srcdoc", html);
+                        }
+                    }
+                    break;
+                case "FRAME":
+                    if (src) {
+                        let id, frame;
+                        if (src.startsWith("cid:")) {
+                            id = `<${src.split("cid:")[1]}>`;
+                            frame = frames[id];
+                        } else {
+                            id = new URL(src, base).href;
+                            frame = resources[id];
+                        }
+                        if (frame) {
+                            const html = convert({
+                                resources: Object.assign({}, resources, { [id]: frame }),
+                                frames: frames,
+                                index: id
+                            }, { DOMParser });
+                            child.setAttribute("src", `data:text/html,${encodeURIComponent(html)}`);
                         }
                     }
                     break;
