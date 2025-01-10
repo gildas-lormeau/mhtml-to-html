@@ -152,18 +152,18 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }) {
     return { frames, resources, index };
 
     function getLine(transferEncoding) {
-        const j = indexMhtml;
+        const indexStart = indexMhtml;
         while (mhtml[indexMhtml] !== 0x0A && indexMhtml++ < mhtml.length - 1);
         indexMhtml++;
-        const line = mhtml.slice(j, indexMhtml);
+        const line = mhtml.slice(indexStart, indexMhtml);
         return transferEncoding === QUOTED_PRINTABLE_ENCODING ? decodeQuotedPrintable(line) : line;
     }
 
     function splitHeaders(line, obj) {
-        const m = line.indexOf(":");
-        if (m > -1) {
-            headerKey = line.substring(0, m).trim();
-            obj[headerKey] = line.substring(m + 1, line.length).trim();
+        const indexColumn = line.indexOf(":");
+        if (indexColumn > -1) {
+            headerKey = line.substring(0, indexColumn).trim();
+            obj[headerKey] = line.substring(indexColumn + 1, line.length).trim();
         } else {
             obj[headerKey] += line.trim();
         }
