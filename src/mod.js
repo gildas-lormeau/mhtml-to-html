@@ -106,7 +106,7 @@ function parse(mhtml, { DOMParser } = { DOMParser: globalThis.DOMParser }, conte
                 next = getLine(transferEncoding);
                 nextString = decodeString(next);
             }
-            if (indexStartEmbeddedMhtml !== undefined) {
+            if (indexStartEmbeddedMhtml !== undefined && indexEndEmbeddedMhtml !== undefined) {
                 const contextEmbeddedMhtml = { resources, frames };
                 if (mhtml[indexEndEmbeddedMhtml - 1] === 0x0A) {
                     indexEndEmbeddedMhtml--;
