@@ -2,6 +2,8 @@
 
 import { parse, convert } from "./lib/mod.js";
 
+const VERSION = "1.0.1";
+
 let expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit;
 
 function initDependencies(dependencies) {
@@ -35,7 +37,7 @@ async function main() {
         console.log(" mhtml-to-html *.mht --enable-scripts");
         exit(1);
     } else if (version) {
-        console.log("1.0.0");
+        console.log(VERSION);
     } else {
         config.enableScripts = enableScripts;
         if (isGlob(input)) {
