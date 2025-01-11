@@ -2,7 +2,7 @@
 
 import { parse, convert } from "./lib/mod.js";
 
-const VERSION = "1.0.1";
+const VERSION = "1.0.2";
 
 let expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit;
 
