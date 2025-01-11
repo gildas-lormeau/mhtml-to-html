@@ -8,6 +8,6 @@ import { DOMParser } from "jsr:@b-fuze/deno-dom";
 
 import { initDependencies, main } from "./mod.js";
 
-const { args, readTextFile, writeTextFile, exit } = Deno;
-initDependencies({ expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit });
+const { args, readFile, writeTextFile, exit } = Deno;
+initDependencies({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit });
 await main();

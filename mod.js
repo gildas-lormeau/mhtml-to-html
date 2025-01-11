@@ -4,10 +4,10 @@ import { parse, convert } from "./lib/mod.js";
 
 const VERSION = "1.0.3";
 
-let expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit;
+let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit;
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, DOMParser, args, readTextFile, writeTextFile, exit } = dependencies);
+    ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit } = dependencies);
 }
 
 async function main() {
@@ -60,7 +60,7 @@ async function convertFile(input, output, config) {
         output += ".html";
     }
     try {
-        const data = await readTextFile(input);
+        const data = await readFile(input);
         const mhtml = parse(data, config);
         const html = convert(mhtml, config);
         await writeTextFile(output, html);
