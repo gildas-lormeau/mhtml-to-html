@@ -2,12 +2,10 @@
 
 import { parse, convert } from "./lib/mod.js";
 
-const VERSION = "1.0.6";
-
-let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit;
+let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion;
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit } = dependencies);
+    ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion } = dependencies);
 }
 
 async function main() {
@@ -37,7 +35,7 @@ async function main() {
         console.log(" mhtml-to-html *.mht --enable-scripts");
         exit(1);
     } else if (version) {
-        console.log(VERSION);
+        console.log(moduleVersion);
     } else {
         config.enableScripts = enableScripts;
         if (isGlob(input)) {
