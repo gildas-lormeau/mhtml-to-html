@@ -68,4 +68,4 @@ async function convertFile(input, output, config) {
     }
 }
 
-export { initDependencies, main, convertFile, parse, convert };
+export { initDependencies, main };
