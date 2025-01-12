@@ -8,6 +8,11 @@ JavaScript library and application for converting MHTML files to single HTML fil
 
 - Rename the file to `mhtml-to-html` (Linux, Unix)
 
+- Make `mhtml-to-html` executable (Linux, Unix)
+```sh
+chmod +x mhtml-to-html
+```
+
 ## Install from source
 
 - Install Deno, see https://deno.com
