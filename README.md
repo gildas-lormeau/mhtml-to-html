@@ -2,7 +2,7 @@
 
 JavaScript library and application for converting MHTML files to single HTML files
 
-## Install
+## Download
 
 - Download the executable for your OS here: https://github.com/gildas-lormeau/mhtml-to-html/releases
 
