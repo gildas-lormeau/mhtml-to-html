@@ -35,6 +35,7 @@ async function main() {
         console.log(" mhtml-to-html file1.mht file2.mht");
         console.log(" mhtml-to-html file.mht --output output_file.html");
         console.log(" mhtml-to-html *.mht");
+        console.log(" mhtml-to-html *.mht *.mhtml");
         console.log(" mhtml-to-html *.mht --enable-scripts");
         exit(1);
     } else if (version) {
