@@ -41,11 +41,7 @@ async function main() {
         console.log(moduleVersion);
     } else {
         config.enableScripts = enableScripts;
-        if (isGlob(input)) {
-            for await (const file of expandGlob(input)) {
-                await convertFile(file.path, null, config);
-            }
-        } else if (input && output) {
+        if (!isGlob(input) && input && output) {
             await convertFile(input, output, config);
         } else {
             for (const input of inputValues) {
