@@ -42,7 +42,7 @@ async function main() {
         console.log(moduleVersion);
     } else {
         config.enableScripts = enableScripts;
-        if (!isGlob(input) && input && output) {
+        if (input && !isGlob(input) && output) {
             await convertFile(input, output, config);
         } else {
             for (const input of inputValues) {
