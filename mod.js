@@ -13,8 +13,8 @@ function initDependencies(dependencies) {
 async function main() {
     const config = { DOMParser };
     const positionals = args;
-    const values = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts");
-    const input = values[0] || "";
+    const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts");
+    const input = inputValues[0] || "";
     const output = positionals.includes("--output") ? positionals[positionals.indexOf("--output") + 1] || "" : undefined;
     const enableScripts = positionals.includes("--enable-scripts");
     const version = positionals.includes("--version");
@@ -48,7 +48,7 @@ async function main() {
         } else if (input && output) {
             await convertFile(input, output, config);
         } else {
-            for (const input of values) {
+            for (const input of inputValues) {
                 await convertFile(input, null, config);
             }
         }
