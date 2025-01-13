@@ -22,8 +22,8 @@ async function main() {
         console.log(" Arguments:");
         console.log("  <input>: The input MHTML file, wildcards are supported");
         console.log(" Options:");
-        console.log("  --output <output>: The output HTML file (default: input file with .html extension), only");
-        console.log("                     used when a single input file is provided");
+        console.log("  --output <output>: The output HTML file (default: input file with .html extension),");
+        console.log("                     only used when a single input file is provided");
         console.log("  --help: Show this help message");
         console.log("  --enable-scripts: Enable scripts (default: disabled)");
         console.log("  --version: Show the version number");
