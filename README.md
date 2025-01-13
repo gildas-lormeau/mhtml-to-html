@@ -12,24 +12,6 @@ JavaScript library and application for converting MHTML files to single HTML fil
 ```sh
 chmod +x mhtml-to-html
 ```
-
-## Install from source
-
-- Install Deno, see https://deno.com
-
-- Install Git, see https://git-scm.com
-
-- Clone the repository
-
-```sh
-git clone https://github.com/gildas-lormeau/mhtml-to-html.git
-```
-
-- Make `mhtml-to-html` executable (Linux, Unix)
-```sh
-chmod +x mhtml-to-html
-```
-
 ## Usage 
 
 ```
@@ -52,4 +34,21 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--vers
  mhtml-to-html file.mht --output output_file.html
  mhtml-to-html *.mht
  mhtml-to-html *.mht --enable-scripts
+```
+
+## Install from source
+
+- Install Deno, see https://deno.com
+
+- Install Git, see https://git-scm.com
+
+- Clone the repository
+
+```sh
+git clone https://github.com/gildas-lormeau/mhtml-to-html.git
+```
+
+- Make `mhtml-to-html` executable (Linux, Unix)
+```sh
+chmod +x mhtml-to-html
 ```
