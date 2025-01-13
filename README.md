@@ -33,7 +33,8 @@ chmod +x mhtml-to-html
 ## Usage 
 
 ```
-Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--version]
+mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--version]
+
  Arguments:
   <input>: The input MHTML file, wildcards are supported
  Options:
