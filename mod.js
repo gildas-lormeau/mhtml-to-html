@@ -4,6 +4,8 @@ import { parse, convert } from "./lib/mod.js";
 
 let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion;
 
+export { initDependencies, main };
+
 function initDependencies(dependencies) {
     ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion } = dependencies);
 }
@@ -68,5 +70,3 @@ async function convertFile(input, output, config) {
         console.error(error.stack);
     }
 }
-
-export { initDependencies, main };
