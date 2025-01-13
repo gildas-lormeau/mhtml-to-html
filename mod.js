@@ -49,7 +49,13 @@ async function main() {
             await convertFile(input, output, config);
         } else {
             for (const input of inputValues) {
-                await convertFile(input, null, config);
+                if (isGlob(input)) {
+                    for await (const file of expandGlob(input)) {
+                        await convertFile(file.path, null, config);
+                    }
+                } else {
+                    await convertFile(input, null, config);
+                }
             }
         }
     }
