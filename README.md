@@ -43,8 +43,10 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--vers
   --help: Show this help message
   --enable-scripts: Enable scripts (default: disabled)
   --version: Show the version number
+```
 
-Examples:
+## Examples
+```
  mhtml-to-html file.mht
  mhtml-to-html file1.mht file2.mht
  mhtml-to-html file.mht --output output_file.html
