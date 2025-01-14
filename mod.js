@@ -10,6 +10,7 @@ function initDependencies(dependencies) {
     ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion } = dependencies);
 }
 
+// TODO: implement verbose mode
 async function main() {
     const config = { DOMParser };
     const positionals = args;
@@ -64,10 +65,12 @@ async function convertFile(input, output, config) {
         output += ".html";
     }
     try {
+        console.log(`Processing ${input}...`);
         const data = await readFile(input);
         const mhtml = parse(data, config);
         const html = convert(mhtml, config);
         await writeTextFile(output, html);
+        console.log("---");
     } catch (error) {
         console.error(`Error processing ${input}: ${error.message}`);
         console.error(error.stack);
