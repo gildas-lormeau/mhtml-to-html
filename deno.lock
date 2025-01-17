@@ -19,5 +19,12 @@
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     }
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:eslint@^9.18.0"
+      ]
+    }
   }
 }
