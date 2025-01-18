@@ -6,9 +6,8 @@ JavaScript library and application for converting MHTML files to single HTML fil
 
 - Download the executable for your OS here: https://github.com/gildas-lormeau/mhtml-to-html/releases
 
-- Rename the file to `mhtml-to-html` (Linux, Unix)
+- Rename the file to `mhtml-to-html` and make `mhtml-to-html` executable (Linux, Unix)
 
-- Make `mhtml-to-html` executable (Linux, Unix)
 ```sh
 chmod +x mhtml-to-html
 ```
