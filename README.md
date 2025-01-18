@@ -24,6 +24,7 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--vers
                      only used when a single input file is provided
   --help: Show this help message
   --enable-scripts: Enable scripts (default: disabled)
+  --fetch-missing-resources: Fetch missing resources (default: disabled)
   --version: Show the version number
 ```
 
