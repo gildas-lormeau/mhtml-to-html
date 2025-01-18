@@ -13,10 +13,11 @@ function initDependencies(dependencies) {
 async function main() {
     const config = { DOMParser };
     const positionals = args;
-    const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts");
+    const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts" && arg !== "--fetch-missing-resources");
     const input = inputValues[0] || "";
     const output = positionals.includes("--output") ? positionals[positionals.indexOf("--output") + 1] || "" : undefined;
     const enableScripts = positionals.includes("--enable-scripts");
+    const fetchMissingResources = positionals.includes("--fetch-missing-resources");
     const version = positionals.includes("--version");
     const help = positionals.includes("--help");
     if (input === "" || output === "" || help) {
@@ -28,6 +29,7 @@ async function main() {
         console.log("                     only used when a single input file is provided");
         console.log("  --help: Show this help message");
         console.log("  --enable-scripts: Enable scripts (default: disabled)");
+        console.log("  --fetch-missing-resources: Fetch missing resources (default: disabled)");
         console.log("  --version: Show the version number");
         console.log("");
         console.log("Examples:");
@@ -42,6 +44,7 @@ async function main() {
         console.log(moduleVersion);
     } else {
         config.enableScripts = enableScripts;
+        config.fetchMissingResources = fetchMissingResources;
         if (inputValues.length === 1 && !isGlob(input)) {
             await convertFile(input, output, config);
         } else {
@@ -66,7 +69,7 @@ async function convertFile(input, output, config) {
     try {
         const data = await readFile(input);
         const mhtml = parse(data, config);
-        const html = convert(mhtml, config);
+        const html = await convert(mhtml, config);
         await writeTextFile(output, html);
     } catch (error) {
         console.error(`Error processing ${input}: ${error.message}`);
