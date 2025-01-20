@@ -14,13 +14,13 @@ chmod +x mhtml-to-html
 ## Usage 
 
 ```
-mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--version]
+mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetch-missing-resources] [--version]
 
  Arguments:
   <input>: The input MHTML file, wildcards are supported
  Options:
-  --output <output>: The output HTML file (default: input file with .html extension),
-                     only used when a single input file is provided
+  --output <output>: The output HTML file (default: input file with .html extension), only used when a single 
+                     input file is provided
   --help: Show this help message
   --enable-scripts: Enable scripts (default: disabled)
   --fetch-missing-resources: Fetch missing resources (default: disabled)

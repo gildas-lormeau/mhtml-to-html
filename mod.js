@@ -21,12 +21,11 @@ async function main() {
     const version = positionals.includes("--version");
     const help = positionals.includes("--help");
     if (input === "" || output === "" || help) {
-        console.log("Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--version]");
+        console.log("Usage: mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetch-missing-resources] [--version]");
         console.log(" Arguments:");
         console.log("  <input>: The input MHTML file, wildcards are supported");
         console.log(" Options:");
-        console.log("  --output <output>: The output HTML file (default: input file with .html extension),");
-        console.log("                     only used when a single input file is provided");
+        console.log("  --output <output>: The output HTML file (default: input file with .html extension), only used when a single input file is provided");
         console.log("  --help: Show this help message");
         console.log("  --enable-scripts: Enable scripts (default: disabled)");
         console.log("  --fetch-missing-resources: Fetch missing resources (default: disabled)");
