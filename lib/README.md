@@ -1,1 +1,0 @@
-This module is a fork of https://github.com/msindwan/mhtml2html
