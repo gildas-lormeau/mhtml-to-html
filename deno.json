@@ -1,6 +1,6 @@
 {
   "name": "@mhtml-to-html/mhtml-to-html",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "mhtml-to-html",
   "exports": {
     ".": "./lib/mod.js"
