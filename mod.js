@@ -2,16 +2,16 @@
 
 import { parse, convert } from "./lib/mod.js";
 
-let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion;
+let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion;
 
 export { initDependencies, main };
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, exit, moduleVersion } = dependencies);
+    ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion } = dependencies);
 }
 
 async function main() {
-    const config = { DOMParser };
+    const config = { DOMParser, fetch };
     const positionals = args;
     const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts" && arg !== "--fetch-missing-resources");
     const input = inputValues[0] || "";
