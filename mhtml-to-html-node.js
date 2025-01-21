@@ -29,7 +29,7 @@ class DOMParser {
             headElement = parse("<head></head>").childNodes[0];
             documentElement.childNodes.unshift(headElement);
         }
-        if (documentElement.firstChild.nodeType === 3 && documentElement.firstChild.textContent.toLowerCase().startsWith("<!doctype")) {
+        if (documentElement.firstChild.nodeType === 3 && documentElement.firstChild.textContent.toLowerCase().trim().startsWith("<!doctype")) {
             const textValue = documentElement.firstChild.textContent;
             const doctypeMatch = textValue.match(/^<!DOCTYPE\s+([^>\s]+)\s+(?:PUBLIC\s+"([^"]+)"\s+)?(?:\s+"([^"]+)")?\s*>|<!DOCTYPE\s+([^>\s]+)\s*>/i);
             if (doctypeMatch) {
@@ -39,6 +39,8 @@ class DOMParser {
                     systemId: doctypeMatch[3]
                 };
             }
+        } else if (documentElement.firstChild.nodeType === 10) {
+            doctype = documentElement.firstChild;
         }
         return {
             childNodes: [documentElement],
