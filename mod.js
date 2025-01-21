@@ -1,15 +1,14 @@
 /* eslint-disable no-console */
 
-let expandGlob, isGlob, args, readFile, writeTextFile, fetch, exit, moduleVersion, parse, convert;
+let expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert;
 
 export { initDependencies, main };
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, args, readFile, writeTextFile, fetch, exit, moduleVersion, parse, convert } = dependencies);
+    ({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert } = dependencies);
 }
 
 async function main() {
-    const config = { fetch };
     const positionals = args;
     const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts" && arg !== "--fetch-missing-resources");
     const input = inputValues[0] || "";
@@ -40,8 +39,10 @@ async function main() {
     } else if (version) {
         console.log(moduleVersion);
     } else {
-        config.enableScripts = enableScripts;
-        config.fetchMissingResources = fetchMissingResources;
+        const config = {
+            enableScripts,
+            fetchMissingResources
+        };
         if (inputValues.length === 1 && !isGlob(input)) {
             await convertFile(input, output, config);
         } else {
