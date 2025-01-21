@@ -19,6 +19,9 @@
     "glob": "^11.0.1",
     "parse5": "^7.2.1"
   },
+  "scripts": {
+    "build": "./build.sh"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gildas-lormeau/mhtml-to-html.git"
