@@ -124,9 +124,6 @@ class DOMParser {
                                 }
                             }).join("");
                         }
-                        if (SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
-                            html += "/";
-                        }
                         html += ">";
                     }
                     if (this.childNodes !== undefined) {
