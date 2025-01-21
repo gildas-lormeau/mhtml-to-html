@@ -12,6 +12,7 @@ import packageInfo from "./package.json" with { type: "json" };
 import { initDependencies, main } from "./mod.js";
 import { parseFragment } from "parse5";
 
+const SELF_CLOSED_TAG_NAMES = ["AREA", "BASE", "BR", "COL", "COMMAND", "EMBED", "HR", "IMG", "INPUT", "KEYGEN", "LINK", "META", "PARAM", "SOURCE", "TRACK", "WBR"];
 const args = process.argv.slice(2);
 
 class DOMParser {
@@ -117,19 +118,24 @@ class DOMParser {
                         if (this.attrs !== undefined) {
                             html += this.attrs.map(attr => ` ${attr.name}="${attr.value}"`).join("");
                         }
-                        html += ">";
-                    }
-                    if (this.childNodes !== undefined) {
-                        html += this.childNodes.map(node => node.outerHTML).join("");
-                    } else {
-                        if (this.nodeName === "#comment") {
-                            html += `<!--${this.textContent === undefined ? "" : this.textContent}-->`;
-                        } else if (this.nodeName === "#text") {
-                            html += this.textContent === undefined ? "" : this.textContent;
+                        if (SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
+                            html += "/>";
+                        } else {
+                            html += ">";
+                            if (this.childNodes !== undefined) {
+                                html += this.childNodes.map(node => node.outerHTML).join("");
+                            }
                         }
                     }
+                    if (this.nodeName === "#comment") {
+                        html += `<!--${this.textContent === undefined ? "" : this.textContent}-->`;
+                    } else if (this.nodeName === "#text") {
+                        html += this.textContent === undefined ? "" : this.textContent;
+                    }
                     if (this.tagName !== undefined) {
-                        html += `</${this.tagName}>`;
+                        if (!SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
+                            html += `</${this.tagName}>`;
+                        }
                     }
                     return html;
                 }
