@@ -29,6 +29,8 @@ class DOMParser {
             return parseFragment(`<${tagName}></${tagName}>`).childNodes[0];
         };
         document.createTextNode = (data) => {
+            data = data.replace(/</g, "&lt;");
+            data = data.replace(/>/g, "&gt;");
             return parseFragment(data);
         };
         Object.defineProperty(document, "doctype", {
@@ -117,9 +119,11 @@ class DOMParser {
                         html += `<${this.tagName.toLowerCase()}`;
                         if (this.attrs !== undefined) {
                             html += this.attrs.map(({ name, value }) => {
-                                value = value.replace(/&/g, "&amp;");
-                                value = value.replace(/"/g, "&quot;");
-                                return ` ${name.toLowerCase()}="${value}"`;
+                                if (!name.match(/["'>/=]/)) {
+                                    value = value.replace(/&/g, "&amp;");
+                                    value = value.replace(/"/g, "&quot;");
+                                    return ` ${name.toLowerCase()}="${value}"`;
+                                }
                             }).join("");
                         }
                         if (SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
