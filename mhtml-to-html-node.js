@@ -22,6 +22,7 @@ class DOMParser {
         if (!document.head) {
             document.head = document.createElement("head");
             document.documentElement.childNodes.unshift(document.head);
+            document.head.parentNode = document.documentElement;
         }
         document.createElement = (tagName) => {
             return parseFragment(`<${tagName}></${tagName}>`).childNodes[0];
@@ -56,6 +57,7 @@ class DOMParser {
         };
         nodeProto.appendChild = function (child) {
             this.childNodes.push(child);
+            child.parentNode = this;
         };
         nodeProto.remove = function () {
             if (this.parentNode !== undefined) {
@@ -70,21 +72,24 @@ class DOMParser {
                 const index = this.parentNode.childNodes.indexOf(this);
                 if (index !== -1) {
                     this.parentNode.childNodes.splice(index, 1, ...nodes);
+                    nodes.forEach(node => node.parentNode = this.parentNode);
                 }
             }
         };
         nodeProto.prepend = function (...nodes) {
             this.childNodes.unshift(...nodes);
+            nodes.forEach(node => node.parentNode = this);
         };
         nodeProto.after = function (...nodes) {
             if (this.parentNode !== undefined) {
                 const index = this.parentNode.childNodes.indexOf(this);
                 if (index !== -1) {
                     this.parentNode.childNodes.splice(index + 1, 0, ...nodes);
+                    nodes.forEach(node => node.parentNode = this.parentNode);
                 }
             }
         };
-        if (nodeProto.outerHTML === undefined) {
+        if (Object.getOwnPropertyDescriptor(nodeProto, "firstChild") === undefined) {
             Object.defineProperty(nodeProto, "firstChild", {
                 get() {
                     return this.childNodes !== undefined ? this.childNodes[0] : undefined;
@@ -119,8 +124,6 @@ class DOMParser {
                             html += `<!--${this.textContent}-->`;
                         } else if (this.nodeName === "#text") {
                             html += this.textContent;
-                        } else {
-                            // 
                         }
                     }
                     if (this.tagName !== undefined) {
