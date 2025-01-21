@@ -1,6 +1,6 @@
 {
   "name": "@mhtml-to-html/mhtml-to-html-node",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "mhtml-to-html",
   "type": "module",
   "devDependencies": {
