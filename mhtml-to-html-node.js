@@ -114,9 +114,9 @@ class DOMParser {
                 get() {
                     let html = "";
                     if (this.tagName !== undefined) {
-                        html += `<${this.tagName}`;
+                        html += `<${this.tagName.toLowerCase()}`;
                         if (this.attrs !== undefined) {
-                            html += this.attrs.map(attr => ` ${attr.name}="${attr.value}"`).join("");
+                            html += this.attrs.map(attr => ` ${attr.name.toLowerCase()}="${attr.value}"`).join("");
                         }
                         if (SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
                             html += "/>";
@@ -133,7 +133,7 @@ class DOMParser {
                     }
                     if (this.tagName !== undefined) {
                         if (!SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
-                            html += `</${this.tagName}>`;
+                            html += `</${this.tagName.toLowerCase()}>`;
                         }
                     }
                     return html;
