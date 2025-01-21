@@ -122,12 +122,11 @@ class DOMParser {
                             html += "/>";
                         } else {
                             html += ">";
-                            if (this.childNodes !== undefined) {
-                                html += this.childNodes.map(node => node.outerHTML).join("");
-                            }
                         }
                     }
-                    if (this.nodeName === "#comment") {
+                    if (this.childNodes !== undefined) {
+                        html += this.childNodes.map(node => node.outerHTML).join("");
+                    } else if (this.nodeName === "#comment") {
                         html += `<!--${this.textContent === undefined ? "" : this.textContent}-->`;
                     } else if (this.nodeName === "#text") {
                         html += this.textContent === undefined ? "" : this.textContent;
