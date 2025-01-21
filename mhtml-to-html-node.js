@@ -123,9 +123,9 @@ class DOMParser {
                         html += this.childNodes.map(node => node.outerHTML).join("");
                     } else {
                         if (this.nodeName === "#comment") {
-                            html += `<!--${this.textContent}-->`;
+                            html += `<!--${this.textContent === undefined ? "" : this.textContent}-->`;
                         } else if (this.nodeName === "#text") {
-                            html += this.textContent;
+                            html += this.textContent === undefined ? "" : this.textContent;
                         }
                     }
                     if (this.tagName !== undefined) {
