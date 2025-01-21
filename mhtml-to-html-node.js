@@ -11,7 +11,7 @@ import { parse, parseFragment } from "parse5";
 import packageInfo from "./package.json" with { type: "json" };
 import { initDependencies, main } from "./mod.js";
 
-const SELF_CLOSED_TAG_NAMES = ["AREA", "BASE", "BR", "COL", "COMMAND", "EMBED", "HR", "IMG", "INPUT", "KEYGEN", "LINK", "META", "PARAM", "SOURCE", "TRACK", "WBR"];
+const SELF_CLOSED_TAG_NAMES = ["AREA", "BASE", "BASEFONT", "BGSOUND", "BR", "COL", "COMMAND", "EMBED", "FRAME", "HR", "IMG", "INPUT", "KEYGEN", "LINK", "META", "PARAM", "SOURCE", "TRACK", "WBR"];
 const args = process.argv.slice(2);
 
 class DOMParser {
