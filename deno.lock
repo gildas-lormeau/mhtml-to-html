@@ -23,7 +23,9 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:eslint@^9.18.0"
+        "npm:eslint@^9.18.0",
+        "npm:glob@^11.0.1",
+        "npm:node-html-parser@^7.0.1"
       ]
     }
   }

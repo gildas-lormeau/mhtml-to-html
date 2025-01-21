@@ -1,5 +1,13 @@
 {
+  "name": "@mhtml-to-html/mhtml-to-html",
+  "version": "1.0.20",
+  "description": "mhtml-to-html",
+  "type": "module",
   "devDependencies": {
     "eslint": "^9.18.0"
+  },
+  "dependencies": {
+    "glob": "^11.0.1",
+    "node-html-parser": "^7.0.1"
   }
 }
