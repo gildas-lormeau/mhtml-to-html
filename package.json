@@ -10,7 +10,7 @@
   },
   "module": "lib/mod.js",
   "exports": {
-    ".": "./lib/mod.js"
+    ".": "./lib/mod-node.js"
   },
   "devDependencies": {
     "eslint": "^9.18.0"

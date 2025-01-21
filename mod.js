@@ -1,17 +1,15 @@
 /* eslint-disable no-console */
 
-import { parse, convert } from "./lib/mod.js";
-
-let expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion;
+let expandGlob, isGlob, args, readFile, writeTextFile, fetch, exit, moduleVersion, parse, convert;
 
 export { initDependencies, main };
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion } = dependencies);
+    ({ expandGlob, isGlob, args, readFile, writeTextFile, fetch, exit, moduleVersion, parse, convert } = dependencies);
 }
 
 async function main() {
-    const config = { DOMParser, fetch };
+    const config = { fetch };
     const positionals = args;
     const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts" && arg !== "--fetch-missing-resources");
     const input = inputValues[0] || "";

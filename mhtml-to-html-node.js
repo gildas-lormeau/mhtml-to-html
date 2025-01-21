@@ -2,17 +2,18 @@
 
 // deno-lint-ignore-file no-process-globals
 
-/* global process, fetch */
+/* global process, fetch, TextEncoder */
 
 import { readFile, writeFile } from "node:fs/promises";
 import { Glob, globSync } from "glob";
 
-import DOMParser from "./lib/dom-parser.js";
+import { parse, convert } from "./lib/mod-node.js";
 import packageInfo from "./package.json" with { type: "json" };
+
 import { initDependencies, main } from "./mod.js";
 
 const args = process.argv.slice(2);
-initDependencies({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion: packageInfo.version });
+initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, fetch, exit, moduleVersion: packageInfo.version, parse, convert });
 await main();
 
 function expandGlob(pattern) {
@@ -34,7 +35,7 @@ function isGlob(pattern) {
 }
 
 function writeTextFile(path, data) {
-    return writeFile(path, data);
+    return writeFile(path, new TextEncoder().encode(data));
 }
 
 function exit(code) {
