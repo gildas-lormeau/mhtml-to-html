@@ -17,11 +17,11 @@ const args = process.argv.slice(2);
 class DOMParser {
     parseFromString(html) {
         const document = parse(html);
-        document.documentElement = document.childNodes.find(node => node.nodeName === "html");
-        document.head = document.documentElement.childNodes.find(node => node.nodeName === "head");
+        const documentElement = document.documentElement = document.childNodes.find(node => node.nodeName === "html");
+        document.head = documentElement.childNodes.find(node => node.nodeName === "head");
         if (!document.head) {
             document.head = document.createElement("head");
-            document.documentElement.prepend(document.head);
+            documentElement.prepend(document.head);
         }
         document.createElement = (tagName) => {
             return parseFragment(`<${tagName}></${tagName}>`).childNodes[0];
@@ -36,7 +36,7 @@ class DOMParser {
                 return this.childNodes.find(node => node.nodeName === "#documentType");
             }
         });
-        const nodeProto = Object.getPrototypeOf(document.documentElement);
+        const nodeProto = Object.getPrototypeOf(documentElement);
         if (Object.getOwnPropertyDescriptor(nodeProto, "firstChild") === undefined) {
             nodeProto.setAttribute = function (name, value) {
                 const indexAttribute = this.attrs.findIndex(attr => attr.name.toLowerCase() === name.toLowerCase());
