@@ -116,7 +116,11 @@ class DOMParser {
                     if (this.tagName !== undefined) {
                         html += `<${this.tagName.toLowerCase()}`;
                         if (this.attrs !== undefined) {
-                            html += this.attrs.map(attr => ` ${attr.name.toLowerCase()}="${attr.value}"`).join("");
+                            html += this.attrs.map(({ name, value }) => {
+                                value = value.replace(/&/g, "&amp;");
+                                value = value.replace(/"/g, "&quot;");
+                                return ` ${name.toLowerCase()}="${value}"`;
+                            }).join("");
                         }
                         if (SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
                             html += "/";
@@ -128,7 +132,12 @@ class DOMParser {
                     } else if (this.nodeName === "#comment") {
                         html += `<!--${this.textContent === undefined ? "" : this.textContent}-->`;
                     } else if (this.nodeName === "#text") {
-                        html += this.textContent === undefined ? "" : this.textContent;
+                        if (this.textContent !== undefined) {
+                            let textContent = this.textContent;
+                            textContent = textContent.replace(/</g, "&lt;");
+                            textContent = textContent.replace(/>/g, "&gt;");
+                            html += textContent;
+                        }
                     }
                     if (this.tagName !== undefined) {
                         if (!SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
