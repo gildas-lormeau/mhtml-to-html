@@ -5,6 +5,9 @@
   "license": "MIT",
   "description": "Convert MHTML files to HTML files",
   "type": "module",
+  "bin": {
+    "mhtml-to-html": "./mhtml-to-html-node.js"
+  },
   "module": "lib/mod.js",
   "exports": {
     ".": "./lib/mod.js"
