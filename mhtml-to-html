@@ -11,5 +11,5 @@ import packageInfo from "./deno.json" with { type: "json" };
 import { initDependencies, main } from "./mod.js";
 
 const { args, readFile, writeTextFile, exit } = Deno;
-initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, fetch, exit, moduleVersion: packageInfo.version, parse, convert });
+initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion: packageInfo.version, parse, convert });
 await main();
