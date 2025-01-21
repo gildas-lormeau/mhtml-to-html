@@ -4,7 +4,7 @@ export default [
 	js.configs.recommended,
 	{
 		languageOptions: {
-			ecmaVersion: 2022,
+			ecmaVersion: 2025,
 			sourceType: "module",
 			globals: {
 				console: "readonly",
