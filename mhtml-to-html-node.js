@@ -6,8 +6,9 @@
 
 import { Glob, globSync } from "glob";
 import { parse } from "node-html-parser";
-import packageInfo from "./package.json" with { type: "json" };
 import { readFile, writeFile } from "node:fs/promises";
+import packageInfo from "./package.json" with { type: "json" };
+
 import { initDependencies, main } from "./mod.js";
 
 class DOMParser {
