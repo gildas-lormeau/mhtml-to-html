@@ -27,7 +27,7 @@ class DOMParser {
         }
         if (!headElement) {
             headElement = parse("<head></head>").childNodes[0];
-            documentElement.childNodes.unshift(headElement);
+            documentElement.prepend(headElement);
         }
         if (documentElement.firstChild.nodeType === 3 && documentElement.firstChild.textContent.toLowerCase().trim().startsWith("<!doctype")) {
             const textValue = documentElement.firstChild.textContent;
