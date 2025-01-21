@@ -116,12 +116,33 @@ class DOMParser {
                     if (this.tagName !== undefined) {
                         html += `<${this.tagName.toLowerCase()}`;
                         if (this.attrs !== undefined) {
-                            html += this.attrs.map(({ name, value }) => {
+                            html += this.attrs.map(({ name, value, prefix, namespace }) => {
                                 if (!name.match(/["'>/=]/)) {
                                     value = value.replace(/&/g, "&amp;");
                                     value = value.replace(/"/g, "&quot;");
-                                    return ` ${name.toLowerCase()}="${value}"`;
+                                    if (namespace) {
+                                        if (namespace === "http://www.w3.org/1999/xlink") {
+                                            return ` xlink:${name}="${value}"`;
+                                        } else if (namespace === "http://www.w3.org/2000/xmlns") {
+                                            if (name === "xmlns") {
+                                                return ` ${name}="${value}"`;
+                                            } else {
+                                                return ` xmlns:${name}="${value}"`;
+                                            }
+                                        } else if (namespace === "http://www.w3.org/XML/1998/namespace") {
+                                            return ` xml:${name}="${value}"`;
+                                        } else {
+                                            if (prefix === "") {
+                                                return ` ${name}="${value}"`;
+                                            } else {
+                                                return ` ${prefix}:${name}="${value}"`;
+                                            }
+                                        }
+                                    } else {
+                                        return ` ${name}="${value}"`;
+                                    }
                                 }
+
                             }).join("");
                         }
                         html += ">";
