@@ -21,8 +21,7 @@ class DOMParser {
         document.head = document.documentElement.childNodes.find(node => node.nodeName === "head");
         if (!document.head) {
             document.head = document.createElement("head");
-            document.documentElement.childNodes.unshift(document.head);
-            document.head.parentNode = document.documentElement;
+            document.documentElement.prepend(document.head);
         }
         document.createElement = (tagName) => {
             return parseFragment(`<${tagName}></${tagName}>`).childNodes[0];
