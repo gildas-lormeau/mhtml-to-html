@@ -4,13 +4,12 @@
 
 /* global process, fetch */
 
-import { Glob, globSync } from "glob";
-import { parse } from "parse5";
 import { readFile, writeFile } from "node:fs/promises";
-import packageInfo from "./package.json" with { type: "json" };
+import { Glob, globSync } from "glob";
+import { parse, parseFragment } from "parse5";
 
+import packageInfo from "./package.json" with { type: "json" };
 import { initDependencies, main } from "./mod.js";
-import { parseFragment } from "parse5";
 
 const SELF_CLOSED_TAG_NAMES = ["AREA", "BASE", "BR", "COL", "COMMAND", "EMBED", "HR", "IMG", "INPUT", "KEYGEN", "LINK", "META", "PARAM", "SOURCE", "TRACK", "WBR"];
 const args = process.argv.slice(2);
