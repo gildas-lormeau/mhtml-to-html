@@ -39,8 +39,6 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
 
 ## Install from source
 
-- Install Deno, see https://deno.com
-
 - Install Git, see https://git-scm.com
 
 - Clone the repository
@@ -49,7 +47,37 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
 git clone https://github.com/gildas-lormeau/mhtml-to-html.git
 ```
 
-- Make `mhtml-to-html` executable (Linux, Unix)
-```sh
-chmod +x mhtml-to-html
-```
+- Deno:
+
+  - Install Deno, see https://deno.com
+
+  - Make `mhtml-to-html` executable (Linux, Unix)
+  ```sh
+  chmod +x mhtml-to-html
+  ```
+
+- Node.js:
+
+  - Install Node.js, see https://nodejs.org
+
+  - Install the dependencies
+  ```sh
+  npm install
+  ```
+
+  - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
+  
+    - Linux, Unix:
+    ```sh
+    mv mhtml-to-html-node.js mhtml-to-html
+    ```
+
+    - DOS:
+    ```sh
+    move /y mhtml-to-html-node.js mhtml-to-html
+    ```
+
+  - Make `mhtml-to-html` executable (Linux, Unix)
+  ```sh
+  chmod +x mhtml-to-html
+  ```
