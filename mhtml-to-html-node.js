@@ -119,10 +119,9 @@ class DOMParser {
                             html += this.attrs.map(attr => ` ${attr.name.toLowerCase()}="${attr.value}"`).join("");
                         }
                         if (SELF_CLOSED_TAG_NAMES.includes(this.tagName.toUpperCase())) {
-                            html += "/>";
-                        } else {
-                            html += ">";
+                            html += "/";
                         }
+                        html += ">";
                     }
                     if (this.childNodes !== undefined) {
                         html += this.childNodes.map(node => node.outerHTML).join("");
