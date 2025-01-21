@@ -13,6 +13,8 @@ import { initDependencies, main } from "./mod.js";
 
 const SELF_CLOSED_TAG_NAMES = ["AREA", "BASE", "BASEFONT", "BGSOUND", "BR", "COL", "COMMAND", "EMBED", "FRAME", "HR", "IMG", "INPUT", "KEYGEN", "LINK", "META", "PARAM", "SOURCE", "TRACK", "WBR"];
 const args = process.argv.slice(2);
+initDependencies({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion: packageInfo.version });
+await main();
 
 class DOMParser {
     parseFromString(html) {
@@ -198,6 +200,3 @@ function writeTextFile(path, data) {
 function exit(code) {
     process.exit(code);
 }
-
-initDependencies({ expandGlob, isGlob, DOMParser, args, readFile, writeTextFile, fetch, exit, moduleVersion: packageInfo.version });
-await main();
