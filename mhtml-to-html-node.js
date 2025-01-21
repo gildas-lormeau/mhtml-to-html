@@ -13,7 +13,8 @@ import packageInfo from "./package.json" with { type: "json" };
 import { initDependencies, main } from "./mod.js";
 
 const args = process.argv.slice(2);
-initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion: packageInfo.version, parse, convert });
+const moduleVersion = packageInfo.version;
+initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert });
 await main();
 
 function expandGlob(pattern) {
