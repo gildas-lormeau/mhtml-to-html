@@ -11,6 +11,8 @@ import packageInfo from "./package.json" with { type: "json" };
 
 import { initDependencies, main } from "./mod.js";
 
+const args = process.argv.slice(2);
+
 class DOMParser {
     parseFromString(html) {
         const documentElement = parse(html);
@@ -56,7 +58,8 @@ class DOMParser {
             }
         };
     }
-};
+}
+
 function expandGlob(pattern) {
     const glob = new Glob(pattern, {});
     const iterator = glob.iterate();
@@ -69,12 +72,11 @@ function expandGlob(pattern) {
         })
     };
 }
+
 function isGlob(pattern) {
     const files = globSync(pattern);
     return files.length > 1 || (files.length === 1 && files[0] !== pattern);
 }
-
-const args = process.argv.slice(2);
 
 function writeTextFile(path, data) {
     return writeFile(path, data);
