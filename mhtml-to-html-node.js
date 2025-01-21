@@ -36,62 +36,62 @@ class DOMParser {
             }
         });
         const nodeProto = Object.getPrototypeOf(document.documentElement);
-        nodeProto.setAttribute = function (name, value) {
-            const indexAttribute = this.attrs.findIndex(attr => attr.name.toLowerCase() === name.toLowerCase());
-            if (indexAttribute === -1) {
-                this.attrs.push({ name, value });
-            } else {
-                this.attrs[indexAttribute].value = value;
-            }
-        };
-        nodeProto.getAttribute = function (name) {
-            return this.attrs !== undefined ? this.attrs.find(attr => attr.name.toLowerCase() === name.toLowerCase())?.value : undefined;
-        };
-        nodeProto.removeAttribute = function (name) {
-            if (this.attrs !== undefined) {
-                const index = this.attrs.findIndex(attr => attr.name === name);
-                if (index !== -1) {
-                    this.attrs.splice(index, 1);
-                }
-            }
-        };
-        nodeProto.appendChild = function (child) {
-            this.childNodes.push(child);
-            child.parentNode = this;
-        };
-        nodeProto.remove = function () {
-            if (this.parentNode !== undefined) {
-                const index = this.parentNode.childNodes.indexOf(this);
-                if (index !== -1) {
-                    this.parentNode.childNodes.splice(index, 1);
-                    this.parentNode = undefined;
-                }
-            }
-        };
-        nodeProto.replaceWith = function (...nodes) {
-            if (this.parentNode !== undefined) {
-                const index = this.parentNode.childNodes.indexOf(this);
-                if (index !== -1) {
-                    const oldNodes = this.parentNode.childNodes.splice(index, 1, ...nodes);
-                    nodes.forEach(node => node.parentNode = this.parentNode);
-                    oldNodes.forEach(node => node.parentNode = undefined);
-                }
-            }
-        };
-        nodeProto.prepend = function (...nodes) {
-            this.childNodes.unshift(...nodes);
-            nodes.forEach(node => node.parentNode = this);
-        };
-        nodeProto.after = function (...nodes) {
-            if (this.parentNode !== undefined) {
-                const index = this.parentNode.childNodes.indexOf(this);
-                if (index !== -1) {
-                    this.parentNode.childNodes.splice(index + 1, 0, ...nodes);
-                    nodes.forEach(node => node.parentNode = this.parentNode);
-                }
-            }
-        };
         if (Object.getOwnPropertyDescriptor(nodeProto, "firstChild") === undefined) {
+            nodeProto.setAttribute = function (name, value) {
+                const indexAttribute = this.attrs.findIndex(attr => attr.name.toLowerCase() === name.toLowerCase());
+                if (indexAttribute === -1) {
+                    this.attrs.push({ name, value });
+                } else {
+                    this.attrs[indexAttribute].value = value;
+                }
+            };
+            nodeProto.getAttribute = function (name) {
+                return this.attrs !== undefined ? this.attrs.find(attr => attr.name.toLowerCase() === name.toLowerCase())?.value : undefined;
+            };
+            nodeProto.removeAttribute = function (name) {
+                if (this.attrs !== undefined) {
+                    const index = this.attrs.findIndex(attr => attr.name === name);
+                    if (index !== -1) {
+                        this.attrs.splice(index, 1);
+                    }
+                }
+            };
+            nodeProto.appendChild = function (child) {
+                this.childNodes.push(child);
+                child.parentNode = this;
+            };
+            nodeProto.remove = function () {
+                if (this.parentNode !== undefined) {
+                    const index = this.parentNode.childNodes.indexOf(this);
+                    if (index !== -1) {
+                        this.parentNode.childNodes.splice(index, 1);
+                        this.parentNode = undefined;
+                    }
+                }
+            };
+            nodeProto.replaceWith = function (...nodes) {
+                if (this.parentNode !== undefined) {
+                    const index = this.parentNode.childNodes.indexOf(this);
+                    if (index !== -1) {
+                        const oldNodes = this.parentNode.childNodes.splice(index, 1, ...nodes);
+                        nodes.forEach(node => node.parentNode = this.parentNode);
+                        oldNodes.forEach(node => node.parentNode = undefined);
+                    }
+                }
+            };
+            nodeProto.prepend = function (...nodes) {
+                this.childNodes.unshift(...nodes);
+                nodes.forEach(node => node.parentNode = this);
+            };
+            nodeProto.after = function (...nodes) {
+                if (this.parentNode !== undefined) {
+                    const index = this.parentNode.childNodes.indexOf(this);
+                    if (index !== -1) {
+                        this.parentNode.childNodes.splice(index + 1, 0, ...nodes);
+                        nodes.forEach(node => node.parentNode = this.parentNode);
+                    }
+                }
+            };
             Object.defineProperty(nodeProto, "firstChild", {
                 get() {
                     return this.childNodes !== undefined ? this.childNodes[0] : undefined;
