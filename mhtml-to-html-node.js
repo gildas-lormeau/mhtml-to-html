@@ -64,6 +64,7 @@ class DOMParser {
                 const index = this.parentNode.childNodes.indexOf(this);
                 if (index !== -1) {
                     this.parentNode.childNodes.splice(index, 1);
+                    this.parentNode = undefined;
                 }
             }
         };
@@ -71,8 +72,9 @@ class DOMParser {
             if (this.parentNode !== undefined) {
                 const index = this.parentNode.childNodes.indexOf(this);
                 if (index !== -1) {
-                    this.parentNode.childNodes.splice(index, 1, ...nodes);
+                    const oldNodes = this.parentNode.childNodes.splice(index, 1, ...nodes);
                     nodes.forEach(node => node.parentNode = this.parentNode);
+                    oldNodes.forEach(node => node.parentNode = undefined);
                 }
             }
         };
