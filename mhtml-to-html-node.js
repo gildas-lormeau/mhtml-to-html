@@ -5,58 +5,132 @@
 /* global process, fetch */
 
 import { Glob, globSync } from "glob";
-import { parse } from "node-html-parser";
+import { parse } from "parse5";
 import { readFile, writeFile } from "node:fs/promises";
 import packageInfo from "./package.json" with { type: "json" };
 
 import { initDependencies, main } from "./mod.js";
+import { parseFragment } from "parse5";
 
 const args = process.argv.slice(2);
 
 class DOMParser {
     parseFromString(html) {
-        const documentElement = parse(html);
-        let headElement, doctype;
-        const nodes = [documentElement];
-        while (nodes.length && !headElement) {
-            const childNode = nodes.shift();
-            for (let childIndex = 0; childIndex < childNode.childNodes.length && !headElement; childIndex++) {
-                const child = childNode.childNodes[childIndex];
-                if (child.tagName === "HEAD") {
-                    headElement = child;
-                }
-                nodes.push(child);
+        const document = parse(html);
+        document.documentElement = document.childNodes.find(node => node.nodeName === "html");
+        document.head = document.documentElement.childNodes.find(node => node.nodeName === "head");
+        if (!document.head) {
+            document.head = document.createElement("head");
+            document.documentElement.childNodes.unshift(document.head);
+        }
+        document.createElement = (tagName) => {
+            return parseFragment(`<${tagName}></${tagName}>`).childNodes[0];
+        };
+        document.createTextNode = (data) => {
+            return parseFragment(data);
+        };
+        Object.defineProperty(document, "doctype", {
+            get() {
+                return this.childNodes.find(node => node.nodeName === "#documentType");
             }
-        }
-        if (!headElement) {
-            headElement = parse("<head></head>").childNodes[0];
-            documentElement.prepend(headElement);
-        }
-        if (documentElement.firstChild.nodeType === 3 && documentElement.firstChild.textContent.toLowerCase().trim().startsWith("<!doctype")) {
-            const textValue = documentElement.firstChild.textContent;
-            const doctypeMatch = textValue.match(/^<!DOCTYPE\s+([^>\s]+)\s+(?:PUBLIC\s+"([^"]+)"\s+)?(?:\s+"([^"]+)")?\s*>|<!DOCTYPE\s+([^>\s]+)\s*>/i);
-            if (doctypeMatch) {
-                doctype = {
-                    name: doctypeMatch[1] || doctypeMatch[4],
-                    publicId: doctypeMatch[2],
-                    systemId: doctypeMatch[3]
-                };
-            }
-        } else if (documentElement.firstChild.nodeType === 10) {
-            doctype = documentElement.firstChild;
-        }
-        return {
-            childNodes: [documentElement],
-            documentElement,
-            doctype,
-            head: headElement,
-            createElement(tagName) {
-                return parse(`<${tagName}></${tagName}>`).childNodes[0];
-            },
-            createTextNode(text) {
-                return parse(text);
+        });
+        const nodeProto = Object.getPrototypeOf(document.documentElement);
+        nodeProto.setAttribute = function (name, value) {
+            const indexAttribute = this.attrs.findIndex(attr => attr.name.toLowerCase() === name.toLowerCase());
+            if (indexAttribute === -1) {
+                this.attrs.push({ name, value });
+            } else {
+                this.attrs[indexAttribute].value = value;
             }
         };
+        nodeProto.getAttribute = function (name) {
+            return this.attrs !== undefined ? this.attrs.find(attr => attr.name.toLowerCase() === name.toLowerCase())?.value : undefined;
+        };
+        nodeProto.removeAttribute = function (name) {
+            if (this.attrs !== undefined) {
+                const index = this.attrs.findIndex(attr => attr.name === name);
+                if (index !== -1) {
+                    this.attrs.splice(index, 1);
+                }
+            }
+        };
+        nodeProto.appendChild = function (child) {
+            this.childNodes.push(child);
+        };
+        nodeProto.remove = function () {
+            if (this.parentNode !== undefined) {
+                const index = this.parentNode.childNodes.indexOf(this);
+                if (index !== -1) {
+                    this.parentNode.childNodes.splice(index, 1);
+                }
+            }
+        };
+        nodeProto.replaceWith = function (...nodes) {
+            if (this.parentNode !== undefined) {
+                const index = this.parentNode.childNodes.indexOf(this);
+                if (index !== -1) {
+                    this.parentNode.childNodes.splice(index, 1, ...nodes);
+                }
+            }
+        };
+        nodeProto.prepend = function (...nodes) {
+            this.childNodes.unshift(...nodes);
+        };
+        nodeProto.after = function (...nodes) {
+            if (this.parentNode !== undefined) {
+                const index = this.parentNode.childNodes.indexOf(this);
+                if (index !== -1) {
+                    this.parentNode.childNodes.splice(index + 1, 0, ...nodes);
+                }
+            }
+        };
+        if (nodeProto.outerHTML === undefined) {
+            Object.defineProperty(nodeProto, "firstChild", {
+                get() {
+                    return this.childNodes !== undefined ? this.childNodes[0] : undefined;
+                }
+            });
+            Object.defineProperty(nodeProto, "textContent", {
+                get() {
+                    if (this.childNodes !== undefined) {
+                        return this.childNodes.map(node => node.textContent).join("");
+                    } else {
+                        return this.value;
+                    }
+                },
+                set(value) {
+                    this.childNodes = [{ nodeName: "#text", value }];
+                }
+            });
+            Object.defineProperty(nodeProto, "outerHTML", {
+                get() {
+                    let html = "";
+                    if (this.tagName !== undefined) {
+                        html += `<${this.tagName}`;
+                        if (this.attrs !== undefined) {
+                            html += this.attrs.map(attr => ` ${attr.name}="${attr.value}"`).join("");
+                        }
+                        html += ">";
+                    }
+                    if (this.childNodes !== undefined) {
+                        html += this.childNodes.map(node => node.outerHTML).join("");
+                    } else {
+                        if (this.nodeName === "#comment") {
+                            html += `<!--${this.textContent}-->`;
+                        } else if (this.nodeName === "#text") {
+                            html += this.textContent;
+                        } else {
+                            // 
+                        }
+                    }
+                    if (this.tagName !== undefined) {
+                        html += `</${this.tagName}>`;
+                    }
+                    return html;
+                }
+            });
+        }
+        return document;
     }
 }
 
