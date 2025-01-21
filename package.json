@@ -1,13 +1,27 @@
 {
   "name": "@mhtml-to-html/mhtml-to-html-node",
   "version": "1.0.22",
-  "description": "mhtml-to-html",
+  "author": "Gildas Lormeau",
+  "license": "MIT",
+  "description": "Convert MHTML files to HTML files",
   "type": "module",
+  "module": "lib/mod.js",
+  "exports": {
+    ".": "./lib/mod.js"
+  },
   "devDependencies": {
     "eslint": "^9.18.0"
   },
   "dependencies": {
     "glob": "^11.0.1",
     "parse5": "^7.2.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gildas-lormeau/mhtml-to-html.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gildas-lormeau/mhtml-to-html/issues"
+  },
+  "homepage": "https://gildas-lormeau.github.io/mhtml-to-html"
 }
