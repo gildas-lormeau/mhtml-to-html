@@ -120,6 +120,7 @@ class DOMParser {
                                 if (!name.match(/["'>/=]/)) {
                                     value = value.replace(/&/g, "&amp;");
                                     value = value.replace(/"/g, "&quot;");
+                                    value = value.replace(/\u00a0/g, "&nbsp;");
                                     if (namespace) {
                                         if (namespace === "http://www.w3.org/1999/xlink") {
                                             return ` xlink:${name}="${value}"`;
