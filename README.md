@@ -66,16 +66,9 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
   ```
 
   - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
-  
-    - Linux, Unix:
-    ```sh
-    mv mhtml-to-html-node.js mhtml-to-html
-    ```
-
-    - DOS:
-    ```sh
-    move /y mhtml-to-html-node.js mhtml-to-html
-    ```
+  ```sh
+  mv mhtml-to-html-node.js mhtml-to-html
+  ```
 
   - Make `mhtml-to-html` executable (Linux, Unix)
   ```sh
