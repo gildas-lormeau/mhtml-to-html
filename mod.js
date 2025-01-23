@@ -65,8 +65,8 @@ async function convertFile(input, output, config) {
         output += ".html";
     }
     try {
-        const data = await readFile(input);
-        const html = await convert(data, config);
+        const mhtml = await readFile(input);
+        const html = await convert(mhtml, config);
         await writeTextFile(output, html);
     } catch (error) {
         console.error(`Error processing ${input}: ${error.message}`);
