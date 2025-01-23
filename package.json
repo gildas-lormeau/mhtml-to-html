@@ -12,6 +12,7 @@
   "exports": {
     ".": "./lib/mod-node.js"
   },
+  "types": "./lib/mod.d.ts",
   "devDependencies": {
     "eslint": "^9.18.0"
   },
