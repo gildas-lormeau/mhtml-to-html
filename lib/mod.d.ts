@@ -95,7 +95,7 @@ export interface Resource {
     /**
      * Transfer encoding of the resource
      */
-    transferEncoding?: "base64" | "quoted-printable" | "7bit" | "8bit" | "binary";
+    transferEncoding?: "base64" | "quoted-printable" | "7bit" | "8bit";
     /**
      * Content of the resource as text or base64 encoded data
      */
