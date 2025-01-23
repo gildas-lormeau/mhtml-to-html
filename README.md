@@ -40,11 +40,13 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
 ## Install
 
   - Node.js:
+  
   ```sh
   npm install mhtml-to-html
   ```
 
   - Deno:
+  
   ```sh
   deno add jsr:@mhtml-to-html/mhtml-to-html
   ```
@@ -78,11 +80,13 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
   ```
 
   - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
+  
   ```sh
   mv mhtml-to-html-node.js mhtml-to-html
   ```
 
-  - Make `mhtml-to-html` executable (Linux, Unix)
+  - Make `mhtml-to-html` executable
+  
   ```sh
   chmod +x mhtml-to-html
   ```
