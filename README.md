@@ -66,6 +66,7 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
   - Install Deno, see https://deno.com
 
   - Make `mhtml-to-html` executable (Linux, Unix)
+
   ```sh
   chmod +x mhtml-to-html
   ```
@@ -75,6 +76,7 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
   - Install Node.js, see https://nodejs.org
 
   - Install the dependencies
+
   ```sh
   npm install
   ```
