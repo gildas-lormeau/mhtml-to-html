@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
-let expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert;
+let expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, convert;
 
 export { initDependencies, main };
 
 function initDependencies(dependencies) {
-    ({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert } = dependencies);
+    ({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, convert } = dependencies);
 }
 
 async function main() {
@@ -66,8 +66,7 @@ async function convertFile(input, output, config) {
     }
     try {
         const data = await readFile(input);
-        const mhtml = parse(data, config);
-        const html = await convert(mhtml, config);
+        const html = await convert(data, config);
         await writeTextFile(output, html);
     } catch (error) {
         console.error(`Error processing ${input}: ${error.message}`);

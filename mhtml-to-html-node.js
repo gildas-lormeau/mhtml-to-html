@@ -7,14 +7,14 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { Glob, globSync } from "glob";
 
-import { parse, convert } from "./lib/mod-node.js";
+import { convert } from "./lib/mod-node.js";
 import packageInfo from "./package.json" with { type: "json" };
 
 import { initDependencies, main } from "./mod.js";
 
 const args = process.argv.slice(2);
 const moduleVersion = packageInfo.version;
-initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert });
+initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, convert });
 await main();
 
 function expandGlob(pattern) {

@@ -5,12 +5,12 @@
 import { expandGlob } from "jsr:@std/fs";
 import { isGlob } from "jsr:@std/path";
 
-import { parse, convert } from "./lib/mod.js";
+import { convert } from "./lib/mod.js";
 import packageInfo from "./deno.json" with { type: "json" };
 
 import { initDependencies, main } from "./mod.js";
 
 const { args, readFile, writeTextFile, exit } = Deno;
 const moduleVersion = packageInfo.version;
-initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, parse, convert });
+initDependencies({ expandGlob, isGlob, args, readFile, writeTextFile, exit, moduleVersion, convert });
 await main();
