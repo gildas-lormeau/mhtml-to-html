@@ -37,6 +37,18 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
  mhtml-to-html *.mht --enable-scripts
 ```
 
+## Install
+
+  - Node.js:
+  ```sh
+  npm install mhtml-to-html
+  ```
+
+  - Deno:
+  ```sh
+  deno add jsr:@mhtml-to-html/mhtml-to-html
+  ```
+
 ## Install from source
 
 - Install Git, see https://git-scm.com
