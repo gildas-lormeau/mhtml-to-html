@@ -5,7 +5,7 @@
 import { expandGlob } from "jsr:@std/fs";
 import { isGlob } from "jsr:@std/path";
 
-import { convert } from "./lib/mod.js";
+import { convert } from "./lib/mod-deno.js";
 import packageInfo from "./deno.json" with { type: "json" };
 
 import { initDependencies, main } from "./mod.js";
