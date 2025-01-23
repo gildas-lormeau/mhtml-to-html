@@ -93,7 +93,7 @@ export interface Resource {
      */
     contentType: string;
     /**
-     * Transfer encoding of the resource
+     * Transfer encoding of the resource ("binary" resources are automatically converted to "base64")
      */
     transferEncoding?: "base64" | "quoted-printable" | "7bit" | "8bit";
     /**
