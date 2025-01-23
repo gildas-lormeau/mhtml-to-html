@@ -1,5 +1,3 @@
-/// <reference lib="dom" />
-
 /**
  * Convert MHTML to HTML
  * 

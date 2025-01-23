@@ -3,5 +3,14 @@
   "version": "1.0.24",
   "exports": {
     ".": "./lib/mod-deno.js"
+  },
+  "imports": {
+    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49"
+  },
+  "compilerOptions": {
+    "lib": [
+      "es2018",
+      "dom"
+    ]
   }
 }
