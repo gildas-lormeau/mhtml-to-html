@@ -81,7 +81,7 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
   npm install
   ```
 
-  - Linux, Unix
+  - Linux, Unix:
   
     - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
   
@@ -95,7 +95,7 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
     chmod +x mhtml-to-html
     ```
 
-  - Windows
+  - Windows:
   
     - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
 
@@ -108,3 +108,4 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
     ```sh
     move /Y mhtml-to-html-node.bat mhtml-to-html.bat
     ```
+    
