@@ -4,6 +4,14 @@
   "author": "Gildas Lormeau",
   "license": "MIT",
   "description": "JavaScript library for parsing MHTML files and converting them into single HTML files",
+  "keywords": [
+    "mhtml",
+    "html",
+    "single-file",
+    "cli",
+    "parsing",
+    "conversion"
+  ],
   "type": "module",
   "bin": {
     "mhtml-to-html": "./mhtml-to-html-node.js"
