@@ -2,7 +2,8 @@
   "name": "@mhtml-to-html/mhtml-to-html",
   "version": "1.0.25",
   "exports": {
-    ".": "./lib/mod-deno.js"
+    ".": "./lib/mod-deno.js",
+    "./browser": "./lib/mod.js"
   },
   "imports": {
     "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49"
