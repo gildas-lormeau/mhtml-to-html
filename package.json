@@ -18,7 +18,8 @@
   },
   "module": "lib/mod.js",
   "exports": {
-    ".": "./lib/mod-node.js"
+    ".": "./lib/mod-node.js",
+    "./browser": "./lib/mod.js"
   },
   "types": "./lib/mod.d.ts",
   "devDependencies": {
