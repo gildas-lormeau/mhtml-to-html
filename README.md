@@ -81,14 +81,30 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
   npm install
   ```
 
-  - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
+  - Linux, Unix
   
-  ```sh
-  mv mhtml-to-html-node.js mhtml-to-html
-  ```
+    - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
+  
+    ```sh
+    mv mhtml-to-html-node.js mhtml-to-html
+    ```
+  
+    - Make `mhtml-to-html` executable
 
-  - Make `mhtml-to-html` executable
+    ```sh
+    chmod +x mhtml-to-html
+    ```
+
+  - Windows
   
-  ```sh
-  chmod +x mhtml-to-html
-  ```
+    - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
+
+    ```sh
+    move /Y mhtml-to-html-node.js mhtml-to-html
+    ```
+
+    - Replace `mhtml-to-html.bat` with `mhtml-to-html-node.bat`
+  
+    ```sh
+    move /Y mhtml-to-html-node.bat mhtml-to-html.bat
+    ```
