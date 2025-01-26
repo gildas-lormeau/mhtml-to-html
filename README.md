@@ -37,6 +37,10 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
  mhtml-to-html *.mht --enable-scripts
 ```
 
+## Online application
+
+Go to https://gildas-lormeau.github.io/mhtml-to-html.html
+
 ## Install
 
   - Node.js:
