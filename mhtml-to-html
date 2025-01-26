@@ -2,8 +2,6 @@
 
 /// <reference lib="deno.ns" />
 
-/* global Deno */
-
 import { expandGlob } from "jsr:@std/fs";
 import { isGlob } from "jsr:@std/path";
 
