@@ -1,5 +1,7 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-net
 
+/// <reference lib="deno.ns" />
+
 /* global Deno */
 
 import { expandGlob } from "jsr:@std/fs";
