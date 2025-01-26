@@ -1,6 +1,6 @@
 {
   "name": "mhtml-to-html",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "author": "Gildas Lormeau",
   "license": "MIT",
   "description": "JavaScript library for parsing MHTML files and converting them into single HTML files",
@@ -23,7 +23,7 @@
   },
   "types": "./lib/mod.d.ts",
   "devDependencies": {
-    "eslint": "^9.18.0"
+    "eslint": "^9.19.0"
   },
   "dependencies": {
     "glob": "^11.0.1",
