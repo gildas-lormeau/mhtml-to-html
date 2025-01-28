@@ -101,12 +101,6 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
 
   - Windows:
   
-    - Replace `mhtml-to-html` with `mhtml-to-html-node.js`
-
-    ```sh
-    move /Y mhtml-to-html-node.js mhtml-to-html
-    ```
-
     - Replace `mhtml-to-html.bat` with `mhtml-to-html-node.bat`
   
     ```sh
