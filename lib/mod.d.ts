@@ -1,4 +1,19 @@
 /**
+ * Module for converting MHTML to HTML
+ * 
+ * @example
+ * ```js
+ * import { convert } from "mhtml-to-html";
+ * 
+ * const mhtml = `...`;
+ * const html = await convert(mhtml);
+ * console.log(html);
+ * ```
+ * 
+ * @module
+ */
+
+/**
  * Convert MHTML to HTML
  * 
  * @param mhtml the MHTML data to convert to HTML provided as a string or Uint8Array or MHTML object
