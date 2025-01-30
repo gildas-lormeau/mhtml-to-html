@@ -37,7 +37,7 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
  mhtml-to-html *.mht --enable-scripts
 ```
 
-## Online application
+## Convert MHTML Files Online
 
 Go to https://gildas-lormeau.github.io/mhtml-to-html.html
 
@@ -55,7 +55,7 @@ Go to https://gildas-lormeau.github.io/mhtml-to-html.html
   deno add jsr:@mhtml-to-html/mhtml-to-html
   ```
 
-## Install from source
+## Install from Source
 
 - Install Git, see https://git-scm.com
 
@@ -106,4 +106,3 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
     ```sh
     move /Y mhtml-to-html-node.bat mhtml-to-html.bat
     ```
-    
