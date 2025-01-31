@@ -1,6 +1,6 @@
 {
   "name": "@mhtml-to-html/mhtml-to-html",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "exports": {
     ".": "./lib/mod-deno.js",
     "./browser": "./lib/mod.js"
