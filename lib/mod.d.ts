@@ -1,5 +1,5 @@
 /**
- * Module for converting MHTML to html and parsing MHTML data to a structured object representation.
+ * Module for converting MHTML to HTML and parsing MHTML data to a structured object representation.
  * 
  * @author Gildas Lormeau
  * @license MIT
