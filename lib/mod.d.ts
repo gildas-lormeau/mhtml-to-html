@@ -1,16 +1,34 @@
 /**
- * Module for converting MHTML to HTML
+ * Module for converting MHTML to html and parsing MHTML data to a structured object representation.
+ * 
+ * @module mhtml-to-html
+ * @author Gildas Lormeau
+ * @license MIT
  * 
  * @example
+ * Convert MHTML to HTML
  * ```js
  * import { convert } from "mhtml-to-html";
  * 
- * const mhtml = `...`;
+ * const mhtml = `...`; // or new Uint8Array([...])
  * const html = await convert(mhtml);
- * console.log(html);
+ * console.log(html); // html content
  * ```
  * 
- * @module
+ * @example
+ * Parse MHTML data
+ * ```js
+ * import { parse } from "mhtml-to-html";
+ * 
+ * const data = `...`; // or new Uint8Array([...])
+ * const mhtml = parse(data);
+ * console.log(mhtml); // { headers, frames, resources, index }
+ * // convert mhtml to html
+ * const html = await convert(mhtml);
+ * console.log(html); // html content
+ * ```
+ * 
+ * @module mhtml-to-html
  */
 
 /**
