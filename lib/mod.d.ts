@@ -7,7 +7,9 @@
  * @example
  * Convert MHTML to HTML
  * ```js
- * import { convert } from "mhtml-to-html";
+ * import { convert } from "mhtml-to-html"; // Node.js
+ * // import { convert } from "mhtml-to-html/deno"; // Deno
+ * // import { convert } from "mhtml-to-html/browser"; // Browser
  * 
  * const mhtml = `...`; // or new Uint8Array([...])
  * const html = await convert(mhtml);
@@ -18,6 +20,8 @@
  * Parse MHTML data
  * ```js
  * import { parse } from "mhtml-to-html";
+ * // import { parse } from "mhtml-to-html/deno"; // Deno
+ * // import { parse } from "mhtml-to-html/browser"; // Browser
  * 
  * const data = `...`; // or new Uint8Array([...])
  * const mhtml = parse(data);
