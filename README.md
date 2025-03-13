@@ -57,10 +57,16 @@ Go to https://gildas-lormeau.github.io/mhtml-to-html.html
 
 ## Import
 
-  - Server-side:
+  - Node.js:
   
   ```js
   import { convert } from "mhtml-to-html";
+  ```
+  
+  - Deno:
+  
+  ```js
+  import { convert } from "mhtml-to-html/deno";
   ```
 
   - Client-side:
