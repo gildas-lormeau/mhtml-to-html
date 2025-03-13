@@ -43,30 +43,36 @@ Go to https://gildas-lormeau.github.io/mhtml-to-html.html
 
 ## Install
 
-  - Node.js:
-  
-  ```sh
-  npm install mhtml-to-html
-  ```
-
-  - Deno:
+  - Deno via JSR:
   
   ```sh
   deno add jsr:@mhtml-to-html/mhtml-to-html
   ```
 
+  - Node.js/Deno via NPM:
+  
+  ```sh
+  npm install mhtml-to-html
+  ```
+
 ## Import
+
+  - Deno via JSR:
+
+  ```js
+  import { convert } from "@mhtml-to-html/mhtml-to-html";
+  ```
+
+  - Deno via NPM:
+  
+  ```js
+  import { convert } from "mhtml-to-html/deno";
+  ```
 
   - Node.js:
   
   ```js
   import { convert } from "mhtml-to-html";
-  ```
-  
-  - Deno:
-  
-  ```js
-  import { convert } from "mhtml-to-html/deno";
   ```
 
   - Client-side:

@@ -8,7 +8,8 @@
  * Convert MHTML to HTML
  * ```js
  * import { convert } from "mhtml-to-html"; // Node.js
- * // import { convert } from "mhtml-to-html/deno"; // Deno
+ * // import { convert } from "@mhtml-to-html/mhtml-to-html"; // Deno via JSR
+ * // import { convert } from "mhtml-to-html/deno"; // Deno via NPM
  * // import { convert } from "mhtml-to-html/browser"; // Browser
  * 
  * const mhtml = `...`; // or new Uint8Array([...])
@@ -20,7 +21,8 @@
  * Parse MHTML data
  * ```js
  * import { parse } from "mhtml-to-html"; // Node.js
- * // import { parse } from "mhtml-to-html/deno"; // Deno
+ * // import { parse } from "@mhtml-to-html/mhtml-to-html"; // Deno via JSR
+ * // import { parse } from "mhtml-to-html/deno"; // Deno via NPM
  * // import { parse } from "mhtml-to-html/browser"; // Browser
  * 
  * const data = `...`; // or new Uint8Array([...])
