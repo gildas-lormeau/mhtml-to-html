@@ -55,6 +55,20 @@ Go to https://gildas-lormeau.github.io/mhtml-to-html.html
   deno add jsr:@mhtml-to-html/mhtml-to-html
   ```
 
+## Import
+
+  - Server-side:
+  
+  ```js
+  import { convert } from "mhtml-to-html";
+  ```
+
+  - Client-side:
+
+  ```js
+  import { convert } from "mhtml-to-html/browser";
+  ```
+
 ## Install from Source
 
 - Install Git, see https://git-scm.com
