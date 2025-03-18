@@ -20,7 +20,7 @@
  * @example
  * Parse MHTML data
  * ```js
- * import { parse } from "mhtml-to-html"; // Node.js
+ * import { parse,  convert } from "mhtml-to-html"; // Node.js
  * // import { parse, convert } from "@mhtml-to-html/mhtml-to-html"; // Deno via JSR
  * // import { parse, convert } from "mhtml-to-html/deno"; // Deno via NPM
  * // import { parse, convert } from "mhtml-to-html/browser"; // Browser
