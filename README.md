@@ -39,7 +39,7 @@ mhtml-to-html <input>... [--output <output>] [--help] [--enable-scripts] [--fetc
 
 ## Convert MHTML Files Online
 
-Go to https://gildas-lormeau.github.io/mhtml-to-html.html
+Use Mhtml Wizard to view and convert MHTML files online, see https://erwannlc.github.io/mhtml-wizard
 
 ## Install
 
