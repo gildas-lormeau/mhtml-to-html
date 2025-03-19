@@ -1,6 +1,6 @@
 {
   "name": "mhtml-to-html",
-  "version": "1.0.35",
+  "version": "2.0.0",
   "author": "Gildas Lormeau",
   "license": "MIT",
   "description": "JavaScript library for parsing MHTML files and converting them into single HTML files",
