@@ -1,9 +1,7 @@
 #!/usr/bin/env -S node
 
-// deno-lint-ignore-file no-process-globals
-
-/* global process, TextEncoder */
-
+/* global TextEncoder */
+import process from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
 import { Glob, globSync } from "glob";
 
