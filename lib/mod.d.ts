@@ -13,12 +13,12 @@
  * // import { convert } from "mhtml-to-html/browser"; // Browser
  * 
  * const mhtml = `...`; // or new Uint8Array([...])
- * const html = await convert(mhtml);
- * console.log(html); // html content
+ * const { data, title, favicons } = await convert(mhtml);
+ * console.log(data); // HTML content
  * ```
  * 
  * @example
- * Parse MHTML data
+ * Parse MHTML dataFF
  * ```js
  * import { parse, convert } from "mhtml-to-html"; // Node.js
  * // import { parse, convert } from "@mhtml-to-html/mhtml-to-html"; // Deno via JSR
@@ -29,8 +29,8 @@
  * const mhtml = parse(data);
  * console.log(mhtml); // { headers, frames, resources, index }
  * // convert mhtml to html
- * const html = await convert(mhtml);
- * console.log(html); // html content
+ * const { data, title, favicons } = await convert(mhtml);
+ * console.log(data); // HTML content
  * ```
  * 
  * @module mhtml-to-html
@@ -41,9 +41,9 @@
  * 
  * @param mhtml the MHTML data to convert to HTML provided as a string or Uint8Array or MHTML object
  * @param config optional configuration object
- * @returns the converted HTML
+ * @returns the converted HTML, the title of the page and the favicons
  */
-export function convert(mhtml: MHTML | string | Uint8Array, config?: ConvertConfig): Promise<string>;
+export function convert(mhtml: MHTML | string | Uint8Array, config?: ConvertConfig): Promise<PageData>;
 
 /**
  * Parse MHTML data
@@ -138,4 +138,43 @@ export interface Resource {
      * Content of the resource as text or base64 encoded data
      */
     data: string;
+}
+
+/**
+ * Page data structure
+ */
+export interface PageData {
+    /**
+     * HTML content of the page
+     */
+    data: string;
+    /**
+     * Title of the page
+     */
+    title?: string;
+    /**
+     * Favicons
+     */
+    favicons?: {
+        /**
+         * URL of the favicon
+         */
+        href: string,
+        /**
+         * Original URL of the favicon
+         */
+        originalHref?: string,
+        /**
+         * Media type of the favicon
+         */
+        media?: string,
+        /**
+         * Type of the favicon
+         */
+        type?: string,
+        /**
+         * Sizes of the favicon
+         */
+        sizes?: string
+    }[];
 }
