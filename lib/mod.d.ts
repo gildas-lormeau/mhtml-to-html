@@ -18,7 +18,7 @@
  * ```
  * 
  * @example
- * Parse MHTML dataFF
+ * Parse MHTML data
  * ```js
  * import { parse, convert } from "mhtml-to-html"; // Node.js
  * // import { parse, convert } from "@mhtml-to-html/mhtml-to-html"; // Deno via JSR
