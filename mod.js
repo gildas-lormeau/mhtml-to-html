@@ -10,9 +10,9 @@ function initDependencies(dependencies) {
 
 async function main() {
     const positionals = args;
-    const inputValues = positionals.filter(arg => arg !== "--output" && arg !== "--enable-scripts" && arg !== "--fetch-missing-resources");
-    const input = inputValues[0] || "";
     const output = positionals.includes("--output") ? positionals[positionals.indexOf("--output") + 1] || "" : undefined;
+    const inputValues = positionals.filter(arg => arg !== "--output" && arg !== output && arg !== "--enable-scripts" && arg !== "--fetch-missing-resources");
+    const input = inputValues[0] || "";
     const enableScripts = positionals.includes("--enable-scripts");
     const fetchMissingResources = positionals.includes("--fetch-missing-resources");
     const version = positionals.includes("--version");
