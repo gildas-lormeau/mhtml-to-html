@@ -24,11 +24,11 @@
   },
   "types": "./lib/mod.d.ts",
   "devDependencies": {
-    "eslint": "^9.22.0"
+    "eslint": "^9.38.0"
   },
   "dependencies": {
-    "glob": "^11.0.1",
-    "parse5": "^7.2.1"
+    "glob": "^11.0.3",
+    "parse5": "^8.0.0"
   },
   "scripts": {
     "build": "./build.sh"
