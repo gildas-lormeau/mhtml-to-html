@@ -27,7 +27,7 @@
     "eslint": "^9.38.0"
   },
   "dependencies": {
-    "glob": "^11.0.3",
+    "glob": "^13.0.6",
     "parse5": "^8.0.0"
   },
   "scripts": {
