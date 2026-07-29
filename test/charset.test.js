@@ -181,6 +181,24 @@ test("every charset declaration is removed, not just the first", async () => {
     assert.doesNotMatch(data, /charset=windows-1251/i, "a declaration of the original charset survived");
 });
 
+test("a charset declared both by a meta charset and a meta http-equiv leaves nothing behind", async () => {
+    // the second declaration used to force the raw bytes to be read again, and the re-reading
+    // brought back the meta charset element the first pass had already removed
+    const raw = concatBytes(
+        `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
+        `--${BOUNDARY}\r\nContent-Type: text/html\r\n`,
+        `Content-Transfer-Encoding: 8bit\r\nContent-Location: ${LOCATION}\r\n\r\n`,
+        "<html><head><meta charset=\"windows-1251\">",
+        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1251\">",
+        "</head><body><p>",
+        encodeSingleByteCharset(HELLO, "windows-1251"),
+        `</p></body></html>\r\n--${BOUNDARY}--\r\n`
+    );
+    const { data } = await convert(raw);
+    assert.ok(data.includes(HELLO), "the body was not decoded");
+    assert.doesNotMatch(data, /windows-1251/i, "a declaration of the original charset survived");
+});
+
 test("an unknown charset label falls back to UTF-8 instead of aborting", async () => {
     const raw = concatBytes(
         `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
