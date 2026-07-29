@@ -86,6 +86,30 @@ test("a boundary at the maximum length is handled", async () => {
     assert.ok(data.includes("RECOVERED"));
 });
 
+// An archive can end on the blank line that closes a part's headers, leaving that part with no body
+// at all — a file truncated exactly there, which is how MimeOLE's own test fixture is shaped. The
+// line terminator matters: a bare LF makes that last line one byte long, and a parser that stops a
+// byte short of the end drops the part, and with it the page. These use LF throughout, as the
+// writers that produce this shape do.
+test("a file that ends on the blank line closing a part's headers keeps the part", async () => {
+    const raw = concatBytes(
+        "MIME-Version: 1.0\nContent-Type: multipart/related; boundary=\"----=_B\"\n\n",
+        `------=_B\nContent-Type: text/html\nContent-Location: ${LOCATION}\n\n`);
+    assert.equal(Object.keys(parse(raw).resources).length, 1, "the part was dropped");
+    assert.match((await convert(raw)).data, /<html/i, "no document was produced");
+});
+
+test("a nested multipart is read even when the file stops right after its headers", async () => {
+    // multipart/alternative inside multipart/related, as MimeOLE writes it, cut off where the
+    // innermost body would have started
+    const raw = concatBytes(
+        "MIME-Version: 1.0\nContent-Type: multipart/related;\n\tboundary=\"----=_OUTER\"\n\n",
+        "------=_OUTER\nContent-Type: multipart/alternative;\n\tboundary=\"----=_INNER\"\n\n",
+        "------=_INNER\nContent-Type: text/html;\n\tcharset=\"x-user-defined\"\n",
+        "Content-Transfer-Encoding: quoted-printable\n\n");
+    assert.match((await convert(raw)).data, /<html/i, "the innermost part was lost");
+});
+
 test("a file cut off in the middle of a part keeps what it had", async () => {
     const raw = concatBytes(
         "MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=\"----=_B\"\r\n\r\n",
