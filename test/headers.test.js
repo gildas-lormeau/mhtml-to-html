@@ -91,6 +91,60 @@ test("bytes that no charset can repair do not break the conversion", async () =>
     assert.ok(info.additionalProperty.value.includes(REPLACEMENT_CHARACTER));
 });
 
+// A long non-ASCII header is folded into several encoded words, and a writer may cut a multi-byte
+// character in half to do it — Chrome does. The halves only mean something once they are put back
+// together, so the words have to be decoded as a group rather than one by one.
+const quotedPrintableWord = (bytes, charset) =>
+    `=?${charset}?Q?${Array.from(bytes, byte => "=" + byte.toString(16).toUpperCase().padStart(2, "0")).join("")}?=`;
+const base64Word = (bytes, charset) => `=?${charset}?B?${encodeBase64(bytes, { lineLength: 0 })}?=`;
+
+// A document whose only notable feature is its Subject, so a test can put any words in it.
+function withSubject(subject) {
+    return concatBytes(
+        "From: <Saved by Test>\r\n", `Subject: ${subject}\r\n`, "MIME-Version: 1.0\r\n",
+        `Content-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
+        `--${BOUNDARY}\r\nContent-Type: text/html; charset="utf-8"\r\nContent-Transfer-Encoding: 8bit\r\n`,
+        `Content-Location: ${LOCATION}\r\n\r\n<html><body><p>body</p></body></html>\r\n--${BOUNDARY}--\r\n`
+    );
+}
+
+const subjectOf = async raw => pageInfo((await convert(raw)).data).name;
+const SPLIT = "イオン";
+const SPLIT_BYTES = encodeUtf8(SPLIT);
+
+for (const [name, word] of [["quoted-printable", quotedPrintableWord], ["base64", base64Word]]) {
+    test(`a character split across two ${name} words is put back together`, async () => {
+        // the cut falls inside the second character, so neither word decodes on its own
+        const subject = word(SPLIT_BYTES.slice(0, 5), "utf-8") + "\r\n " + word(SPLIT_BYTES.slice(5), "utf-8");
+        assert.equal(await subjectOf(withSubject(subject)), SPLIT);
+    });
+}
+
+test("a character split across three words is put back together", async () => {
+    const subject = [SPLIT_BYTES.slice(0, 4), SPLIT_BYTES.slice(4, 5), SPLIT_BYTES.slice(5)]
+        .map(bytes => quotedPrintableWord(bytes, "utf-8")).join("\r\n ");
+    assert.equal(await subjectOf(withSubject(subject)), SPLIT);
+});
+
+test("adjacent words in different charsets keep their own charset", async () => {
+    const subject = base64Word(encodeSingleByteCharset(SAVED, "koi8-r"), "koi8-r") +
+        " " + base64Word(encodeSingleByteCharset(TITLE, "windows-1251"), "windows-1251");
+    assert.equal(await subjectOf(withSubject(subject)), SAVED + TITLE);
+});
+
+test("text around and between encoded words is preserved", async () => {
+    const word = base64Word(encodeUtf8(SPLIT), "utf-8");
+    assert.equal(await subjectOf(withSubject(`before ${word} after`)), `before ${SPLIT} after`);
+});
+
+test("a single encoded word is unaffected", async () => {
+    assert.equal(await subjectOf(withSubject(base64Word(encodeUtf8(TITLE), "utf-8"))), TITLE);
+});
+
+test("a malformed encoded word is left as it was written", async () => {
+    assert.equal(await subjectOf(withSubject("=?utf-8?B?no-terminator")), "=?utf-8?B?no-terminator");
+});
+
 test("parse() exposes the documented shape with the headers decoded", () => {
     const parsed = parse(build({ charset: "koi8-r" }));
     for (const key of ["headers", "frames", "resources", "index"]) {
