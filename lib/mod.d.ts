@@ -78,10 +78,18 @@ export interface ConvertConfig {
     fetchMissingResources?: boolean;
     /**
      * Fetch implementation to use for fetching resources
-     * 
+     *
      * @default globalThis.fetch
      */
     fetch?: typeof fetch;
+    /**
+     * Number of times a resource is requested again when the failure looks transient (a network
+     * error, a "429 Too Many Requests" or a server error). Retries are delayed with an exponential
+     * backoff, or by the delay requested by the "Retry-After" header when present.
+     *
+     * @default 2
+     */
+    maxRetries?: number;
 }
 
 /**
