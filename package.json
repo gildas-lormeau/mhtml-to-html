@@ -32,7 +32,8 @@
     "parse5": "^8.0.1"
   },
   "scripts": {
-    "build": "./build.sh"
+    "build": "./build.sh",
+    "lint": "eslint"
   },
   "repository": {
     "type": "git",
