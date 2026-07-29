@@ -163,6 +163,24 @@ test("a byte order mark outranks an @charset rule that disagrees", async () => {
     assert.ok(!data.includes("@charset"), "the rule was left in the output");
 });
 
+test("every charset declaration is removed, not just the first", async () => {
+    // a page assembled from several templates declares its charset once per template, and one left
+    // behind would describe the bytes as they were written rather than the UTF-8 they became
+    const raw = concatBytes(
+        `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
+        `--${BOUNDARY}\r\nContent-Type: text/html; charset="windows-1251"\r\n`,
+        `Content-Transfer-Encoding: 8bit\r\nContent-Location: ${LOCATION}\r\n\r\n`,
+        "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1251\">",
+        "<meta http-equiv=\"content-type\" name=\"other\" content=\"text/html; charset=windows-1251\">",
+        "</head><body><p>",
+        encodeSingleByteCharset(HELLO, "windows-1251"),
+        `</p></body></html>\r\n--${BOUNDARY}--\r\n`
+    );
+    const { data } = await convert(raw);
+    assert.ok(data.includes(HELLO), "the body was not decoded");
+    assert.doesNotMatch(data, /charset=windows-1251/i, "a declaration of the original charset survived");
+});
+
 test("an unknown charset label falls back to UTF-8 instead of aborting", async () => {
     const raw = concatBytes(
         `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
