@@ -27,9 +27,21 @@ const META_CONTENT_TYPE = /<meta[^>]+http-equiv=["']?content-type["']?[^>]*>/gi;
 const SAMPLE_SIZE = 5;
 
 const updating = env.UPDATE_SNAPSHOTS === "1";
-const fileNames = existsSync(FILES_DIRECTORY)
-    ? readdirSync(FILES_DIRECTORY).filter(name => MHTML_EXTENSION.test(name)).sort()
-    : [];
+const fileNames = existsSync(FILES_DIRECTORY) ? listArchives(FILES_DIRECTORY) : [];
+
+// the corpus may be organized in sub-directories, one per producer for instance. A file is known by
+// its path relative to test/files, so the baseline and the test names say where it came from.
+function listArchives(directory, prefix = "") {
+    const names = [];
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        if (entry.isDirectory()) {
+            names.push(...listArchives(join(directory, entry.name), `${prefix}${entry.name}/`));
+        } else if (MHTML_EXTENSION.test(entry.name)) {
+            names.push(prefix + entry.name);
+        }
+    }
+    return names.sort();
+}
 
 if (!fileNames.length) {
     test("the corpus is checked when test/files contains MHTML documents", { skip: "test/files is empty" }, () => { });
@@ -71,7 +83,9 @@ if (!fileNames.length) {
         if (baseline === undefined || updating) {
             writeFileSync(SNAPSHOT_PATH, JSON.stringify(recorded, null, 1));
         }
-        const missing = baseline === undefined ? [] : Object.keys(baseline).filter(name => !(name in recorded));
+        const missing = baseline === undefined || updating
+            ? []
+            : Object.keys(baseline).filter(name => !(name in recorded));
         assert.deepEqual(missing, [], "the baseline refers to files that are no longer present; " +
             "run again with UPDATE_SNAPSHOTS=1 to accept");
     });
