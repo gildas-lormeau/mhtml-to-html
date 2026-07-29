@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parse, convert } from "./helpers/lib.js";
-import { concatBytes } from "./helpers/mhtml.js";
+import { concatBytes, encodeBase64, encodeSingleByteCharset } from "./helpers/mhtml.js";
 
 const LOCATION = "https://example.invalid/a";
 const DOCUMENT = "<html><body><p>RECOVERED</p></body></html>";
@@ -137,6 +137,18 @@ test("an archive holding only an image becomes a page showing it", async () => {
 test("an archive holding only plain text becomes a page showing it", async () => {
     const { data } = await convert(singlePart("text/plain", "Hello World"));
     assert.ok(data.includes("<pre>Hello World</pre>"), "the text was not presented");
+});
+
+test("plain text carried as base64 is decoded before being shown", async () => {
+    // only documents and stylesheets are decoded at parse time; the base64 used to reach the page
+    const { data } = await convert(singlePart("text/plain", encodeBase64("Hello World"), "base64"));
+    assert.ok(data.includes("<pre>Hello World</pre>"), "the base64 was shown instead of the text");
+});
+
+test("base64 plain text declaring a charset is decoded with it", async () => {
+    const { data } = await convert(singlePart("text/plain; charset=windows-1251",
+        encodeBase64(encodeSingleByteCharset("Привет", "windows-1251")), "base64"));
+    assert.ok(data.includes("<pre>Привет</pre>"), "the text was not decoded with its charset");
 });
 
 test("text that looks like markup is shown, not interpreted", async () => {
