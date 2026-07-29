@@ -111,6 +111,58 @@ test("a base64 part mislabeled as text is left byte-exact", async () => {
     assert.deepEqual(Uint8Array.from(decodeResourceData(resource), character => character.charCodeAt(0)), jpeg);
 });
 
+// A byte order mark is written by whatever produced the bytes, so it outranks every description of
+// them added afterwards. Stylesheets are where it shows: a writer that saves them as UTF-16 declares
+// no charset at all, and read as UTF-8 they come out with a NUL between every letter.
+const NUL = "\u0000";
+
+function encodeUtf16(value, littleEndian) {
+    const bytes = new Uint8Array(value.length * 2 + 2);
+    const view = new DataView(bytes.buffer);
+    view.setUint16(0, 0xFEFF, littleEndian);
+    for (let index = 0; index < value.length; index++) {
+        view.setUint16(index * 2 + 2, value.charCodeAt(index), littleEndian);
+    }
+    return bytes;
+}
+
+function pageLinkingStylesheet(stylesheetHeaders, stylesheetBody) {
+    return concatBytes(
+        `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
+        `--${BOUNDARY}\r\nContent-Type: text/html; charset=utf-8\r\nContent-Transfer-Encoding: 8bit\r\n`,
+        `Content-Location: ${LOCATION}\r\n\r\n`,
+        "<html><head><link rel=\"stylesheet\" href=\"s.css\"></head><body>x</body></html>\r\n",
+        `--${BOUNDARY}\r\n${stylesheetHeaders}\r\n`,
+        "Content-Location: https://example.invalid/s.css\r\n\r\n",
+        stylesheetBody,
+        `\r\n--${BOUNDARY}--\r\n`
+    );
+}
+
+for (const [name, littleEndian] of [["little-endian", true], ["big-endian", false]]) {
+    test(`a ${name} UTF-16 stylesheet is decoded by its byte order mark`, async () => {
+        const { data } = await convert(pageLinkingStylesheet("Content-Type: text/css",
+            encodeUtf16("p{color:red}", littleEndian)));
+        assert.ok(data.includes("p{color:red}"), "the stylesheet was not decoded with its byte order mark");
+        assert.ok(!data.includes(REPLACEMENT_CHARACTER), "the mark itself was read as text");
+        assert.ok(!data.includes(NUL), "the sheet was read one byte at a time");
+    });
+}
+
+test("a byte order mark outranks the charset the part declares", async () => {
+    // the header records what someone believed; the mark is the bytes saying what they are
+    const { data } = await convert(pageLinkingStylesheet("Content-Type: text/css; charset=\"windows-1251\"",
+        encodeUtf16("p{color:red}", true)));
+    assert.ok(data.includes("p{color:red}"), "the declared charset was preferred over the mark");
+});
+
+test("a byte order mark outranks an @charset rule that disagrees", async () => {
+    const { data } = await convert(pageLinkingStylesheet("Content-Type: text/css",
+        encodeUtf16("@charset \"koi8-r\";p{color:red}", true)));
+    assert.ok(data.includes("p{color:red}"), "the sheet was read again with the charset it named");
+    assert.ok(!data.includes("@charset"), "the rule was left in the output");
+});
+
 test("an unknown charset label falls back to UTF-8 instead of aborting", async () => {
     const raw = concatBytes(
         `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
