@@ -132,3 +132,34 @@ git clone https://github.com/gildas-lormeau/mhtml-to-html.git
     ```sh
     move /Y mhtml-to-html-node.bat mhtml-to-html.bat
     ```
+
+## Tests
+
+The tests build the MHTML documents they need, so they run on a fresh clone without any sample file.
+
+- Node.js:
+
+```sh
+npm test
+```
+
+- Deno:
+
+```sh
+deno task test
+```
+
+### Testing against your own files
+
+Drop any `.mht`/`.mhtml` files into `test/files` and they are converted too. Because these files are
+not part of the repository, the tests do not look at what is inside them: they check what must be
+true of any document, then compare the result with the previous run.
+
+That baseline is written to `test/snapshots.json` the first time, and compared afterwards. When a
+change to the output is intended, record it again:
+
+```sh
+UPDATE_SNAPSHOTS=1 npm test
+```
+
+`test/files` and the baseline are ignored by Git.

@@ -33,7 +33,9 @@
   },
   "scripts": {
     "build": "./build.sh",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test \"test/*.test.js\"",
+    "test:deno": "deno test --no-check --allow-read --allow-write --allow-env test/"
   },
   "repository": {
     "type": "git",

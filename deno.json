@@ -8,6 +8,9 @@
   "imports": {
     "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56"
   },
+  "tasks": {
+    "test": "deno test --no-check --allow-read --allow-write --allow-env test/"
+  },
   "compilerOptions": {
     "lib": [
       "es2018",
