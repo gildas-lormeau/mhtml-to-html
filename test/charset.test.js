@@ -111,6 +111,24 @@ test("a base64 part mislabeled as text is left byte-exact", async () => {
     assert.deepEqual(Uint8Array.from(decodeResourceData(resource), character => character.charCodeAt(0)), jpeg);
 });
 
+test("a part kept encoded keeps its declared charset in the data URI it becomes", async () => {
+    // the bytes were not transcoded, so relabeling them utf-8 would put a lie in the URI; the
+    // quotes around the value cannot go into a URL, though, so they are dropped
+    const text = encodeSingleByteCharset("Привет", "windows-1251");
+    const raw = concatBytes(
+        `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
+        `--${BOUNDARY}\r\nContent-Type: text/html\r\nContent-Transfer-Encoding: 8bit\r\n`,
+        `Content-Location: ${LOCATION}\r\n\r\n<html><body><img src="t.txt"></body></html>\r\n`,
+        `--${BOUNDARY}\r\nContent-Type: text/plain; charset="windows-1251"\r\nContent-Transfer-Encoding: base64\r\n`,
+        "Content-Location: https://example.invalid/t.txt\r\n\r\n",
+        encodeBase64(text),
+        `\r\n--${BOUNDARY}--\r\n`
+    );
+    const { data } = await convert(raw);
+    assert.ok(data.includes(`data:text/plain;charset=windows-1251;base64,${encodeBase64(text, { lineLength: 0 })}`),
+        "the charset the bytes were written in was not kept in the data URI");
+});
+
 // A byte order mark is written by whatever produced the bytes, so it outranks every description of
 // them added afterwards. Stylesheets are where it shows: a writer that saves them as UTF-16 declares
 // no charset at all, and read as UTF-8 they come out with a NUL between every letter.
