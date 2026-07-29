@@ -6,7 +6,7 @@
     "./browser": "./lib/mod.js"
   },
   "imports": {
-    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49"
+    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56"
   },
   "compilerOptions": {
     "lib": [
