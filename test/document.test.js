@@ -214,10 +214,11 @@ test("a stylesheet declared with several rel values is left as a link", async ()
     assert.match(head, /<link[^>]*s\.css/, "the link was removed without being inlined");
 });
 
-test("an archive with no document is rejected with a clear error", async () => {
+test("an archive with nothing that can be shown is rejected with a clear error", async () => {
+    // an image or a text file would be presented as a document instead, see malformed.test.js
     const raw = concatBytes(
         "MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=\"----=_B\"\r\n\r\n",
-        "-----=_B\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\n",
-        `Content-Location: ${IMAGE_LOCATION}\r\n\r\n${PNG_BASE64}\r\n----=_B--\r\n`);
+        "------=_B\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n",
+        `Content-Location: ${IMAGE_LOCATION}\r\n\r\n${PNG_BASE64}\r\n------=_B--\r\n`);
     await assert.rejects(() => convert(raw), /Index page not found/);
 });
