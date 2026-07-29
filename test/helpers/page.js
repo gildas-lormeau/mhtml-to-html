@@ -8,8 +8,8 @@ export { ORIGIN, DOCUMENT_LOCATION, page, resource };
 const ORIGIN = "https://example.com";
 const DOCUMENT_LOCATION = `${ORIGIN}/`;
 
-function resource(location, contentType, body) {
-    return [`--${BOUNDARY}`, `Content-Type: ${contentType}`, "Content-Transfer-Encoding: 8bit",
+function resource(location, contentType, body, transferEncoding = "8bit") {
+    return [`--${BOUNDARY}`, `Content-Type: ${contentType}`, `Content-Transfer-Encoding: ${transferEncoding}`,
         `Content-Location: ${location}`, "", body].join("\r\n");
 }
 
