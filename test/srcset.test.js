@@ -29,6 +29,12 @@ test("density descriptors survive the round trip", async () => {
     assert.equal(result, `${uri(SMALL)} 1x, ${uri(LARGE)} 2x`);
 });
 
+test("a density of zero survives the round trip", async () => {
+    // the spec only rejects a density below zero, and a falsy check used to drop the descriptor
+    const result = await srcsetOf("a.png 0x, b.png 2x", [part("a.png", SMALL), part("b.png", LARGE)]);
+    assert.equal(result, `${uri(SMALL)} 0x, ${uri(LARGE)} 2x`);
+});
+
 test("a candidate with no descriptor is kept without one", async () => {
     assert.equal(await srcsetOf("a.png", [part("a.png", SMALL)]), uri(SMALL));
 });
