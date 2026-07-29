@@ -90,6 +90,12 @@ export interface ConvertConfig {
      * @default 2
      */
     maxRetries?: number;
+    /**
+     * Maximum number of resources requested at the same time
+     *
+     * @default 16
+     */
+    maxParallelRequests?: number;
 }
 
 /**
