@@ -152,6 +152,14 @@ test("a stylesheet with no title is still inlined as a style element", async () 
     assert.ok(!/<link[^>]*href="data:text\/css/.test(head), "a persistent sheet was left as a link");
 });
 
+test("a titled style element keeps its title so the set keeps working", async () => {
+    // an inline style element carrying a title belongs to a style set exactly like a titled link
+    const head = await headOf({
+        head: "<style title=\"Light\">p{color:red}</style>"
+    });
+    assert.match(head, /<style[^>]*title="Light"/, "the name of the set was lost");
+});
+
 test("the url() references of a stylesheet kept as a link are still rewritten", async () => {
     const head = await headOf({
         head: "<link rel=\"alternate stylesheet\" title=\"Dark\" href=\"s.css\">",
