@@ -61,6 +61,39 @@ for (const charset of CHARSETS) {
     }
 }
 
+// The CJK codepages are the other half of the archives still in circulation. They cannot be built
+// with encodeSingleByteCharset, so the bytes are written out and the text they stand for with them.
+// ISO-2022-JP matters most: it is stateful, and its escape sequences have to survive whatever
+// transfer encoding carries them.
+const MULTI_BYTE_CHARSETS = [
+    { charset: "shift_jis", bytes: [0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA], text: "日本語" },
+    { charset: "euc-jp", bytes: [0xC6, 0xFC, 0xCB, 0xDC], text: "日本" },
+    { charset: "gb2312", bytes: [0xD6, 0xD0, 0xCE, 0xC4], text: "中文" },
+    { charset: "big5", bytes: [0xA4, 0xA4, 0xA4, 0xE5], text: "中文" },
+    { charset: "euc-kr", bytes: [0xC7, 0xD1, 0xB1, 0xB9], text: "한국" },
+    { charset: "iso-2022-jp", bytes: [0x1B, 0x24, 0x42, 0x46, 0x7C, 0x4B, 0x5C, 0x1B, 0x28, 0x42], text: "日本" }
+];
+
+for (const { charset, bytes, text } of MULTI_BYTE_CHARSETS) {
+    for (const encoding of Object.keys(ENCODINGS)) {
+        test(`${charset} carried as ${encoding}`, async () => {
+            const document = concatBytes(
+                "<html><head><title>", Uint8Array.from(bytes), "</title></head><body><p>",
+                Uint8Array.from(bytes), "</p></body></html>");
+            const raw = concatBytes(
+                `MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${BOUNDARY}"\r\n\r\n`,
+                `--${BOUNDARY}\r\nContent-Type: text/html; charset="${charset}"\r\n`,
+                `Content-Transfer-Encoding: ${encoding}\r\nContent-Location: ${LOCATION}\r\n\r\n`,
+                ENCODINGS[encoding](document),
+                `\r\n--${BOUNDARY}--\r\n`);
+            const { data, title } = await convert(raw);
+            assert.ok(data.includes(text), `the body was not decoded as ${charset}`);
+            assert.equal(title, text, "the title was not decoded");
+            assert.ok(!data.includes(REPLACEMENT_CHARACTER), "the content was decoded with the wrong charset");
+        });
+    }
+}
+
 test("a base64 part mislabeled as text is left byte-exact", async () => {
     // some writers give every part a text/* type; decoding such a part as text would corrupt it
     const jpeg = Uint8Array.from([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0xFF, 0xDB]);
