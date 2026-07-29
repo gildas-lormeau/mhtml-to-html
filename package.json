@@ -24,6 +24,7 @@
   },
   "types": "./lib/mod.d.ts",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "eslint": "^10.8.0"
   },
   "dependencies": {
