@@ -24,18 +24,56 @@ test("a boundary that is not the one the body uses is recovered", async () => {
     assert.ok(data.includes("RECOVERED"), "the document was lost");
 });
 
-test("a declared boundary that appears nowhere is reported, not crashed on", async () => {
-    const raw = concatBytes(
-        "MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=\"----=_NEVER\"\r\n\r\n",
-        `Content-Type: text/html\r\nContent-Location: ${LOCATION}\r\n\r\n${DOCUMENT}\r\n`);
-    await assert.rejects(() => convert(raw), /Index page not found/);
+// When the delimiters a multipart document promised never turn up, what follows the top-level
+// headers is all there is. The container type says nothing about it, so the body speaks for itself:
+// it is either the headers of the one part left, or its content already.
+const noBoundary = body => concatBytes(
+    "MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=\"----=_NEVER\"\r\n\r\n", body);
+
+test("a declared boundary that appears nowhere leaves a body that is read on its own", async () => {
+    const { data } = await convert(noBoundary(
+        `Content-Type: text/html\r\nContent-Location: ${LOCATION}\r\n\r\n${DOCUMENT}\r\n`));
+    assert.ok(data.includes("RECOVERED"), "the part left behind was lost");
 });
 
-test("an empty boundary parameter is reported, not crashed on", async () => {
+test("a body that is markup with no headers at all is read as the document", async () => {
+    const { data } = await convert(noBoundary(DOCUMENT));
+    assert.ok(data.includes("RECOVERED"));
+});
+
+test("a folded header in the body left behind is still understood", async () => {
+    const { data } = await convert(noBoundary(
+        `Content-Type: text/html;\r\n\tcharset="utf-8"\r\nContent-Location: ${LOCATION}\r\n\r\n${DOCUMENT}\r\n`));
+    assert.ok(data.includes("RECOVERED"));
+});
+
+test("a body left behind that is not a document is still presented", async () => {
+    const { data } = await convert(noBoundary(
+        "Content-Type: image/png\r\nContent-Transfer-Encoding: base64\r\n\r\niVBORw0KGgo=\r\n"));
+    assert.ok(data.includes("<img src=\"data:image/png;base64,iVBORw0KGgo=\">"));
+});
+
+test("a body that is neither markup nor headers is still reported", async () => {
+    await assert.rejects(() => convert(noBoundary(concatBytes([0x00, 0x01, 0x02], " rubbish\r\n"))),
+        /Index page not found/);
+});
+
+test("a single-part archive still takes its type from the top-level headers", async () => {
+    // no boundary is declared at all here, and the headers do describe the body
+    const { data } = await convert(concatBytes(
+        `MIME-Version: 1.0\r\nContent-Type: text/html; charset=utf-8\r\nContent-Location: ${LOCATION}\r\n\r\n`,
+        DOCUMENT));
+    assert.ok(data.includes("RECOVERED"));
+});
+
+test("an empty boundary parameter still gives up its document", async () => {
+    // nothing can be recognized as a delimiter, so the closing one is left behind as text; that is
+    // a blemish on a file no writer should have produced, and better than losing it altogether
     const raw = concatBytes(
         "MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary=\"\"\r\n\r\n",
         `--\r\nContent-Type: text/html\r\nContent-Location: ${LOCATION}\r\n\r\n${DOCUMENT}\r\n----\r\n`);
-    await assert.rejects(() => convert(raw), /Index page not found/);
+    const { data } = await convert(raw);
+    assert.ok(data.includes("RECOVERED"), "the document was lost");
 });
 
 test("a boundary made of regular expression characters is matched literally", async () => {
