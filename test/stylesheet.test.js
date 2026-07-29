@@ -115,6 +115,53 @@ test("a stylesheet the parser cannot make sense of is passed through", async () 
     assert.ok(typeof style === "string" && style.includes("color"), "the broken sheet was dropped");
 });
 
+// HTML gives a linked stylesheet three states. A persistent one (no title) always applies and can
+// safely become a style element. A preferred one (titled) and an alternate one (titled, off until
+// the reader picks it) belong to a set the reader switches between, and a style element would apply
+// them whatever the choice — so they stay links and only the address changes.
+test("a stylesheet named by several rel keywords is recognized", async () => {
+    const head = await headOf({
+        head: "<link rel=\"stylesheet dns-prefetch\" href=\"s.css\">", parts: [stylesheet("p{color:red}")]
+    });
+    assert.ok(head.includes("<style"), "the stylesheet was not recognized among the other keywords");
+});
+
+test("an alternate stylesheet stays a link so that it stays switched off", async () => {
+    const head = await headOf({
+        head: "<link rel=\"alternate stylesheet\" title=\"Dark\" href=\"s.css\">",
+        parts: [stylesheet("p{color:red}")]
+    });
+    assert.ok(!head.includes("<style"), "the alternate sheet was applied unconditionally");
+    assert.match(head, /<link[^>]*href="data:text\/css[^"]*"/, "the alternate sheet was not inlined");
+    assert.match(head, /<link[^>]*title="Dark"/, "the name of the set was lost");
+    assert.match(head, /<link[^>]*rel="alternate stylesheet"/, "the sheet is no longer an alternate");
+});
+
+test("a preferred stylesheet stays a link so the set keeps working", async () => {
+    const head = await headOf({
+        head: "<link rel=\"stylesheet\" title=\"Light\" href=\"s.css\">", parts: [stylesheet("p{color:red}")]
+    });
+    assert.ok(!head.includes("<style"), "a member of a style set was welded on");
+    assert.match(head, /<link[^>]*href="data:text\/css[^"]*"/);
+    assert.match(head, /<link[^>]*title="Light"/);
+});
+
+test("a stylesheet with no title is still inlined as a style element", async () => {
+    const head = await headOf({ head: LINK, parts: [stylesheet("p{color:red}")] });
+    assert.ok(head.includes("<style"), "the common case changed");
+    assert.ok(!/<link[^>]*href="data:text\/css/.test(head), "a persistent sheet was left as a link");
+});
+
+test("the url() references of a stylesheet kept as a link are still rewritten", async () => {
+    const head = await headOf({
+        head: "<link rel=\"alternate stylesheet\" title=\"Dark\" href=\"s.css\">",
+        parts: [stylesheet("p{background:url(i.png)}"), imagePart]
+    });
+    const href = head.match(/<link[^>]*href="(data:text\/css[^"]*)"/)[1];
+    const css = atob(href.substring(href.indexOf("base64,") + 7));
+    assert.ok(css.includes(PNG_URI), "the image inside the alternate sheet was not inlined");
+});
+
 test("a stylesheet declaring its own charset is decoded with it and the rule is removed", async () => {
     const CYRILLIC = "Привет";
     const css = concatBytes("@charset \"windows-1251\";\r\n.a::after{content:\"",

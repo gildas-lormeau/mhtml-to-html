@@ -203,16 +203,7 @@ test("a stylesheet is recognized whatever the case of its rel", async () => {
     assert.ok(head.includes("<style"), "the stylesheet was not inlined");
 });
 
-test("a stylesheet declared with several rel values is left as a link", async () => {
-    // current behaviour, not necessarily the desired one: the rel of a stylesheet is matched whole,
-    // so "alternate stylesheet" is never inlined and stays pointing at a URL nothing can resolve
-    const head = await headOf({
-        head: "<link rel=\"alternate stylesheet\" title=\"Dark\" href=\"s.css\">",
-        parts: [resource(`${ORIGIN}/s.css`, "text/css", "p{color:red}")]
-    });
-    assert.ok(!head.includes("<style"), "behaviour changed: multi-valued rel is now inlined");
-    assert.match(head, /<link[^>]*s\.css/, "the link was removed without being inlined");
-});
+// how the three states of a linked stylesheet are handled lives in stylesheet.test.js
 
 test("an archive with nothing that can be shown is rejected with a clear error", async () => {
     // an image or a text file would be presented as a document instead, see malformed.test.js
