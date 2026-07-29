@@ -179,6 +179,27 @@ test("leading whitespace does not hide a plain HTML file", async () => {
     assert.ok(data.includes("RECOVERED"));
 });
 
+test("a byte order mark does not hide a plain HTML file", async () => {
+    // the mark says only how the text is encoded; it used to make the markup pass for an archive
+    const { data } = await convert(concatBytes([0xEF, 0xBB, 0xBF],
+        "<html><body><p>RECOVERED</p></body></html>"));
+    assert.ok(data.includes("RECOVERED"), "the document was lost behind its byte order mark");
+});
+
+for (const [name, littleEndian] of [["little-endian", true], ["big-endian", false]]) {
+    test(`a ${name} UTF-16 plain HTML file is recognized and decoded by its byte order mark`, async () => {
+        const text = "<html><body><p>RECOVERED</p></body></html>";
+        const bytes = new Uint8Array(text.length * 2 + 2);
+        const view = new DataView(bytes.buffer);
+        view.setUint16(0, 0xFEFF, littleEndian);
+        for (let index = 0; index < text.length; index++) {
+            view.setUint16(index * 2 + 2, text.charCodeAt(index), littleEndian);
+        }
+        const { data } = await convert(bytes);
+        assert.ok(data.includes("RECOVERED"), "the document was lost behind its byte order mark");
+    });
+}
+
 test("a file that is neither markup nor an archive is still reported", async () => {
     // an AppleDouble sidecar, which macOS leaves next to a file copied off its own filesystem
     await assert.rejects(() => convert(concatBytes([0x00, 0x05, 0x16, 0x07, 0x00, 0x02, 0x00, 0x00],
