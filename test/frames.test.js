@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { convert } from "./helpers/lib.js";
-import { concatBytes, encodeBase64 } from "./helpers/mhtml.js";
+import { concatBytes, encodeBase64, encodeSingleByteCharset } from "./helpers/mhtml.js";
 
 const BOUNDARY = "----=_B";
 const LOCATION = "https://example.invalid/";
@@ -69,6 +69,23 @@ test("a frame with no content type at all is still converted as a document", asy
     const { data } = await convert(build({ markup: iframe, body: "<html><body><p>INNER</p></body></html>" }));
     assert.match(data, /srcdoc=/);
     assert.ok(data.includes("INNER"));
+});
+
+test("a base64 frame document is decoded with the charset its meta declares", async () => {
+    // only the index used to be decoded at parse time, so the charset a base64 frame declared in
+    // its markup was never seen and its text came out replaced
+    const INNER = "Привет";
+    const frameDocument = concatBytes(
+        "<html><head><meta charset=\"windows-1251\"></head><body><p>",
+        encodeSingleByteCharset(INNER, "windows-1251"),
+        "</p></body></html>"
+    );
+    const { data } = await convert(build({
+        markup: iframe, contentType: "text/html", transferEncoding: "base64", body: encodeBase64(frameDocument)
+    }));
+    assert.match(data, /srcdoc=/, "the frame was not inlined");
+    assert.ok(data.includes(INNER), "the content of the frame was not decoded with its charset");
+    assert.doesNotMatch(data, /windows-1251/i, "a stale charset declaration survived in the frame");
 });
 
 test("an object referring to an image part is inlined as a data URI", async () => {
