@@ -78,6 +78,17 @@ test("a reference with no matching part keeps an absolute URL", async () => {
     assert.ok(body.includes(`src="${ORIGIN}/missing.png"`), "the reference was not made absolute");
 });
 
+test("the references that resolved nowhere are reported", async () => {
+    const { unfoundResources } = await convertPage({
+        body: `<img src="missing.png"><img src="i.png"><img src="${PNG_URI}">`,
+        parts: [imagePart()]
+    });
+    assert.deepEqual(unfoundResources, [`${ORIGIN}/missing.png`],
+        "only the reference the archive cannot satisfy should be reported");
+    const complete = await convertPage({ body: "<img src=\"i.png\">", parts: [imagePart()] });
+    assert.deepEqual(complete.unfoundResources, [], "a page that converted whole should report nothing");
+});
+
 test("a data URI is left exactly as it is", async () => {
     const body = await bodyOf({ body: `<img src="${PNG_URI}">` });
     assert.ok(body.includes(`src="${PNG_URI}"`));

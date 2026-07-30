@@ -61,7 +61,7 @@ export interface ConvertConfig {
     /**
      * Constructor of the DOMParser implementation to use for parsing HTML. It does not have to
      * be a whole DOM: {@link DOMParserLike} describes the exact subset the library relies on.
-     * 
+     *
      * @default globalThis.DOMParser
      */
     DOMParser?: DOMParserLike;
@@ -106,7 +106,7 @@ export interface ParseConfig {
     /**
      * Constructor of the DOMParser implementation to use for parsing HTML. It does not have to
      * be a whole DOM: {@link DOMParserLike} describes the exact subset the library relies on.
-     * 
+     *
      * @default globalThis.DOMParser
      */
     DOMParser?: DOMParserLike;
@@ -250,6 +250,12 @@ export interface PageData {
      * Title of the page
      */
     title?: string;
+    /**
+     * Addresses referenced by the page for which the archive holds no part — and which could not
+     * be fetched, when fetching is enabled. They are kept in the page as absolute URLs, so an
+     * empty array tells the page converted whole
+     */
+    unfoundResources: string[];
     /**
      * Favicons
      */
