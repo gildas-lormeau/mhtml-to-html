@@ -110,6 +110,16 @@ test("an inline style element is rewritten in place", async () => {
     assert.ok(style.includes(PNG_URI));
 });
 
+for (const rule of ["@import;", "@import foo;"]) {
+    test(`a broken "${rule}" does not take the conversion down`, async () => {
+        // such a rule has no prelude, or one holding neither a url nor a string; reading a url out
+        // of it used to crash the whole conversion
+        const style = await styleOf({ head: `<style>${rule}p{color:red}</style>` });
+        assert.ok(style.includes("color:red"), "the rules after the broken import were lost");
+    });
+}
+
+
 test("a stylesheet the parser cannot make sense of is passed through", async () => {
     const style = await styleOf({ head: LINK, parts: [stylesheet("p{color:red") ] });
     assert.ok(typeof style === "string" && style.includes("color"), "the broken sheet was dropped");
