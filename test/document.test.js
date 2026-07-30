@@ -121,6 +121,24 @@ test("scripts are removed unless enabled, but JSON-LD always stays", async () =>
     assert.ok(enabled.includes("boom()"), "a script was removed although scripts are enabled");
 });
 
+test("script text is escaped once, however many times the document is serialized", async () => {
+    // the charset meta makes parse() serialize the document before convert() serializes it again:
+    // the backslash the first pass wrote in front of "/>" must not be escaped a second time
+    const options = {
+        head: "<meta charset=\"utf-8\">",
+        body: "<script>document.write(\"<img src=x />\");</script>"
+    };
+    const enabled = (await convert(page(options), { enableScripts: true })).data;
+    assert.ok(enabled.includes("document.write"), "the script was removed although scripts are enabled");
+    assert.ok(!enabled.includes("\\\\/>"), "the self-closing marker was escaped twice");
+});
+
+test("an attribute whose name cannot be written leaves no gap behind", async () => {
+    const body = await bodyOf({ body: "<p a=\"1\" \"x\" b=\"2\">first</p><p c=\"3\" \"y\">second</p>" });
+    assert.ok(!body.includes("  "), "a dropped attribute left a gap between its neighbours");
+    assert.ok(!body.includes(" >"), "a dropped attribute left a gap before the closing bracket");
+});
+
 test("a shadow root template is renamed and its content is converted", async () => {
     const data = await dataOf({
         body: "<div><template shadowmode=\"open\"><img src=\"i.png\"></template></div>",
