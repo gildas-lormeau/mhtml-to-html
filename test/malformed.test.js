@@ -274,3 +274,38 @@ test("a part addressed both by cid: and by location is reachable either way", as
     assert.equal(data.split("data:image/png;base64,iVBORw0KGgo=").length - 1, 2,
         "the part was not reached by both of its addresses");
 });
+
+// What was wrong with a recovered archive is reported next to the page, so a bug report can say
+// what the file did instead of what the markup looks like.
+test("a file that is not an archive reports it", async () => {
+    const { anomalies } = await convert(concatBytes(DOCUMENT));
+    assert.deepEqual(anomalies, [{ type: "document-mislabeled-as-archive" }]);
+});
+
+test("a boundary recovered from the body reports the declared one as unused", async () => {
+    const { anomalies } = await convert(build("----=_DECLARED", "----=_ACTUAL"));
+    assert.deepEqual(anomalies, [{ type: "declared-boundary-unused" }]);
+});
+
+test("delimiters that never turn up are reported as missing", async () => {
+    const { anomalies } = await convert(noBoundary(
+        `Content-Type: text/html\r\nContent-Location: ${LOCATION}\r\n\r\n${DOCUMENT}\r\n`));
+    assert.deepEqual(anomalies, [{ type: "multipart-without-delimiters" }]);
+});
+
+test("a page built around a lone resource reports the part it shows", async () => {
+    const { anomalies } = await convert(singlePart("image/png", PNG, "base64"));
+    assert.deepEqual(anomalies, [{ type: "index-synthesized", id: "https://e/thing" }]);
+});
+
+test("base64 that cannot be decoded reports the part left encoded", async () => {
+    const { anomalies } = await convert(singlePart("text/html", "@@ not base64 @@", "base64"));
+    assert.deepEqual(anomalies, [{ type: "base64-left-encoded", id: "https://e/thing" }]);
+});
+
+test("an archive with nothing wrong reports nothing", async () => {
+    const mhtml = parse(build("----=_B"));
+    assert.deepEqual(mhtml.anomalies, [], "parsing reported an anomaly");
+    const { anomalies } = await convert(mhtml);
+    assert.deepEqual(anomalies, [], "converting reported an anomaly");
+});

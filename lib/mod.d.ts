@@ -214,6 +214,35 @@ export interface MHTML {
      * Id of the index page
      */
     index: string;
+    /**
+     * Defects of the archive the parser recovered from
+     */
+    anomalies: Anomaly[];
+}
+
+/**
+ * A defect of the archive the library recovered from. An empty anomalies array together with an
+ * empty unfoundResources array tells the archive converted cleanly
+ */
+export interface Anomaly {
+    /**
+     * - "document-mislabeled-as-archive": the file begins with markup and was treated as a plain
+     *   HTML document (e.g. Word saves plain HTML as .mht); there never were parts to inline
+     * - "declared-boundary-unused": the boundary declared in the headers appears nowhere in the
+     *   body; the parts were read with the boundary the body actually uses
+     * - "multipart-without-delimiters": the file promised parts but no delimiter ever turned up;
+     *   what follows the top-level headers was read as the one part left
+     * - "index-synthesized": the archive holds no document, so the page was built around the
+     *   first image or text part it knows how to present
+     * - "base64-left-encoded": the data of the part could not be decoded and stays the base64
+     *   text as it was written
+     */
+    type: "document-mislabeled-as-archive" | "declared-boundary-unused" | "multipart-without-delimiters"
+        | "index-synthesized" | "base64-left-encoded";
+    /**
+     * Id of the part involved, when one is
+     */
+    id?: string;
 }
 
 /**
@@ -256,6 +285,10 @@ export interface PageData {
      * empty array tells the page converted whole
      */
     unfoundResources: string[];
+    /**
+     * Defects of the archive the library recovered from while parsing and converting it
+     */
+    anomalies: Anomaly[];
     /**
      * Favicons
      */
