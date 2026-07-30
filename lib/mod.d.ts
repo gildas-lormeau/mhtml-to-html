@@ -59,11 +59,12 @@ export function parse(data: string | Uint8Array, config?: ParseConfig): MHTML;
  */
 export interface ConvertConfig {
     /**
-     * DOMParser implementation to use for parsing HTML
+     * Constructor of the DOMParser implementation to use for parsing HTML. It does not have to
+     * be a whole DOM: {@link DOMParserLike} describes the exact subset the library relies on.
      * 
      * @default globalThis.DOMParser
      */
-    DOMParser?: DOMParser;
+    DOMParser?: DOMParserLike;
     /**
      * Enable scripts in the converted HTML
      * 
@@ -103,11 +104,94 @@ export interface ConvertConfig {
  */
 export interface ParseConfig {
     /**
-     * DOMParser implementation to use for parsing HTML
+     * Constructor of the DOMParser implementation to use for parsing HTML. It does not have to
+     * be a whole DOM: {@link DOMParserLike} describes the exact subset the library relies on.
      * 
      * @default globalThis.DOMParser
      */
-    DOMParser?: DOMParser;
+    DOMParser?: DOMParserLike;
+}
+
+/**
+ * Constructor of the DOM implementation used to read and rewrite documents. The default is
+ * `globalThis.DOMParser`: the one of the browser, or deno-dom in Deno; the Node.js entry point
+ * falls back to an internal parse5-based implementation.
+ *
+ * A custom implementation does not have to be a whole DOM: the library relies only on the members
+ * described by {@link DocumentLike}, {@link ElementLike} and {@link NodeLike}. `parseFromString`
+ * receives the media type of the document being parsed and may throw when it does not support it:
+ * the library calls it again with "text/html".
+ */
+export type DOMParserLike = new () => {
+    parseFromString(html: string, contentType?: string): DocumentLike;
+};
+
+/**
+ * The subset of `Document` the library relies on
+ */
+export interface DocumentLike {
+    /**
+     * Root element; the converted page is read from its `outerHTML`
+     */
+    documentElement: ElementLike;
+    /**
+     * Written back at the top of the converted page when present
+     */
+    doctype?: { name: string, publicId?: string, systemId?: string } | null;
+    /**
+     * Head element; the charset declaration, the content security policy and the page
+     * information are inserted into it
+     */
+    head: ElementLike;
+    /**
+     * The conversion walk starts at the document and descends into any node carrying childNodes
+     */
+    childNodes: Iterable<NodeLike>;
+    getElementsByTagName(tagName: string): ArrayLike<ElementLike>;
+    createElement(tagName: string): ElementLike;
+    createTextNode(data: string): NodeLike;
+}
+
+/**
+ * The subset of `Element` the library relies on
+ */
+export interface ElementLike extends NodeLike {
+    tagName: string;
+    textContent: string;
+    /**
+     * Only read on the root element, to serialize the converted page
+     */
+    outerHTML: string;
+    /**
+     * Only read on template elements, to convert the content of a shadow root
+     */
+    content?: NodeLike;
+    getAttribute(name: string): string | null | undefined;
+    setAttribute(name: string, value: string): void;
+    removeAttribute(name: string): void;
+    /**
+     * Optional: when absent, event handler attributes are removed by trying each name of a fixed
+     * list instead of reading the names the element actually carries
+     */
+    getAttributeNames?(): string[];
+    getElementsByTagName(tagName: string): ArrayLike<ElementLike>;
+    appendChild(node: NodeLike): unknown;
+    remove(): void;
+    // the library only ever passes nodes; the string variant mirrors the native signatures so a
+    // real DOM stays assignable
+    replaceWith(...nodes: (NodeLike | string)[]): void;
+    prepend(...nodes: (NodeLike | string)[]): void;
+    after(...nodes: (NodeLike | string)[]): void;
+}
+
+/**
+ * A node as far as the library is concerned. Non-element nodes are opaque: they are only created,
+ * attached and carried around. The conversion walk descends into any node exposing `childNodes`
+ * and treats the ones exposing the {@link ElementLike} members as elements.
+ */
+export interface NodeLike {
+    childNodes?: Iterable<NodeLike>;
+    firstChild?: NodeLike | null;
 }
 
 /**
