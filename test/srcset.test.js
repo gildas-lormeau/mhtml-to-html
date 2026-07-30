@@ -35,6 +35,23 @@ test("a density of zero survives the round trip", async () => {
     assert.equal(result, `${uri(SMALL)} 0x, ${uri(LARGE)} 2x`);
 });
 
+test("width and height descriptors survive together", async () => {
+    const result = await srcsetOf("a.png 100w 50h", [part("a.png", SMALL)]);
+    assert.equal(result, `${uri(SMALL)} 100w 50h`);
+});
+
+test("an invalid descriptor is kept as written", async () => {
+    // the spec drops the whole candidate on a parse error; this parser rewrites attributes rather
+    // than selecting an image, so the descriptor is carried through untouched instead
+    const result = await srcsetOf("a.png 5q", [part("a.png", SMALL)]);
+    assert.equal(result, `${uri(SMALL)} 5q`);
+});
+
+test("a descriptor holding parentheses is kept whole", async () => {
+    const result = await srcsetOf("a.png calc(1x + 1x)", [part("a.png", SMALL)]);
+    assert.equal(result, `${uri(SMALL)} calc(1x + 1x)`);
+});
+
 test("a candidate with no descriptor is kept without one", async () => {
     assert.equal(await srcsetOf("a.png", [part("a.png", SMALL)]), uri(SMALL));
 });

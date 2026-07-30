@@ -41,6 +41,14 @@ test("a body that is markup with no headers at all is read as the document", asy
     assert.ok(data.includes("RECOVERED"));
 });
 
+test("a body whose headers run straight into its text keeps the first line", async () => {
+    // the line that ends the header block may already be the body; it must not be consumed
+    const { data } = await convert(noBoundary(
+        "Content-Type: text/plain\r\nfirst line of the text\r\nsecond line"));
+    assert.ok(data.includes("first line of the text"), "the line after the headers was eaten");
+    assert.ok(data.includes("second line"));
+});
+
 test("a folded header in the body left behind is still understood", async () => {
     const { data } = await convert(noBoundary(
         `Content-Type: text/html;\r\n\tcharset="utf-8"\r\nContent-Location: ${LOCATION}\r\n\r\n${DOCUMENT}\r\n`));
@@ -211,6 +219,17 @@ for (const [name, littleEndian] of [["little-endian", true], ["big-endian", fals
         assert.ok(data.includes("RECOVERED"), "the document was lost behind its byte order mark");
     });
 }
+
+test("a document declaring base64 that is not base64 at all is read as it is", async () => {
+    // the declaration lied: keeping the bytes as text is all that can be done, and it is exactly
+    // what recovers the document when the body was never encoded in the first place
+    const { data } = await convert(singlePart("text/html", DOCUMENT, "base64"));
+    assert.ok(data.includes("RECOVERED"), "the document was lost behind its false declaration");
+});
+
+test("a file holding only whitespace is still reported", async () => {
+    await assert.rejects(() => convert(concatBytes("  \r\n\t\r\n  ")), /Index page not found/);
+});
 
 test("a file that is neither markup nor an archive is still reported", async () => {
     // an AppleDouble sidecar, which macOS leaves next to a file copied off its own filesystem

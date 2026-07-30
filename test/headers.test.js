@@ -145,6 +145,17 @@ test("a malformed encoded word is left as it was written", async () => {
     assert.equal(await subjectOf(withSubject("=?utf-8?B?no-terminator")), "=?utf-8?B?no-terminator");
 });
 
+for (const subject of ["cut =?utf-8", "cut =?utf-8?B"]) {
+    test(`an encoded word cut off after "${subject.substring(4)}" is left as it was written`, async () => {
+        assert.equal(await subjectOf(withSubject(subject)), subject);
+    });
+}
+
+test("a word whose base64 is unusable keeps its value as text", async () => {
+    // the wrapper promised base64 and lied; the value is kept as if it had not been encoded
+    assert.equal(await subjectOf(withSubject("=?utf-8?B?%%%?=")), "%%%");
+});
+
 test("parse() exposes the documented shape with the headers decoded", () => {
     const parsed = parse(build({ charset: "koi8-r" }));
     for (const key of ["headers", "frames", "resources", "index"]) {

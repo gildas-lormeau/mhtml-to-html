@@ -119,6 +119,10 @@ for (const rule of ["@import;", "@import foo;"]) {
     });
 }
 
+test("a broken @charset rule leaves the sheet as it is", async () => {
+    const style = await styleOf({ head: LINK, parts: [stylesheet("@charset ;p{color:red}")] });
+    assert.ok(style.includes("color:red"), "the sheet was dropped with its broken rule");
+});
 
 test("a stylesheet the parser cannot make sense of is passed through", async () => {
     const style = await styleOf({ head: LINK, parts: [stylesheet("p{color:red") ] });
