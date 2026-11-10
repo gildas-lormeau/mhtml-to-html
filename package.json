@@ -14,7 +14,7 @@
   ],
   "type": "module",
   "bin": {
-    "mhtml-to-html": "./mhtml-to-html-node.js"
+    "mhtml-to-html": "mhtml-to-html-node.js"
   },
   "module": "lib/mod.js",
   "exports": {
