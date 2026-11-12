@@ -3,7 +3,7 @@
 # --node-modules-dir=none keeps deno compile from vendoring node_modules into the executables
 # (the npm packages only serve the Node.js build); without it each binary grows by ~28 MB
 compile() {
-    deno compile --node-modules-dir=none --allow-read --allow-write --allow-net --ext=js "$@" ./mhtml-to-html
+    deno compile --node-modules-dir=none --allow-all --ext=js "$@" ./mhtml-to-html
 }
 
 compile --output=./dist/mhtml-to-html-aarch64-apple --target=aarch64-apple-darwin
